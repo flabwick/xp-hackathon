@@ -5,11 +5,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev    # Start with nodemon (auto-reload), port 6969
-npm start      # Start production server
+npm run dev        # Start server (nodemon) + Tailwind watcher concurrently, port 6969
+npm start          # Start production server
+npm run build:css  # One-shot Tailwind build (minified) → public/style.css
 ```
 
 No test or lint tooling is configured.
+
+## CSS / Styling
+
+Tailwind CSS v4 is used for all styling. Source is `src/input.css`, output is `public/style.css` (committed). Custom neobrutalism design tokens are defined in `tailwind.config.js`:
+
+- `shadow-brutal` / `shadow-brutal-lg` / `shadow-brutal-sm` — hard black drop shadows
+- Font: Space Grotesk (sans), Space Mono (mono)
+
+When writing UI, use Tailwind utility classes directly in HTML. Do not write custom CSS unless a utility class genuinely cannot cover the case.
+
+## AI Provider
+
+All AI inference must go through a **provider-agnostic interface** so the underlying model can be swapped without touching call sites. The default provider is **Google Gemini** (free tier, no API cost). Other providers (OpenAI-compatible, Ollama, etc.) must be drop-in replaceable by changing config only.
+
+Implement a thin adapter layer (e.g. `aiClient.js`) that exposes a single `generate(prompt, options)` function. Each provider is a separate adapter that implements this interface. Never call a provider SDK directly from `server.js` or other modules.
+
+Do **not** use the Anthropic/Claude API.
+
+## Hosting
+
+Target host is **Railway** (not Vercel). Vercel is ruled out because:
+- The filesystem-based data layer (`fs.writeFileSync` to `data/`) requires persistent disk, which Vercel serverless functions don't provide
+- Tesseract.js OCR exceeds Vercel's 10s/60s function timeout limits
+
+The Express server runs as a long-lived process on Railway with no architecture changes needed.
 
 ## UI Design
 

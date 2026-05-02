@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", Arial, sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  --shadow-brutal:    4px 4px 0px 0px #000;
+  --shadow-brutal-lg: 6px 6px 0px 0px #000;
+  --shadow-brutal-sm: 2px 2px 0px 0px #000;
+}

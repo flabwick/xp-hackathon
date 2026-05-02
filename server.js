@@ -6,12 +6,20 @@ const app = express();
 const PORT = 6969;
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static('public'));
 
-// Serve mapping page
-app.get('/mapping', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'mapping.html'));
-});
+// In production, serve the Vite build output
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+} else {
+  app.use(express.static('public'));
+  app.get('/mapping', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'mapping.html'));
+  });
+}
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
