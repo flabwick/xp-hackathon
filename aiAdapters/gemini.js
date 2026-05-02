@@ -13,6 +13,7 @@ async function generate(prompt, options = {}) {
     generationConfig: {
       ...(options.temperature !== undefined && { temperature: options.temperature }),
       ...(options.maxTokens !== undefined && { maxOutputTokens: options.maxTokens }),
+      ...(options.json && { responseMimeType: 'application/json' }),
     },
   });
 

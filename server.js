@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { compilePrompt } = require('./promptCompiler');
+const { generate } = require('./aiClient');
 const app = express();
 const PORT = 6969;
 
@@ -240,18 +241,14 @@ app.get('/api/xp', (req, res) => {
   res.json(xpState);
 });
 
-// POST XP injection - writes to progress file and history
-app.post('/api/xp', (req, res) => {
-  const { injections, domain } = req.body;
-  const injArray = Array.isArray(injections) ? injections : req.body;
-  if (!Array.isArray(injArray)) return res.status(400).json({ error: 'Invalid payload' });
-  if (!domain) return res.status(400).json({ error: 'domain required' });
+// ─── XP INJECTION HELPER ─────────────────────────────────────────────────────────
 
+function processXPInjections(domain, injArray) {
   const pPath = progressPath(domain);
-  if (!fs.existsSync(pPath)) return res.status(404).json({ error: 'Progress file not found' });
+  if (!fs.existsSync(pPath)) throw Object.assign(new Error('Progress file not found'), { status: 404 });
 
   backupProgress(domain);
-  let progressData = readJSON(pPath);
+  const progressData = readJSON(pPath);
   const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const results = [];
 
@@ -260,35 +257,27 @@ app.post('/api/xp', (req, res) => {
     if (inj.difficultyScore < 20 || inj.difficultyScore > 100) continue;
     if (inj.performanceRatio < 0 || inj.performanceRatio > 1.0) continue;
 
-    // Calculate current XP for this unit from existing logs
     const unit = findUnitInProgress(progressData, inj.unitId);
     if (!unit) continue;
 
-    // Calculate cumulative XP and current band from existing logs
     let cumulativeXP = 0;
-    let currentBand = 'I';
     for (const log of (unit.logs || [])) {
       if (log.xpGain !== undefined) cumulativeXP += log.xpGain;
     }
-    currentBand = getBandInfo(cumulativeXP).lv;
+    const currentBand = getBandInfo(cumulativeXP).lv;
 
-    // Calculate new XP
     const dv = Math.min(100, inj.difficultyScore * inj.performanceRatio);
     const bandInfo = BANDS.find(b => b.lv === currentBand);
     const perfRatio = dv / bandInfo.expDV;
     const bm = Math.min(2.0, Math.max(-0.5, 2 * perfRatio - 0.8));
-
     const foundationMult = inj.isFoundation ? 0.3 : 1.0;
     const xpGain = Math.max(0, Math.round(bandInfo.base * bm * foundationMult));
 
     const oldCum = cumulativeXP;
     const oldBand = currentBand;
     cumulativeXP += xpGain;
-
     const newBandInfo = getBandInfo(cumulativeXP);
-    const bandShifted = oldBand !== newBandInfo.lv;
 
-    // Write log entry to progress file
     unit.logs.push({
       timestamp: new Date().toISOString(),
       dv: Math.round(dv * 100) / 100,
@@ -307,28 +296,33 @@ app.post('/api/xp', (req, res) => {
       dv: Math.round(dv * 100) / 100,
       bm: Math.round(bm * 100) / 100,
       delta: xpGain,
-      bandShifted,
+      bandShifted: oldBand !== newBandInfo.lv,
       sessionId
     });
   }
 
-  // Save to history file
   const hPath = historyPath(domain);
   const history = fs.existsSync(hPath) ? readJSON(hPath) : [];
-  history.push({
-    sessionId,
-    timestamp: new Date().toISOString(),
-    injections: injArray,
-    results
-  });
+  history.push({ sessionId, timestamp: new Date().toISOString(), injections: injArray, results });
+  writeJSON(pPath, progressData);
+  writeJSON(hPath, history);
+
+  return { success: true, sessionId, results };
+}
+
+// POST XP injection - writes to progress file and history
+app.post('/api/xp', (req, res) => {
+  const { injections, domain } = req.body;
+  const injArray = Array.isArray(injections) ? injections : req.body;
+  if (!Array.isArray(injArray)) return res.status(400).json({ error: 'Invalid payload' });
+  if (!domain) return res.status(400).json({ error: 'domain required' });
 
   try {
-    writeJSON(pPath, progressData);
-    writeJSON(hPath, history);
-    res.json({ success: true, results });
+    const xpResult = processXPInjections(domain, injArray);
+    res.json(xpResult);
   } catch (e) {
     console.error('XP save error:', e);
-    res.status(500).json({ error: 'XP save failed', details: e.message });
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
@@ -424,6 +418,89 @@ app.delete('/api/xp', (req, res) => {
   } catch (e) {
     console.error('Clear XP save error:', e);
     res.status(500).json({ error: 'Failed to clear XP' });
+  }
+});
+
+// ─── TEST ENDPOINTS ───────────────────────────────────────────────────────────────
+
+const VALID_STATES = new Set(['Mastered', 'Pass', 'Partial', 'Incorrect']);
+
+function validateGenerateShape(data) {
+  if (!Array.isArray(data.questions) || data.questions.length !== 10)
+    throw new Error(`expected questions array of length 10, got ${JSON.stringify(data.questions?.length)}`);
+  for (const q of data.questions) {
+    if (!Number.isInteger(q.id)) throw new Error(`question id must be int, got ${JSON.stringify(q.id)}`);
+    if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`question text missing for id ${q.id}`);
+  }
+}
+
+function validateMarkShape(data) {
+  if (!Array.isArray(data.results)) throw new Error('results must be an array');
+  for (const r of data.results) {
+    if (!Number.isInteger(r.id)) throw new Error(`result id must be int, got ${JSON.stringify(r.id)}`);
+    if (!VALID_STATES.has(r.state)) throw new Error(`invalid state "${r.state}" for id ${r.id}`);
+    if (typeof r.feedback !== 'string' || !r.feedback.trim()) throw new Error(`feedback missing for id ${r.id}`);
+  }
+  if (!Array.isArray(data.xpInjections)) throw new Error('xpInjections must be an array');
+  for (const x of data.xpInjections) {
+    if (x.difficultyScore < 20 || x.difficultyScore > 100) throw new Error(`difficultyScore out of range for unitId ${x.unitId}`);
+    if (x.performanceRatio < 0 || x.performanceRatio > 1) throw new Error(`performanceRatio out of range for unitId ${x.unitId}`);
+  }
+}
+
+async function generateJSONWithRetry(prompt, options, validate) {
+  let lastError = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const p = attempt === 0 ? prompt
+      : `${prompt}\n\nYour previous response failed validation: ${lastError}\nReturn valid JSON only, matching the exact shape specified.`;
+    try {
+      const raw = await generate(p, options);
+      const parsed = JSON.parse(raw);
+      validate(parsed);
+      return parsed;
+    } catch (e) {
+      lastError = e.message;
+      if (attempt === 1) throw new Error(`AI response invalid after retry: ${lastError}`);
+    }
+  }
+}
+
+app.post('/api/test/generate', async (req, res) => {
+  const { domain, unitIds } = req.body;
+  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+    return res.status(400).json({ error: 'domain and unitIds[] required' });
+
+  try {
+    const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
+    const prompt = compilePrompt(template, { domain, unitIds });
+    const { questions } = await generateJSONWithRetry(prompt, { json: true }, validateGenerateShape);
+    res.json({ questions });
+  } catch (err) {
+    console.error('test/generate error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/test/mark', async (req, res) => {
+  const { domain, unitIds, questions, answers } = req.body;
+  if (!domain || !Array.isArray(unitIds) || !Array.isArray(questions) || !Array.isArray(answers))
+    return res.status(400).json({ error: 'domain, unitIds, questions[], answers[] required' });
+
+  try {
+    const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test-mark.md'), 'utf8');
+    const base = compilePrompt(template, { domain, unitIds });
+    const answerMap = Object.fromEntries(answers.map(a => [a.id, a.answer]));
+    const qa = questions.map(q =>
+      `Q${q.id}: ${q.question}\nA${q.id}: ${answerMap[q.id] ?? '(no answer)'}`
+    ).join('\n\n');
+    const prompt = `${base}\n\n---\n\n${qa}`;
+
+    const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true }, validateMarkShape);
+    const xpResult = processXPInjections(domain, xpInjections);
+    res.json({ results, xpResult });
+  } catch (err) {
+    console.error('test/mark error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
