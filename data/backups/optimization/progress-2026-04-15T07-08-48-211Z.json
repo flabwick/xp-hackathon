@@ -1,0 +1,404 @@
+{
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {
+              "id": 0,
+              "logs": [
+                {
+                  "timestamp": "2026-04-14T07:36:08.916Z",
+                  "dv": 23,
+                  "bm": 2,
+                  "xpGain": 30,
+                  "notes": "Clean truth table construction and correct identification of the falsifying condition. Noted vacuous truth unprompted — shows genuine understanding beyond recall. No friction here.",
+                  "sessionId": "mnyb54no0wy2"
+                }
+              ]
+            },
+            {
+              "id": 1,
+              "logs": [
+                {
+                  "timestamp": "2026-04-14T07:36:08.916Z",
+                  "dv": 11.76,
+                  "bm": 0.77,
+                  "xpGain": 12,
+                  "notes": "Q3: Recognised the need to negate a universally quantified conditional but applied De Morgan's law for conjunction (not-A or not-B) instead of negating an implication (A and not-B). The set-theoretic framing displaced the quantifier logic. Q7: Flipped quantifier order, losing the fixed-witness structure of the existential. Attempted to formalise as a conditional between domain memberships rather than as a nested quantifier. Knows the vocabulary but the schema for negating implications and nested quantifiers is not stable.",
+                  "sessionId": "mnyb54no0wy2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cl": 1,
+          "units": [
+            {
+              "id": 2,
+              "logs": [
+                {
+                  "timestamp": "2026-04-14T07:36:08.916Z",
+                  "dv": 8.64,
+                  "bm": 0.35,
+                  "xpGain": 5,
+                  "notes": "Q5: Correct intuition and a gesture toward contradiction, but no axioms named or invoked. Student flagged not knowing what field/order axioms are — the gap is definitional, not logical. The real number order structure (positive cone, closure under multiplication) has not been encountered formally.",
+                  "sessionId": "mnyb54no0wy2"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 2,
+          "units": [
+            {
+              "id": 4,
+              "logs": [
+                {
+                  "timestamp": "2026-04-14T07:36:08.916Z",
+                  "dv": 18.6,
+                  "bm": 1.68,
+                  "xpGain": 25,
+                  "notes": "Q2: Correct interval intuition, correct exclusion of 0, but set-builder syntax was informal — wrote an interval label inside braces rather than a predicate. Q4: Union, intersection, and complement were all correct. Cartesian product was confused with elementwise multiplication — the ordered-pair definition of A×B is not yet in place.",
+                  "sessionId": "mnyb54no0wy2"
+                }
+              ]
+            },
+            {
+              "id": 5,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 3,
+          "units": [
+            {
+              "id": 6,
+              "logs": []
+            },
+            {
+              "id": 7,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 4,
+          "units": [
+            {
+              "id": 8,
+              "logs": []
+            },
+            {
+              "id": 9,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 5,
+          "units": [
+            {
+              "id": 10,
+              "logs": []
+            },
+            {
+              "id": 11,
+              "logs": []
+            },
+            {
+              "id": 12,
+              "logs": [
+                {
+                  "timestamp": "2026-04-14T07:36:08.916Z",
+                  "dv": 11.6,
+                  "bm": 0.75,
+                  "xpGain": 11,
+                  "notes": "Q6: Correctly evaluated the limit and matched it to f(1), showing the sequential/limit intuition for continuity is present. Explicitly flagged not knowing ε-δ. Q8–Q10 passed entirely. EVT, compactness, and topological continuity characterisation are untested and likely unencountered.",
+                  "sessionId": "mnyb54no0wy2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 6,
+          "units": [
+            {
+              "id": 13,
+              "logs": []
+            },
+            {
+              "id": 14,
+              "logs": []
+            },
+            {
+              "id": 15,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 7,
+          "units": [
+            {
+              "id": 16,
+              "logs": []
+            },
+            {
+              "id": 17,
+              "logs": []
+            },
+            {
+              "id": 18,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 8,
+          "units": [
+            {
+              "id": 19,
+              "logs": []
+            },
+            {
+              "id": 20,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 9,
+          "units": [
+            {
+              "id": 21,
+              "logs": []
+            },
+            {
+              "id": 22,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 10,
+          "units": [
+            {
+              "id": 23,
+              "logs": []
+            },
+            {
+              "id": 24,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 11,
+          "units": [
+            {
+              "id": 25,
+              "logs": []
+            },
+            {
+              "id": 26,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 12,
+          "units": [
+            {
+              "id": 27,
+              "logs": []
+            },
+            {
+              "id": 28,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 13,
+          "units": [
+            {
+              "id": 29,
+              "logs": []
+            },
+            {
+              "id": 30,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 14,
+          "units": [
+            {
+              "id": 31,
+              "logs": []
+            },
+            {
+              "id": 32,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 15,
+          "units": [
+            {
+              "id": 33,
+              "logs": []
+            },
+            {
+              "id": 34,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 5,
+      "clusters": [
+        {
+          "cl": 16,
+          "units": [
+            {
+              "id": 35,
+              "logs": []
+            },
+            {
+              "id": 36,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 17,
+          "units": [
+            {
+              "id": 37,
+              "logs": []
+            },
+            {
+              "id": 38,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 18,
+          "units": [
+            {
+              "id": 39,
+              "logs": []
+            },
+            {
+              "id": 40,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 19,
+          "units": [
+            {
+              "id": 41,
+              "logs": []
+            },
+            {
+              "id": 42,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 6,
+      "clusters": [
+        {
+          "cl": 20,
+          "units": [
+            {
+              "id": 43,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 21,
+          "units": [
+            {
+              "id": 44,
+              "logs": []
+            },
+            {
+              "id": 45,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 22,
+          "units": [
+            {
+              "id": 46,
+              "logs": []
+            },
+            {
+              "id": 47,
+              "logs": []
+            }
+          ]
+        },
+        {
+          "cl": 23,
+          "units": [
+            {
+              "id": 48,
+              "logs": []
+            },
+            {
+              "id": 49,
+              "logs": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

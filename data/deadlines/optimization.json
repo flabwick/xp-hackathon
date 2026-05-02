@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "bt": [
+      "Logic, Sets & Real Analysis Foundations",
+      "Topology & Existence Theory in ℝⁿ",
+      "Linear Algebra & Multivariate Differentiation",
+      "Unconstrained Optimization & Characterization",
+      "Constrained Optimization & Multiplier Theory",
+      "Convexity, Global Sufficiency & Uniqueness",
+      "Parametric Analysis, Theorems & Economic Synthesis"
+    ],
+    "cl": [
+      "Propositional Logic & Quantifier Protocols",
+      "Real Number System & Order Theory",
+      "Set Theory, Mappings & Cardinality",
+      "Vector Spaces, Norms & Metrics",
+      "Sequences, Convergence & Completeness",
+      "Open/Closed Sets, Compactness & Continuity",
+      "Matrix Structures, Rank & Linear Systems",
+      "Multivariate Calculus & Total Derivatives",
+      "Second-Order Operators & Quadratic Forms",
+      "Problem Formulation & Solution Concepts",
+      "First-Order Necessary Conditions",
+      "Second-Order Conditions & Local/Global Distinctions",
+      "Equality Constraints & Lagrange Framework",
+      "Inequality Constraints & KKT System",
+      "Constraint Qualifications & Regularity Conditions",
+      "Second-Order Conditions for Constrained Problems",
+      "Convex Geometry & Epigraph Theory",
+      "Concave/Convex Functions & Gradient Tests",
+      "Strict Curvature, Uniqueness & Solution Set Structure",
+      "Quasi-Concavity & Weakened Sufficiency",
+      "Parametric Formulation & Value Functions",
+      "Envelope Theorem & Comparative Statics",
+      "Set-Valued Maps & The Maximum Theorem",
+      "Economic Translation & Model Integration"
+    ]
+  },
+  "deadlines": {
+    "0": {
+      "name": "Propositional Logic, Truth-Functional Connectives & Inference Patterns",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "1": {
+      "name": "Quantifier Syntax, Nested Operators & Negation Rules",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "2": {
+      "name": "ℝ as Complete Ordered Field & Inequality Axioms",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "3": {
+      "name": "Bounds, Suprema/Infima & Attainment Conditions",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "4": {
+      "name": "Set Operations, Cartesian Products & Feasible Region Notation",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "5": {
+      "name": "Functions, Composition & Strictly Increasing Transformations",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "6": {
+      "name": "ℝⁿ Structure, Vector Operations & Euclidean Geometry",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "7": {
+      "name": "Metric Axioms, Distance Functions & Open/Closed Balls",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "8": {
+      "name": "Formal Convergence, ε-N Criterion & Limit Arithmetic",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "9": {
+      "name": "Cauchy Criterion, Completeness & Subsequence Diagnostics",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "10": {
+      "name": "Open/Closed Sets, Closure & Topological Structure",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "11": {
+      "name": "Compactness, Heine-Borel & Sequential Compactness",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "12": {
+      "name": "Continuity, Topological Characterization & Extreme Value Theorem",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "13": {
+      "name": "Matrix Arithmetic, Transpose & Canonical Structures",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "14": {
+      "name": "Linear Independence, Rank & Determinant Theory",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "15": {
+      "name": "Matrix Inversion, Adjoint Construction & Uniqueness Proofs",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "16": {
+      "name": "Single-Variable Foundations: Limits, Continuity & Linear Approximation",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "17": {
+      "name": "Total Derivative, Differentiability & C¹ Classification",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "18": {
+      "name": "Partial/Directional Derivatives & Gradient-Direction Relationship",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "19": {
+      "name": "Hessians, Mixed Partials & Second-Order Taylor Expansions",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "20": {
+      "name": "Quadratic Forms, Definiteness & Sylvester's Criterion",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "21": {
+      "name": "Standard Optimization Structure & Solution Set Definitions",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "22": {
+      "name": "Parametric Formulation & Value/Correspondence Framework",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "23": {
+      "name": "Critical Points, ∇f (x*)=0 Derivation & Interior Requirement",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "24": {
+      "name": "FOC Limitations, Non-Differentiable Extensions & Failure Modes",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "25": {
+      "name": "Hessian SOC & Local Extrema Verification",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "26": {
+      "name": "Semidefinite Edge Cases, Global Identification & Boundary Procedures",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "27": {
+      "name": "Feasible Manifolds, Tangent Spaces & Geometric Tangency",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "28": {
+      "name": "Lagrangian Construction, Critical Systems & Multiplier Existence",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "29": {
+      "name": "Inequality Geometry, Active/Slack Classification & Complementary Slackness",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "30": {
+      "name": "KKT Necessary Conditions & Sign Structure",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "31": {
+      "name": "Constraint Qualifications, Rank Conditions & Failure Diagnostics",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "32": {
+      "name": "Multiplier Sensitivity & Shadow Price Interpretation",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "33": {
+      "name": "Restricted Quadratic Forms & Bordered Hessian Determinants",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "34": {
+      "name": "Existence Guarantees & Lagrangian Failure Modes",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "35": {
+      "name": "Convex Sets, Combinations & Topological Properties",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "36": {
+      "name": "Epigraphs, Subgraphs & Geometric Curvature",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "37": {
+      "name": "Jensen's Inequality & First-Order Gradient Characterization",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "38": {
+      "name": "Interior Continuity, Directional Derivatives & Almost-Everywhere Differentiability",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "39": {
+      "name": "Strict Concavity/Convexity & Uniqueness Implications",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "40": {
+      "name": "Global Sufficiency under Convexity & SOC Bypass",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "41": {
+      "name": "Quasi-Concave/Convex Functions & Upper/Lower Contour Sets",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "42": {
+      "name": "Optimization under Quasi-Convexity & Almost-Sufficiency",
+      "deadline": "2026-05-07",
+      "priority": 1
+    },
+    "43": {
+      "name": "Value Function Structure & Parameter Dependence",
+      "deadline": "2026-05-21",
+      "priority": 1
+    },
+    "44": {
+      "name": "Envelope Theorem: Smooth Interior Optima",
+      "deadline": "2026-05-21",
+      "priority": 1
+    },
+    "45": {
+      "name": "Envelope Extensions: KKT Constraints & Corner Cases",
+      "deadline": "2026-05-21",
+      "priority": 1
+    },
+    "46": {
+      "name": "Correspondences, Upper/Lower Semicontinuity & Characterizations",
+      "deadline": "2026-05-21",
+      "priority": 1
+    },
+    "47": {
+      "name": "The Maximum Theorem: Continuity of Value & Solution Maps",
+      "deadline": "2026-05-21",
+      "priority": 1
+    },
+    "48": {
+      "name": "Core Economic Models & Duality Intuition",
+      "deadline": "2026-04-23",
+      "priority": 1
+    },
+    "49": {
+      "name": "Integrated Synthesis: Formulation → Existence → Characterization → Narrative",
+      "deadline": "2026-05-21",
+      "priority": 1
+    }
+  }
+}

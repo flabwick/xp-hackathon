@@ -1,0 +1,100 @@
+[
+  {
+    "sessionId": "mnyb54no0wy2",
+    "timestamp": "2026-04-14T07:36:08.916Z",
+    "injections": [
+      {
+        "unitId": 0,
+        "difficultyScore": 25,
+        "performanceRatio": 0.92,
+        "notes": "Clean truth table construction and correct identification of the falsifying condition. Noted vacuous truth unprompted — shows genuine understanding beyond recall. No friction here."
+      },
+      {
+        "unitId": 1,
+        "difficultyScore": 42,
+        "performanceRatio": 0.28,
+        "notes": "Q3: Recognised the need to negate a universally quantified conditional but applied De Morgan's law for conjunction (not-A or not-B) instead of negating an implication (A and not-B). The set-theoretic framing displaced the quantifier logic. Q7: Flipped quantifier order, losing the fixed-witness structure of the existential. Attempted to formalise as a conditional between domain memberships rather than as a nested quantifier. Knows the vocabulary but the schema for negating implications and nested quantifiers is not stable."
+      },
+      {
+        "unitId": 2,
+        "difficultyScore": 48,
+        "performanceRatio": 0.18,
+        "notes": "Q5: Correct intuition and a gesture toward contradiction, but no axioms named or invoked. Student flagged not knowing what field/order axioms are — the gap is definitional, not logical. The real number order structure (positive cone, closure under multiplication) has not been encountered formally."
+      },
+      {
+        "unitId": 4,
+        "difficultyScore": 30,
+        "performanceRatio": 0.62,
+        "notes": "Q2: Correct interval intuition, correct exclusion of 0, but set-builder syntax was informal — wrote an interval label inside braces rather than a predicate. Q4: Union, intersection, and complement were all correct. Cartesian product was confused with elementwise multiplication — the ordered-pair definition of A×B is not yet in place."
+      },
+      {
+        "unitId": 12,
+        "difficultyScore": 58,
+        "performanceRatio": 0.2,
+        "notes": "Q6: Correctly evaluated the limit and matched it to f(1), showing the sequential/limit intuition for continuity is present. Explicitly flagged not knowing ε-δ. Q8–Q10 passed entirely. EVT, compactness, and topological continuity characterisation are untested and likely unencountered."
+      }
+    ],
+    "results": [
+      {
+        "unitId": 0,
+        "oldBand": "I",
+        "newBand": "I",
+        "oldCum": 0,
+        "newCum": 30,
+        "dv": 23,
+        "bm": 2,
+        "delta": 30,
+        "bandShifted": false,
+        "sessionId": "mnyb54no0wy2"
+      },
+      {
+        "unitId": 1,
+        "oldBand": "I",
+        "newBand": "I",
+        "oldCum": 0,
+        "newCum": 12,
+        "dv": 11.76,
+        "bm": 0.77,
+        "delta": 12,
+        "bandShifted": false,
+        "sessionId": "mnyb54no0wy2"
+      },
+      {
+        "unitId": 2,
+        "oldBand": "I",
+        "newBand": "I",
+        "oldCum": 0,
+        "newCum": 5,
+        "dv": 8.64,
+        "bm": 0.35,
+        "delta": 5,
+        "bandShifted": false,
+        "sessionId": "mnyb54no0wy2"
+      },
+      {
+        "unitId": 4,
+        "oldBand": "I",
+        "newBand": "I",
+        "oldCum": 0,
+        "newCum": 25,
+        "dv": 18.6,
+        "bm": 1.68,
+        "delta": 25,
+        "bandShifted": false,
+        "sessionId": "mnyb54no0wy2"
+      },
+      {
+        "unitId": 12,
+        "oldBand": "I",
+        "newBand": "I",
+        "oldCum": 0,
+        "newCum": 11,
+        "dv": 11.6,
+        "bm": 0.75,
+        "delta": 11,
+        "bandShifted": false,
+        "sessionId": "mnyb54no0wy2"
+      }
+    ]
+  }
+]

@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "bt": [
+      "Logic, Sets & Real Analysis Foundations",
+      "Topology & Existence Theory in ℝⁿ",
+      "Linear Algebra & Multivariate Differentiation",
+      "Unconstrained Optimization & Characterization",
+      "Constrained Optimization & Multiplier Theory",
+      "Convexity, Global Sufficiency & Uniqueness",
+      "Parametric Analysis, Theorems & Economic Synthesis"
+    ],
+    "cl": [
+      "Propositional Logic & Quantifier Protocols",
+      "Real Number System & Order Theory",
+      "Set Theory, Mappings & Cardinality",
+      "Vector Spaces, Norms & Metrics",
+      "Sequences, Convergence & Completeness",
+      "Open/Closed Sets, Compactness & Continuity",
+      "Matrix Structures, Rank & Linear Systems",
+      "Multivariate Calculus & Total Derivatives",
+      "Second-Order Operators & Quadratic Forms",
+      "Problem Formulation & Solution Concepts",
+      "First-Order Necessary Conditions",
+      "Second-Order Conditions & Local/Global Distinctions",
+      "Equality Constraints & Lagrange Framework",
+      "Inequality Constraints & KKT System",
+      "Constraint Qualifications & Regularity Conditions",
+      "Second-Order Conditions for Constrained Problems",
+      "Convex Geometry & Epigraph Theory",
+      "Concave/Convex Functions & Gradient Tests",
+      "Strict Curvature, Uniqueness & Solution Set Structure",
+      "Quasi-Concavity & Weakened Sufficiency",
+      "Parametric Formulation & Value Functions",
+      "Envelope Theorem & Comparative Statics",
+      "Set-Valued Maps & The Maximum Theorem",
+      "Economic Translation & Model Integration"
+    ]
+  },
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {"id": 0, "n": "Propositional Logic, Truth-Functional Connectives & Inference Patterns", "t": "f", "nt": "Covers atomic propositions, logical connectives, truth tables, material implication vs causal reasoning, proof methods, and condition formalization; excludes modal/intuitionistic logic, model theory, proof complexity, automated theorem proving, and type theory."},
+            {"id": 1, "n": "Quantifier Syntax, Nested Operators & Negation Rules", "t": "f", "nt": "Covers universal/existential quantifiers, domain restriction, nested order sensitivity, De Morgan's laws for quantifiers, negation of complex statements, and natural language translation; excludes quantifier elimination, Presburger arithmetic, higher-order quantification, model semantics, and Skolemization.", "l": [[0, "h"]]}
+          ]
+        },
+        {
+          "cl": 1,
+          "units": [
+            {"id": 2, "n": "ℝ as Complete Ordered Field & Inequality Axioms", "t": "f", "nt": "Covers field axioms for ℝ, trichotomy/transitivity, absolute value, triangle inequality, interval notation, Archimedean property, density of ℚ, and order preservation; excludes non-Archimedean fields, hyperreals, constructive analysis, measure-theoretic foundations, set-theoretic construction of ℝ, and p-adic systems.", "l": [[1, "h"]]},
+            {"id": 3, "n": "Bounds, Suprema/Infima & Attainment Conditions", "t": "f", "nt": "Covers bound definitions, least upper bound property, sup/inf existence, max/min vs sup/inf distinction, attainment conditions, and optimization existence bridge; excludes supremum norm, lattice theory, complete partial orders, order topology, and extended real formalization.", "l": [[2, "h"]]}
+          ]
+        },
+        {
+          "cl": 2,
+          "units": [
+            {"id": 4, "n": "Set Operations, Cartesian Products & Feasible Region Notation", "t": "f", "nt": "Covers set-builder syntax, subset relations, union/intersection/complement, Cartesian products, orthant definition, and feasible set representation; excludes ZFC axioms, transfinite induction, forcing, large cardinals, category theory, and naive paradox resolutions.", "l": [[2, "h"]]},
+            {"id": 5, "n": "Functions, Composition & Strictly Increasing Transformations", "t": "f", "nt": "Covers domain/codomain formalism, composition, injectivity/surjectivity/bijectivity, strict/weak monotonicity, inequality preservation, argmax invariance, and ordinal utility foundations; excludes functional analysis spaces, measure-preserving transforms, ergodic theory, recursive function theory, and abstract homomorphisms.", "l": [[4, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 3,
+          "units": [
+            {"id": 6, "n": "ℝⁿ Structure, Vector Operations & Euclidean Geometry", "t": "f", "nt": "Covers n-tuple definition, vector operations, orthants, Euclidean inner product, Cauchy-Schwarz, norm derivation, and Pythagorean theorem; excludes infinite-dimensional spaces, Banach/Hilbert theory, weak topologies, dual spaces, and abstract vector space axiomatization.", "l": [[4, "h"], [5, "h"]]},
+            {"id": 7, "n": "Metric Axioms, Distance Functions & Open/Closed Balls", "t": "f", "nt": "Covers metric axioms, norm-induced vs general metrics, open/closed ball definitions, interior/boundary/exterior classification, and neighborhood methodology; excludes metric geometry, Gromov-Hausdorff convergence, Riemannian manifolds, and non-metric topological axiomatization.", "l": [[6, "h"]]}
+          ]
+        },
+        {
+          "cl": 4,
+          "units": [
+            {"id": 8, "n": "Formal Convergence, ε-N Criterion & Limit Arithmetic", "t": "f", "nt": "Covers sequence definition, ε-N formalism, limit uniqueness, boundedness, limit points, coordinate-wise equivalence, and algebra of limits; excludes net/filter convergence, topological convergence, asymptotic equivalence, and nonstandard analysis.", "l": [[7, "h"]]},
+            {"id": 9, "n": "Cauchy Criterion, Completeness & Subsequence Diagnostics", "t": "f", "nt": "Covers Cauchy definition/criterion, ℝⁿ completeness, boundedness of convergent sequences, subsequence extraction, Bolzano-Weierstrass preview, and convergence equivalence tests; excludes metric space completion, Baire category theorem, and general topological compactness.", "l": [[8, "h"]]}
+          ]
+        },
+        {
+          "cl": 5,
+          "units": [
+            {"id": 10, "n": "Open/Closed Sets, Closure & Topological Structure", "t": "f", "nt": "Covers open/closed set definitions, sequential characterization, closure/interior/boundary operators, union/intersection preservation, and nested set intuition; excludes sheaf theory, Čech cohomology, algebraic topology, non-Hausdorff spaces, and separation axioms.", "l": [[8, "h"], [9, "h"]]},
+            {"id": 11, "n": "Compactness, Heine-Borel & Sequential Compactness", "t": "f", "nt": "Covers sequential/open-cover compactness, Heine-Borel theorem, compactness preservation, finite subcover property, and infinite-dimensional failure; excludes Tychonoff product compactness, locally compact spaces, Stone-Čech compactification, and proper maps.", "l": [[10, "h"], [12, "h"]]},
+            {"id": 12, "n": "Continuity, Topological Characterization & Extreme Value Theorem", "nt": "Covers ε-δ/sequential continuity, preimage of open sets, compactness preservation, algebra of continuous functions, Extreme Value Theorem, and attainment guarantees; excludes uniform/Lipschitz continuity, weak topology continuity, and topological group continuity.", "l": [[9, "h"], [11, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 6,
+          "units": [
+            {"id": 13, "n": "Matrix Arithmetic, Transpose & Canonical Structures", "t": "f", "nt": "Covers column/row conventions, matrix operations, transpose properties, matrix classification, dimensional compatibility, and multiplication rules; excludes non-normal matrix spectral theory, Jordan forms, matrix functions, and abstract ring theory.", "l": [[7, "h"]]},
+            {"id": 14, "n": "Linear Independence, Rank & Determinant Theory", "t": "f", "nt": "Covers linear dependence/independence, rank equivalence, elementary operations, full-rank characterization, determinant computation, and invertibility links; excludes exterior algebra determinants, Pfaffians, perturbation bounds, multilinear algebra, and tensor rank.", "l": [[13, "h"]]},
+            {"id": 15, "n": "Matrix Inversion, Adjoint Construction & Uniqueness Proofs", "t": "f", "nt": "Covers inverse definition, existence/uniqueness proofs, adjoint/cofactor formula, algebraic properties, and rank preservation; excludes generalized inverses, LU/QR/SVD decompositions, iterative algorithms, and operator theory on Banach spaces.", "l": [[14, "h"]]}
+          ]
+        },
+        {
+          "cl": 7,
+          "units": [
+            {"id": 16, "n": "Single-Variable Foundations: Limits, Continuity & Linear Approximation", "t": "f", "nt": "Covers epsilon-delta limits, continuity, difference-quotient derivative, local linear approximation, and mean value theorem; excludes fractional calculus, distributional derivatives, analytic continuation, and Lebesgue integration.", "l": [[9, "h"]]},
+            {"id": 17, "n": "Total Derivative, Differentiability & C¹ Classification", "t": "f", "nt": "Covers differentiability via affine approximation, limit formulation, total derivative as linear operator, C¹ class definition, and differentiation rules; excludes Fréchet/Gâteaux differentiation, implicit/inverse function theorem proofs, and Sobolev spaces.", "l": [[16, "h"], [14, "h"]]},
+            {"id": 18, "n": "Partial/Directional Derivatives & Gradient-Direction Relationship", "t": "f", "nt": "Covers partial/directional derivative computation, gradient vector, total derivative identity, existence vs differentiability counterexamples, and C¹ sufficiency; excludes subgradients, Clarke gradients, Banach space directional derivatives, and Lie derivatives.", "l": [[17, "h"]]}
+          ]
+        },
+        {
+          "cl": 8,
+          "units": [
+            {"id": 19, "n": "Hessians, Mixed Partials & Second-Order Taylor Expansions", "t": "f", "nt": "Covers second-order partials, Hessian construction, Clairaut's theorem, C² class definition, second-order Taylor expansion, and curvature mapping; excludes higher-order tensors, multivariate Faà di Bruno formula, and Riemannian Hessians.", "l": [[18, "h"]]},
+            {"id": 20, "n": "Quadratic Forms, Definiteness & Sylvester's Criterion", "nt": "Covers xᵀAx structure, symmetry, ray invariance, definiteness taxonomy, unit sphere compactness, and principal minor sign rules; excludes indefinite quadratic optimization, semidefinite programming, eigenvalue perturbation, and Clifford algebras.", "l": [[15, "h"], [19, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 9,
+          "units": [
+            {"id": 21, "n": "Standard Optimization Structure & Solution Set Definitions", "nt": "Covers max/min notation, objective/constraint separation, interior/boundary feasibility, argmax/argmin sets, global optimizers, and non-unique solution handling; excludes multi-objective Pareto fronts, stochastic/robust optimization, and variational inequalities.", "l": [[12, "h"], [5, "h"]]},
+            {"id": 22, "n": "Parametric Formulation & Value/Correspondence Framework", "nt": "Covers parameter space, state-dependent functions, value functions, set-valued policy mappings, and parametric dependence; excludes second-order sensitivity, bifurcation theory, homotopy continuation, and Bayesian optimization.", "l": [[44, "h"], [1, "h"]]}
+          ]
+        },
+        {
+          "cl": 10,
+          "units": [
+            {"id": 23, "n": "Critical Points, ∇f (x*)=0 Derivation & Interior Requirement", "nt": "Covers directional path reduction, FOC derivation via limits, interior optimality necessity, critical point vs optimum distinction, and saddle point geometry; excludes nonsmooth FOCs, variational analysis, and Morse theory.", "l": [[44, "h"], [18, "h"]]},
+            {"id": 24, "n": "FOC Limitations, Non-Differentiable Extensions & Failure Modes", "nt": "Covers necessity vs sufficiency, failure under open/unbounded domains, liminf/limsup framework, kink/corner behavior, and FOC non-optimality proofs; excludes proximal algorithms, bundle methods, and Hamilton-Jacobi-Bellman PDEs.", "l": [[46, "h"], [12, "h"]]}
+          ]
+        },
+        {
+          "cl": 11,
+          "units": [
+            {"id": 25, "n": "Hessian SOC & Local Extrema Verification", "nt": "Covers second-order necessary/sufficient conditions, local extrema classification, eigenvalue/minor application, and Taylor justification; excludes saddle point sufficiency, Morse index theory, and degenerate bifurcation analysis.", "l": [[46, "h"], [43, "h"]]},
+            {"id": 26, "n": "Semidefinite Edge Cases, Global Identification & Boundary Procedures", "nt": "Covers zero quadratic forms, inconclusive tests, higher-order expansion necessity, global optimum identification via boundary comparison, and n-dimensional proof architecture; excludes global optimization heuristics, branch-and-bound theory, and NP-hardness proofs.", "l": [[48, "h"], [44, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 12,
+          "units": [
+            {"id": 27, "n": "Feasible Manifolds, Tangent Spaces & Geometric Tangency", "nt": "Covers equality constraint sets, feasible region topology, tangent space definition, geometric gradient alignment, and multiplier intuition; excludes manifold optimization, Riemannian gradient descent, and implicit function theorem proofs.", "l": [[46, "h"], [15, "h"]]},
+            {"id": 28, "n": "Lagrangian Construction, Critical Systems & Multiplier Existence", "nt": "Covers Lagrangian formulation, DL=0 derivation, first-order necessity, tangency proof, multiplier signs, and solution procedures; excludes augmented Lagrangians, penalty methods, and dynamic programming multipliers.", "l": [[27, "h"], [14, "h"]]}
+          ]
+        },
+        {
+          "cl": 13,
+          "units": [
+            {"id": 29, "n": "Inequality Geometry, Active/Slack Classification & Complementary Slackness", "nt": "Covers inequality constraints, slack/binding zones, active set notation, complementary slackness logic, truth-table derivation, and case enumeration; excludes complementarity theory, variational inequalities, and Farkas' lemma proofs.", "l": [[28, "h"], [0, "h"]]},
+            {"id": 30, "n": "KKT Necessary Conditions & Sign Structure", "nt": "Covers formal KKT theorem, non-negativity/slackness, stationarity, max/min sign reversal, constraint qualification dependency, and mixed constraint unification; excludes Fritz John conditions, abnormal multipliers, and nonsmooth KKT.", "l": [[29, "h"], [44, "h"]]}
+          ]
+        },
+        {
+          "cl": 14,
+          "units": [
+            {"id": 31, "n": "Constraint Qualifications, Rank Conditions & Failure Diagnostics", "nt": "Covers LICQ, rank conditions, geometric pathologies, counterexamples for CQ failure, and pre-screening procedures; excludes Mangasarian-Fromovitz/Slater CQs, metric regularity, and infinite-dimensional qualifications.", "l": [[30, "h"], [15, "h"]]},
+            {"id": 32, "n": "Multiplier Sensitivity & Shadow Price Interpretation", "nt": "Covers parametric relaxation, value function definition, chain rule application, shadow price derivation, economic meaning of multipliers, and comparative statics; excludes second-order sensitivity, envelope theorem degeneracy, and LP dual variables.", "l": [[31, "h"], [45, "h"]]}
+          ]
+        },
+        {
+          "cl": 15,
+          "units": [
+            {"id": 33, "n": "Restricted Quadratic Forms & Bordered Hessian Determinants", "nt": "Covers tangent subspace restriction of D²L, necessary vs sufficient curvature, bordered Hessian construction, determinant sign rules, and computational verification; excludes reduced Hessian methods, null-space decomposition, and Schur complements.", "l": [[31, "h"], [43, "h"]]},
+            {"id": 34, "n": "Existence Guarantees & Lagrangian Failure Modes", "nt": "Covers Weierstrass application, compactness/continuity requirements, critical point vs optimum distinction, unbounded objective handling, and CQ violation decoupling; excludes coercivity existence, recession cones, and Ekeland variational principle.", "l": [[33, "h"], [12, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 5,
+      "clusters": [
+        {
+          "cl": 16,
+          "units": [
+            {"id": 35, "n": "Convex Sets, Combinations & Topological Properties", "nt": "Covers convex combination definition, line-segment containment, boundary/interior behavior, preservation properties, and separation hyperplane intuition; excludes convex hull algorithms, polyhedral theory, Krein-Milman theorem, and infinite-dimensional convexity.", "l": [[11, "h"]]},
+            {"id": 36, "n": "Epigraphs, Subgraphs & Geometric Curvature", "t": "f", "nt": "Covers epigraph/subgraph definition, convexity via set property, sub-level/super-level geometry, visualization, and equivalence proofs; excludes topological vector space analysis, Fenchel conjugacy, perspective functions, and quasi-convex level sets.", "l": [[35, "h"]]}
+          ]
+        },
+        {
+          "cl": 17,
+          "units": [
+            {"id": 37, "n": "Jensen's Inequality & First-Order Gradient Characterization", "nt": "Covers formal Jensen inequality, concave/convex duality, tangent hyperplane support, gradient characterization, and C¹ condition shortcuts; excludes integral/operator Jensen inequalities, conjugate functions, and Fenchel duality.", "l": [[36, "h"], [18, "h"]]},
+            {"id": 38, "n": "Interior Continuity, Directional Derivatives & Almost-Everywhere Differentiability", "t": "f", "nt": "Covers convexity-forced interior continuity, one-sided limits, non-increasing difference quotients, directional derivative existence, negligible kink sets, and optimization relevance; excludes Rademacher's theorem proofs, BV functions, and fractal dimension analysis.", "l": [[37, "h"]]}
+          ]
+        },
+        {
+          "cl": 18,
+          "units": [
+            {"id": 39, "n": "Strict Concavity/Convexity & Uniqueness Implications", "nt": "Covers strict inequality definition, affine boundaries, strict Jensen, argmax set convexity, local-to-global equivalence, singleton collapse, and computational determinacy; excludes strong/uniform convexity, Bregman divergences, and log-concavity.", "l": [[37, "h"], [44, "h"]]},
+            {"id": 40, "n": "Global Sufficiency under Convexity & SOC Bypass", "nt": "Covers gradient zero as global optimum guarantee, gradient inequality collapse, second-order check bypass, structural verification workflow, and economic determinacy; excludes convex relaxation bounds, integrality gaps, and DC programming.", "l": [[39, "h"], [46, "h"]]}
+          ]
+        },
+        {
+          "cl": 19,
+          "units": [
+            {"id": 41, "n": "Quasi-Concave/Convex Functions & Upper/Lower Contour Sets", "nt": "Covers quasi-concavity definition, upper contour set convexity, concavity distinction, strict transformation preservation, and regularity conditions; excludes pseudo-convexity, invexity, generalized hierarchies, and revealed preference axioms.", "l": [[35, "h"]]},
+            {"id": 42, "n": "Optimization under Quasi-Convexity & Almost-Sufficiency", "nt": "Covers critical point sufficiency under quasi-concavity, boundary behavior, regularity conditions, Cobb-Douglas thresholds, and application limits; excludes quasi-convex programming duality, biconvex optimization, and single-peaked preferences.", "l": [[41, "h"], [30, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 6,
+      "clusters": [
+        {
+          "cl": 20,
+          "units": [
+            {"id": 43, "n": "Value Function Structure & Parameter Dependence", "nt": "Covers value function definition, parameter shift propagation, continuity requirements, value vs solution map distinction, and structural dependency classification; excludes nonsmooth value functions, stochastic value iteration, and robust control functions.", "l": [[45, "h"], [12, "h"]]}
+          ]
+        },
+        {
+          "cl": 21,
+          "units": [
+            {"id": 44, "n": "Envelope Theorem: Smooth Interior Optima", "nt": "Covers partial derivative equality at optimum, indirect effect cancellation, chain rule proof, smooth interior formalization, and comparative statics shortcut; excludes nonsmooth/stochastic envelope theorems, second-order envelopes, and parametric sensitivity proofs.", "l": [[43, "h"], [19, "h"]]},
+            {"id": 45, "n": "Envelope Extensions: KKT Constraints & Corner Cases", "nt": "Covers KKT extension, binding/slack handling, multiplier contributions, corner adjustments, policy sensitivity, and economic translation; excludes variational inequality envelopes, nonsmooth parametric envelopes, and welfare decomposition.", "l": [[44, "h"], [32, "h"]]}
+          ]
+        },
+        {
+          "cl": 22,
+          "units": [
+            {"id": 46, "n": "Correspondences, Upper/Lower Semicontinuity & Characterizations", "nt": "Covers point-to-set map definition, graph properties, upper/lower hemicontinuity, inverse image characterization, sequential characterization, and compact/convex-valued preservation; excludes measurable correspondences, selection theorems, and random set theory.", "l": [[43, "h"], [11, "h"]]},
+            {"id": 47, "n": "The Maximum Theorem: Continuity of Value & Solution Maps", "nt": "Covers Berge's Maximum Theorem statement, V(theta) continuity, D*(theta) hemicontinuity, convexity refinements, single-valuedness conditions, and sequential compactness proof architecture; excludes metric space parametric optimization, stability analysis, and fixed point theorems.", "l": [[46, "h"], [12, "h"]]}
+          ]
+        },
+        {
+          "cl": 23,
+          "units": [
+            {"id": 48, "n": "Core Economic Models & Duality Intuition", "nt": "Covers utility/expenditure duality, profit/cost duality, constraint types, Pareto optimality, welfare function equivalence, and multi-agent aggregation; excludes general equilibrium existence, mechanism design, and behavioral economics deviations.", "l": [[34, "h"], [39, "h"]]},
+            {"id": 49, "n": "Integrated Synthesis: Formulation → Existence → Characterization → Narrative", "nt": "Covers full proof pipeline execution, assumption auditing, necessity vs sufficiency architecture, proof templates, mathematical-to-economic translation, second-best intuition, and two-tier policy design; excludes computational implementation, numerical algorithms, large-scale simulation, and empirical estimation.", "l": [[44, "h"], [46, "h"], [30, "h"], [39, "h"], [47, "h"]]}
+          ]
+        }
+      ]
+    }
+  ]
+}
