@@ -60,49 +60,5 @@
         "sessionId": "moo8hm5w0kwx"
       }
     ]
-  },
-  {
-    "sessionId": "mooarvhy4x1q",
-    "timestamp": "2026-05-02T12:07:51.094Z",
-    "injections": [
-      {
-        "unitId": 0,
-        "difficultyScore": 20,
-        "performanceRatio": 0,
-        "notes": "No answers provided for questions related to number systems."
-      },
-      {
-        "unitId": 1,
-        "difficultyScore": 36,
-        "performanceRatio": 0,
-        "notes": "No answers provided for questions related to order of operations and absolute value."
-      }
-    ],
-    "results": [
-      {
-        "unitId": 0,
-        "oldBand": "I",
-        "newBand": "I",
-        "oldCum": 0,
-        "newCum": 0,
-        "dv": 0,
-        "bm": -0.5,
-        "delta": 0,
-        "bandShifted": false,
-        "sessionId": "mooarvhy4x1q"
-      },
-      {
-        "unitId": 1,
-        "oldBand": "I",
-        "newBand": "I",
-        "oldCum": 0,
-        "newCum": 0,
-        "dv": 0,
-        "bm": -0.5,
-        "delta": 0,
-        "bandShifted": false,
-        "sessionId": "mooarvhy4x1q"
-      }
-    ]
   }
 ]

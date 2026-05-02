@@ -16,14 +16,6 @@
                   "xpGain": 0,
                   "notes": "No attempt to classify numbers.",
                   "sessionId": "moo8hm5w0kwx"
-                },
-                {
-                  "timestamp": "2026-05-02T12:07:51.094Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided for questions related to number systems.",
-                  "sessionId": "mooarvhy4x1q"
                 }
               ]
             },
@@ -37,14 +29,6 @@
                   "xpGain": 0,
                   "notes": "No application of order of operations or absolute value.",
                   "sessionId": "moo8hm5w0kwx"
-                },
-                {
-                  "timestamp": "2026-05-02T12:07:51.094Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided for questions related to order of operations and absolute value.",
-                  "sessionId": "mooarvhy4x1q"
                 }
               ]
             },

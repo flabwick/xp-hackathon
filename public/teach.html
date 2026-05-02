@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teach Mode</title>
+  <title>StudyXP — Teach Mode</title>
 
   <!-- KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -562,9 +562,12 @@
       let firstChunk = true;
 
       try {
+        const groqKey = localStorage.getItem('studyxp.groq_api_key');
+        const reqHeaders = { 'Content-Type': 'application/json' };
+        if (groqKey) reqHeaders['X-Groq-Api-Key'] = groqKey;
         const res = await fetch('/api/teach/stream', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: reqHeaders,
           body: JSON.stringify({ domain, unitIds, messages: conversationMessages })
         });
 

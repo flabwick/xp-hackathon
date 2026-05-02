@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "bt": [
+      "Introduction to Vision Transformers",
+      "ViT Architecture",
+      "Training Vision Transformers",
+      "Attention Mechanism",
+      "Classification Head"
+    ],
+    "cl": [
+      "Overview of Vision Transformers",
+      "Understanding ViT Components",
+      "Training Methods",
+      "Attention Mechanisms in Detail",
+      "Classification Techniques"
+    ]
+  },
+  "deadlines": {}
+}

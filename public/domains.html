@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XP Study — Select Domain</title>
+  <title>StudyXP — Select Course</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -36,6 +36,8 @@
       gap: 16px;
     }
 
+    .header-title { flex: 1; }
+
     header h1 {
       font-size: 1.6rem;
       font-weight: 900;
@@ -49,6 +51,115 @@
       color: #555;
       margin-top: 2px;
     }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn-header {
+      background: #fff;
+      border: 2px solid #000;
+      box-shadow: var(--shadow-sm);
+      padding: 10px 16px;
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: transform 0.05s, box-shadow 0.05s;
+    }
+    .btn-header:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px 0px #000; }
+    .btn-header:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn-header.primary { background: #4ade80; }
+    .btn-header.warn  { background: #fb923c; }
+
+    /* ───────── Modal ───────── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 100;
+      padding: 24px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border: 3px solid #000;
+      box-shadow: 8px 8px 0px 0px #000;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-head {
+      background: #000; color: #fde047;
+      padding: 14px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-head h2 {
+      font-size: 1rem; font-weight: 900;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .modal-close {
+      background: transparent; border: none; color: #fde047;
+      font-size: 1.2rem; font-weight: 900; cursor: pointer;
+    }
+    .modal-body { padding: 24px 22px; display: flex; flex-direction: column; gap: 18px; }
+    .modal-body label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .modal-body input[type="text"],
+    .modal-body input[type="password"],
+    .modal-body input[type="file"] {
+      width: 100%;
+      border: 2px solid #000;
+      padding: 10px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: #f5f5f5;
+    }
+    .modal-body input[type="file"] { padding: 8px; cursor: pointer; }
+    .modal-help {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .modal-help a { color: #000; font-weight: 700; }
+    .modal-foot {
+      padding: 14px 22px;
+      border-top: 2px solid #000;
+      display: flex; justify-content: flex-end; gap: 10px;
+      background: #f5f5f5;
+    }
+    .modal-status {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 10px 12px;
+      border: 2px solid #000;
+      display: none;
+    }
+    .modal-status.show { display: block; }
+    .modal-status.info { background: #fde047; }
+    .modal-status.ok   { background: #4ade80; }
+    .modal-status.err  { background: #fca5a5; }
+    .key-status {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+    .key-status.set    { color: #16a34a; }
+    .key-status.notset { color: #b91c1c; }
 
     main {
       flex: 1;
@@ -207,19 +318,97 @@
 <body>
 
   <header>
-    <div>
-      <h1>XP Study</h1>
+    <div class="header-title">
+      <h1>StudyXP</h1>
       <div class="header-sub">Adaptive Learning System</div>
+    </div>
+    <div class="header-actions">
+      <button id="open-keys" class="btn-header">🔑 API Keys</button>
+      <button id="open-add-course" class="btn-header primary">+ Add Course</button>
     </div>
   </header>
 
   <main>
-    <div class="page-label">Select a Domain to Begin</div>
+    <div class="page-label">Select a Course to Begin</div>
     <div class="domain-grid" id="domain-grid">
       <div class="skeleton-card"></div>
       <div class="skeleton-card"></div>
     </div>
   </main>
+
+  <!-- ───── API Keys Modal ───── -->
+  <div class="modal-backdrop" id="keys-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>🔑 API Keys</h2>
+        <button class="modal-close" data-close="keys-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-help">
+          Keys are stored only in your browser (localStorage) and sent to the
+          server per request. Leave blank to use the server's environment keys
+          (local dev only).
+        </p>
+        <div>
+          <label for="groq-key-input">Groq API Key (used for tests &amp; teaching)</label>
+          <input id="groq-key-input" type="password" autocomplete="off" placeholder="gsk_...">
+          <div id="groq-key-status" class="key-status"></div>
+          <div class="modal-help">
+            Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>.
+          </div>
+        </div>
+        <div>
+          <label for="openai-key-input">OpenAI API Key (only for "Add Course" PDF parsing)</label>
+          <input id="openai-key-input" type="password" autocomplete="off" placeholder="sk-...">
+          <div id="openai-key-status" class="key-status"></div>
+          <div class="modal-help">
+            Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>.
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-header" data-close="keys-modal">Cancel</button>
+        <button class="btn-header primary" id="save-keys">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── Add Course Modal ───── -->
+  <div class="modal-backdrop" id="add-course-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>+ Add Course from PDF</h2>
+        <button class="modal-close" data-close="add-course-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-help">
+          Upload a textbook PDF. We'll extract the text, then use OpenAI's
+          gpt-4o-mini to break it into chapters &amp; topics — same shape as
+          every other course on this page. Takes ~30–60 seconds.
+        </p>
+        <div>
+          <label for="course-name-input">Course Name</label>
+          <input id="course-name-input" type="text" placeholder="e.g. Linear Algebra">
+        </div>
+        <div>
+          <label for="pdf-input">PDF File (max 25 MB)</label>
+          <input id="pdf-input" type="file" accept="application/pdf,.pdf">
+        </div>
+        <div>
+          <label for="addcourse-openai-key">OpenAI API Key (optional if set in env)</label>
+          <input id="addcourse-openai-key" type="password" autocomplete="off" placeholder="sk-...">
+          <div class="modal-help">
+            Pre-filled from your saved key. If hosted, you must supply one.
+          </div>
+        </div>
+        <div id="addcourse-status" class="modal-status"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-header" data-close="add-course-modal">Cancel</button>
+        <button class="btn-header primary" id="submit-add-course">Generate Course</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const grid = document.getElementById('domain-grid');
@@ -306,6 +495,128 @@
     }
 
     loadDomains();
+
+    /* ─────────────── BYOK key handling ─────────────── */
+    // Single source of truth — every other page also reads from these keys.
+    const GROQ_LS_KEY   = 'studyxp.groq_api_key';
+    const OPENAI_LS_KEY = 'studyxp.openai_api_key';
+
+    let serverConfig = { hasGroqKey: false, hasOpenAIKey: false };
+    fetch('/api/config').then(r => r.json()).then(cfg => {
+      serverConfig = cfg;
+      maybePromptForGroqKey();
+    }).catch(() => {});
+
+    function maybePromptForGroqKey() {
+      const stored = localStorage.getItem(GROQ_LS_KEY);
+      if (!stored && !serverConfig.hasGroqKey) {
+        // Hosted with no env key + user hasn't pasted one yet → nudge them.
+        openModal('keys-modal');
+      }
+    }
+
+    /* ─────────────── Modal plumbing ─────────────── */
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (!m) return;
+      if (id === 'keys-modal') hydrateKeysModal();
+      if (id === 'add-course-modal') hydrateAddCourseModal();
+      m.classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id)?.classList.remove('open');
+    }
+    document.querySelectorAll('[data-close]').forEach(el => {
+      el.addEventListener('click', () => closeModal(el.dataset.close));
+    });
+    document.querySelectorAll('.modal-backdrop').forEach(b => {
+      b.addEventListener('click', e => { if (e.target === b) closeModal(b.id); });
+    });
+
+    document.getElementById('open-keys').addEventListener('click', () => openModal('keys-modal'));
+    document.getElementById('open-add-course').addEventListener('click', () => openModal('add-course-modal'));
+
+    /* ─────────────── Keys modal logic ─────────────── */
+    function hydrateKeysModal() {
+      const groqIn   = document.getElementById('groq-key-input');
+      const openaiIn = document.getElementById('openai-key-input');
+      groqIn.value   = localStorage.getItem(GROQ_LS_KEY)   || '';
+      openaiIn.value = localStorage.getItem(OPENAI_LS_KEY) || '';
+      renderKeyStatus('groq-key-status',   !!groqIn.value,   serverConfig.hasGroqKey,   'Groq');
+      renderKeyStatus('openai-key-status', !!openaiIn.value, serverConfig.hasOpenAIKey, 'OpenAI');
+    }
+    function renderKeyStatus(elId, hasUserKey, hasEnvKey, label) {
+      const el = document.getElementById(elId);
+      if (hasUserKey)        el.textContent = `✓ Using your ${label} key (saved in this browser)`;
+      else if (hasEnvKey)    el.textContent = `✓ Using server's ${label} key (env var)`;
+      else                   el.textContent = `✗ No ${label} key set — AI calls will fail`;
+      el.className = 'key-status ' + ((hasUserKey || hasEnvKey) ? 'set' : 'notset');
+    }
+    document.getElementById('save-keys').addEventListener('click', () => {
+      const groqVal   = document.getElementById('groq-key-input').value.trim();
+      const openaiVal = document.getElementById('openai-key-input').value.trim();
+      if (groqVal)   localStorage.setItem(GROQ_LS_KEY,   groqVal);
+      else           localStorage.removeItem(GROQ_LS_KEY);
+      if (openaiVal) localStorage.setItem(OPENAI_LS_KEY, openaiVal);
+      else           localStorage.removeItem(OPENAI_LS_KEY);
+      closeModal('keys-modal');
+    });
+
+    /* ─────────────── Add Course logic ─────────────── */
+    function hydrateAddCourseModal() {
+      const status = document.getElementById('addcourse-status');
+      status.className = 'modal-status';
+      status.textContent = '';
+      document.getElementById('course-name-input').value = '';
+      document.getElementById('pdf-input').value = '';
+      document.getElementById('addcourse-openai-key').value = localStorage.getItem(OPENAI_LS_KEY) || '';
+    }
+
+    document.getElementById('submit-add-course').addEventListener('click', async () => {
+      const status = document.getElementById('addcourse-status');
+      const btn    = document.getElementById('submit-add-course');
+      const name   = document.getElementById('course-name-input').value.trim();
+      const file   = document.getElementById('pdf-input').files[0];
+      const oaKey  = document.getElementById('addcourse-openai-key').value.trim();
+
+      const setStatus = (cls, msg) => {
+        status.className = 'modal-status show ' + cls;
+        status.textContent = msg;
+      };
+
+      if (!name)   return setStatus('err', 'Course name is required.');
+      if (!file)   return setStatus('err', 'Please choose a PDF file.');
+      if (file.size > 25 * 1024 * 1024) return setStatus('err', 'PDF too large (max 25 MB).');
+      if (!oaKey && !serverConfig.hasOpenAIKey)
+        return setStatus('err', 'OpenAI API key required (none in env). Paste one above.');
+
+      // Persist whatever the user typed for next time.
+      if (oaKey) localStorage.setItem(OPENAI_LS_KEY, oaKey);
+
+      const fd = new FormData();
+      fd.append('pdf', file);
+      fd.append('courseName', name);
+
+      btn.disabled = true;
+      btn.textContent = 'Generating…';
+      setStatus('info', `Uploading PDF (${(file.size / 1024).toFixed(0)} KB) and asking OpenAI to extract the curriculum… this can take 30–60s.`);
+
+      try {
+        const headers = {};
+        if (oaKey) headers['X-OpenAI-Api-Key'] = oaKey;
+        const res = await fetch('/api/add-course', { method: 'POST', headers, body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        setStatus('ok', `✓ Created "${data.domain}" — ${data.unitCount} units from ${data.pdfPages} PDF pages.`);
+        await loadDomains();
+        setTimeout(() => closeModal('add-course-modal'), 1500);
+      } catch (err) {
+        setStatus('err', `Failed: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate Course';
+      }
+    });
   </script>
 
 </body>

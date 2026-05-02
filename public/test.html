@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Mode</title>
+  <title>StudyXP — Test Mode</title>
 
   <!-- KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -548,9 +548,12 @@
       showPhase('phase-loading');
 
       try {
+        const groqKey = localStorage.getItem('studyxp.groq_api_key');
+        const headers = { 'Content-Type': 'application/json' };
+        if (groqKey) headers['X-Groq-Api-Key'] = groqKey;
         const res = await fetch('/api/test/generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ domain, unitIds })
         });
         const data = await res.json();
@@ -648,9 +651,12 @@
       showPhase('phase-submitting');
 
       try {
+        const groqKey = localStorage.getItem('studyxp.groq_api_key');
+        const headers = { 'Content-Type': 'application/json' };
+        if (groqKey) headers['X-Groq-Api-Key'] = groqKey;
         const res = await fetch('/api/test/mark', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ domain, unitIds, questions, answers })
         });
         const data = await res.json();
