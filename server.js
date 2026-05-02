@@ -7,6 +7,7 @@ const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
 const answersRouter = require('./answers/router');
 const pageRouter = require('./routes');
+const addContextRouter = require('./addContext');
 const app = express();
 const PORT = 6969;
 
@@ -21,6 +22,7 @@ function getLocalIP() {
 
 app.use(express.json({ limit: '10mb' }));
 app.use('/api/answers', answersRouter);
+app.use('/api/add-context', addContextRouter);
 
 app.get('/api/server-info', (req, res) => {
   res.json({ ip: getLocalIP(), port: PORT });
@@ -45,6 +47,59 @@ const DEADLINES_DIR = path.join(__dirname, 'data/deadlines');
 const PROGRESS_DIR = path.join(__dirname, 'data/progress');
 const BACKUPS_BASE_DIR = path.join(__dirname, 'data/backups');
 const PROMPTS_DIR = path.join(__dirname, 'prompts');
+const COURSES_PATH = path.join(__dirname, 'data/courses.json');
+const COURSES_DATA_DIR = path.join(__dirname, 'data/courses');
+
+// ─── COURSE HELPERS ──────────────────────────────────────────────────────────────
+const readCourses = () => readJSON(COURSES_PATH);
+const writeCourses = (d) => writeJSON(COURSES_PATH, d);
+const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const genCourseId = () => 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+function uniqueDomainSlug(base, existing) {
+  if (!existing.has(base)) return base;
+  let i = 2;
+  while (existing.has(`${base}-${i}`)) i++;
+  return `${base}-${i}`;
+}
+
+function scaffoldDomainFiles(domain) {
+  const unitsP = path.join(UNITS_DIR, `${domain}.json`);
+  const progP = path.join(PROGRESS_DIR, `${domain}.json`);
+  const deadP = path.join(DEADLINES_DIR, `${domain}.json`);
+  if (!fs.existsSync(unitsP)) writeJSON(unitsP, { meta: { bt: [], cl: [] }, tree: [] });
+  if (!fs.existsSync(progP)) writeJSON(progP, { tree: [] });
+  if (!fs.existsSync(deadP)) writeJSON(deadP, { meta: { bt: [], cl: [] }, deadlines: {} });
+}
+
+function findCourseById(id) {
+  const data = readCourses();
+  const idx = data.courses.findIndex(c => c.id === id);
+  if (idx === -1) return null;
+  return { data, course: data.courses[idx], idx };
+}
+
+// Auto-create courses.json from existing domain files on first boot
+function bootstrapCourses() {
+  if (fs.existsSync(COURSES_PATH)) return;
+  const courses = [];
+  if (fs.existsSync(UNITS_DIR)) {
+    for (const file of fs.readdirSync(UNITS_DIR)) {
+      if (!file.endsWith('.json')) continue;
+      const domain = file.replace(/\.json$/, '');
+      courses.push({
+        id: genCourseId(),
+        name: domain.charAt(0).toUpperCase() + domain.slice(1).replace(/-/g, ' '),
+        domain,
+        createdAt: new Date().toISOString(),
+        textbookPath: null,
+        chaptersDir: null
+      });
+    }
+  }
+  writeCourses({ courses });
+}
+bootstrapCourses();
 
 // ─── PROGRESS HELPERS ────────────────────────────────────────────────────────────
 const progressPath = (domain) => path.join(PROGRESS_DIR, `${domain}.json`);
@@ -149,6 +204,30 @@ function calculateXPFromProgress(progressData) {
 }
 
 // ─── ROUTES ──────────────────────────────────────────────────────────────────────
+
+// ─── COURSES API ─────────────────────────────────────────────────────────────────
+app.get('/api/courses', (req, res) => {
+  try {
+    if (!fs.existsSync(COURSES_PATH)) return res.json({ courses: [] });
+    res.json(readCourses());
+  } catch (e) { res.status(500).json({ error: 'Failed to read courses' }); }
+});
+
+app.post('/api/courses', (req, res) => {
+  const { name } = req.body || {};
+  if (!name || typeof name !== 'string' || !name.trim())
+    return res.status(400).json({ error: 'name required' });
+  const data = fs.existsSync(COURSES_PATH) ? readCourses() : { courses: [] };
+  const existingDomains = new Set(data.courses.map(c => c.domain));
+  const domain = uniqueDomainSlug(slugify(name) || 'course', existingDomains);
+  const course = { id: genCourseId(), name: name.trim(), domain, createdAt: new Date().toISOString(), textbookPath: null, chaptersDir: null };
+  data.courses.push(course);
+  try {
+    scaffoldDomainFiles(domain);
+    writeCourses(data);
+    res.json({ success: true, course });
+  } catch (e) { res.status(500).json({ error: 'Failed to create course', details: e.message }); }
+});
 
 app.get('/api/domains', (req, res) => {
   try {
