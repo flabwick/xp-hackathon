@@ -10,20 +10,37 @@ The hosted demo is bring-your-own-key: you supply a free Groq API key and an opt
 
 ## Table of Contents
 
-1. [The Story](#the-story)
-2. [What StudyXP Does](#what-studyxp-does)
-3. [The XP System](#the-xp-system)
-4. [Add Your Own Course](#add-your-own-course)
-5. [Bring Your Own Key](#bring-your-own-key)
-6. [Architecture](#architecture)
-7. [Tech Stack](#tech-stack)
-8. [Local Development](#local-development)
-9. [Project Structure](#project-structure)
-10. [API Reference](#api-reference)
-11. [Deployment](#deployment)
-12. [Roadmap](#roadmap)
-13. [Creators](#creators)
-14. [License](#license)
+- [StudyXP](#studyxp)
+  - [Table of Contents](#table-of-contents)
+  - [The Story](#the-story)
+  - [What StudyXP Does](#what-studyxp-does)
+  - [The XP System](#the-xp-system)
+    - [Bands](#bands)
+    - [Scoring inputs](#scoring-inputs)
+    - [XP formula](#xp-formula)
+    - [Atomic undo](#atomic-undo)
+  - [Add Your Own Course](#add-your-own-course)
+  - [Bring Your Own Key](#bring-your-own-key)
+  - [Architecture](#architecture)
+    - [Core modules](#core-modules)
+    - [Data layer](#data-layer)
+    - [Prompt templates](#prompt-templates)
+  - [Tech Stack](#tech-stack)
+  - [Local Development](#local-development)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+    - [Running](#running)
+  - [Project Structure](#project-structure)
+  - [API Reference](#api-reference)
+    - [Configuration](#configuration)
+    - [Domains and units](#domains-and-units)
+    - [Progress and XP](#progress-and-xp)
+    - [AI flows](#ai-flows)
+  - [Deployment](#deployment)
+  - [Roadmap](#roadmap)
+  - [Creators](#creators)
+  - [License](#license)
+  - [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -339,6 +356,7 @@ StudyXP was designed and built by:
 - **Yevin**
 - **Anubhav**
 - **James**
+- **Joseph**
 
 Originally produced for the ANU AI Buildathon. Now released as a public project for anyone who wants to learn something new the structured way.
 
