@@ -27,6 +27,9 @@ if (process.env.NODE_ENV === 'production') {
   app.get('/test', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test.html'));
   });
+  app.get('/teach', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'teach.html'));
+  });
 }
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────
