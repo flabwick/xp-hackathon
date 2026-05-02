@@ -417,6 +417,48 @@ app.delete('/api/xp', (req, res) => {
 
 // ─── TEST ENDPOINTS ───────────────────────────────────────────────────────────────
 
+const VALID_STATES = new Set(['Mastered', 'Pass', 'Partial', 'Incorrect']);
+
+function validateGenerateShape(data) {
+  if (!Array.isArray(data.questions) || data.questions.length !== 10)
+    throw new Error(`expected questions array of length 10, got ${JSON.stringify(data.questions?.length)}`);
+  for (const q of data.questions) {
+    if (!Number.isInteger(q.id)) throw new Error(`question id must be int, got ${JSON.stringify(q.id)}`);
+    if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`question text missing for id ${q.id}`);
+  }
+}
+
+function validateMarkShape(data) {
+  if (!Array.isArray(data.results)) throw new Error('results must be an array');
+  for (const r of data.results) {
+    if (!Number.isInteger(r.id)) throw new Error(`result id must be int, got ${JSON.stringify(r.id)}`);
+    if (!VALID_STATES.has(r.state)) throw new Error(`invalid state "${r.state}" for id ${r.id}`);
+    if (typeof r.feedback !== 'string' || !r.feedback.trim()) throw new Error(`feedback missing for id ${r.id}`);
+  }
+  if (!Array.isArray(data.xpInjections)) throw new Error('xpInjections must be an array');
+  for (const x of data.xpInjections) {
+    if (x.difficultyScore < 20 || x.difficultyScore > 100) throw new Error(`difficultyScore out of range for unitId ${x.unitId}`);
+    if (x.performanceRatio < 0 || x.performanceRatio > 1) throw new Error(`performanceRatio out of range for unitId ${x.unitId}`);
+  }
+}
+
+async function generateJSONWithRetry(prompt, options, validate) {
+  let lastError = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const p = attempt === 0 ? prompt
+      : `${prompt}\n\nYour previous response failed validation: ${lastError}\nReturn valid JSON only, matching the exact shape specified.`;
+    try {
+      const raw = await generate(p, options);
+      const parsed = JSON.parse(raw);
+      validate(parsed);
+      return parsed;
+    } catch (e) {
+      lastError = e.message;
+      if (attempt === 1) throw new Error(`AI response invalid after retry: ${lastError}`);
+    }
+  }
+}
+
 app.post('/api/test/generate', async (req, res) => {
   const { domain, unitIds } = req.body;
   if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
@@ -425,8 +467,7 @@ app.post('/api/test/generate', async (req, res) => {
   try {
     const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
     const prompt = compilePrompt(template, { domain, unitIds });
-    const raw = await generate(prompt, { json: true });
-    const { questions } = JSON.parse(raw);
+    const { questions } = await generateJSONWithRetry(prompt, { json: true }, validateGenerateShape);
     res.json({ questions });
   } catch (err) {
     console.error('test/generate error:', err);
@@ -448,8 +489,7 @@ app.post('/api/test/mark', async (req, res) => {
     ).join('\n\n');
     const prompt = `${base}\n\n---\n\n${qa}`;
 
-    const raw = await generate(prompt, { json: true });
-    const { results, xpInjections } = JSON.parse(raw);
+    const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true }, validateMarkShape);
     const xpResult = processXPInjections(domain, xpInjections);
     res.json({ results, xpResult });
   } catch (err) {
