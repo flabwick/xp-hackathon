@@ -1,0 +1,205 @@
+{
+  "meta": {
+    "bt": [
+      "Introduction to Vision Transformers",
+      "ViT Architecture",
+      "Training Vision Transformers",
+      "Attention Mechanism",
+      "Classification Head"
+    ],
+    "cl": [
+      "Overview of Vision Transformers",
+      "Understanding ViT Components",
+      "Training Methods",
+      "Attention Mechanisms in Detail",
+      "Classification Techniques"
+    ]
+  },
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {
+              "id": 0,
+              "n": "Introduction to Vision Transformers",
+              "t": "f",
+              "nt": "Covers the basic concept and purpose of Vision Transformers (ViT).",
+              "l": []
+            },
+            {
+              "id": 1,
+              "n": "Why Choose Vision Transformers?",
+              "t": "c",
+              "nt": "Discusses the advantages of using ViT over traditional methods.",
+              "l": [
+                [
+                  0,
+                  "h"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 1,
+          "units": [
+            {
+              "id": 2,
+              "n": "Understanding the ViT Architecture",
+              "t": "f",
+              "nt": "Covers the fundamental structure of the ViT model.",
+              "l": []
+            },
+            {
+              "id": 3,
+              "n": "Patch Embedding and Positional Encoding",
+              "t": "c",
+              "nt": "Explains how images are divided into patches and embedded.",
+              "l": [
+                [
+                  2,
+                  "h"
+                ]
+              ]
+            },
+            {
+              "id": 4,
+              "n": "Role of the [CLS] Token",
+              "t": "c",
+              "nt": "Describes the significance of the [CLS] token in ViT.",
+              "l": [
+                [
+                  2,
+                  "h"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 2,
+          "units": [
+            {
+              "id": 5,
+              "n": "Training Vision Transformers Overview",
+              "t": "f",
+              "nt": "Covers the basics of training ViT models.",
+              "l": []
+            },
+            {
+              "id": 6,
+              "n": "Backpropagation in ViT",
+              "t": "c",
+              "nt": "Discusses how errors propagate during training in ViT.",
+              "l": [
+                [
+                  5,
+                  "h"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 3,
+          "units": [
+            {
+              "id": 7,
+              "n": "Self-Attention Mechanism",
+              "t": "f",
+              "nt": "Introduces the core concept of self-attention in transformers.",
+              "l": []
+            },
+            {
+              "id": 8,
+              "n": "Attention Similarity Calculation",
+              "t": "c",
+              "nt": "Details the mathematical formulation of attention scores.",
+              "l": [
+                [
+                  7,
+                  "h"
+                ]
+              ]
+            },
+            {
+              "id": 9,
+              "n": "Attention Distribution and Outputs",
+              "t": "c",
+              "nt": "Explains how attention distributions influence output.",
+              "l": [
+                [
+                  7,
+                  "h"
+                ],
+                [
+                  8,
+                  "h"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 4,
+          "units": [
+            {
+              "id": 10,
+              "n": "Classification Head Overview",
+              "t": "f",
+              "nt": "Covers the basic structure of the classification head in ViT.",
+              "l": []
+            },
+            {
+              "id": 11,
+              "n": "Mapping [CLS] to Class Logits",
+              "t": "c",
+              "nt": "Discusses how the [CLS] token is used for classification.",
+              "l": [
+                [
+                  10,
+                  "h"
+                ]
+              ]
+            },
+            {
+              "id": 12,
+              "n": "Segment Anything Comparison",
+              "t": "c",
+              "nt": "Compares ViT with Segment Anything (SAM) model.",
+              "l": [
+                [
+                  10,
+                  "h"
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
