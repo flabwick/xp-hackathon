@@ -40,22 +40,6 @@
                   "xpGain": 0,
                   "notes": "The student did not demonstrate any understanding of propositional logic concepts.",
                   "sessionId": "mony13zkmzza"
-                },
-                {
-                  "timestamp": "2026-05-02T06:28:30.248Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No understanding of propositional logic and inference patterns.",
-                  "sessionId": "monyngyws0zm"
-                },
-                {
-                  "timestamp": "2026-05-02T07:04:41.990Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No comprehension or application of propositional logic concepts demonstrated.",
-                  "sessionId": "monzy0p2inux"
                 }
               ]
             },
@@ -109,14 +93,6 @@
                   "xpGain": 0,
                   "notes": "The student did not demonstrate any understanding of quantifier syntax, nested operators, and negation rules.",
                   "sessionId": "mony13zkmzza"
-                },
-                {
-                  "timestamp": "2026-05-02T06:28:30.248Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No understanding of quantifier syntax, negation rules, and natural language translation.",
-                  "sessionId": "monyngyws0zm"
                 }
               ]
             }

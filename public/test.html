@@ -223,7 +223,23 @@
     details.example-toggle summary::before { content: '▶ '; }
     details.example-toggle[open] summary::before { content: '▼ '; }
 
+    /* ─── TEACH BTN ─────────────────────────── */
+    .btn-teach {
+      font-family: var(--font-sans); font-weight: 900; font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border: 2px solid #000; padding: 14px 28px; cursor: pointer;
+      box-shadow: var(--shadow-brutal); background: #818cf8; color: #fff;
+    }
+    .btn-teach:hover { background: #6366f1; }
+    .btn-teach:active { transform: translate(4px,4px); box-shadow: none; }
+
     /* ─── XP SUMMARY ─────────────────────────── */
+    .xp-total-row {
+      background: #fde047; border-bottom: 2px solid #000;
+      padding: 16px 20px; display: flex; align-items: center; gap: 16px;
+    }
+    .xp-total-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; }
+    .xp-total-value { font-family: var(--font-mono); font-weight: 900; font-size: 2rem; color: #16a34a; }
     .xp-summary-block {
       border: 2px solid #000; box-shadow: var(--shadow-brutal-lg);
       margin-bottom: 32px; overflow: hidden;
@@ -234,14 +250,20 @@
       letter-spacing: 0.1em; font-family: var(--font-mono);
     }
     .xp-row {
-      display: flex; align-items: center; padding: 12px 20px;
-      border-bottom: 2px solid #000; gap: 16px;
+      display: flex; align-items: flex-start; flex-direction: column;
+      padding: 14px 20px; border-bottom: 2px solid #000; gap: 8px;
     }
     .xp-row:last-child { border-bottom: none; }
+    .xp-row-top { display: flex; align-items: center; width: 100%; gap: 12px; }
     .xp-unit-name { flex: 1; font-weight: 700; font-size: 0.9rem; }
-    .xp-delta { font-family: var(--font-mono); font-weight: 900; font-size: 1rem; color: #16a34a; }
+    .xp-delta { font-family: var(--font-mono); font-weight: 900; font-size: 1.1rem; color: #16a34a; }
     .xp-band-change { font-family: var(--font-mono); font-size: 0.75rem; color: #555; }
     .band-up { color: #c026d3; font-weight: 700; }
+    .xp-bar-wrap { width: 100%; }
+    .xp-bar-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 4px; font-family: var(--font-mono); display: flex; justify-content: space-between; }
+    .xp-bar-track { height: 10px; background: #e5e7eb; border: 2px solid #000; position: relative; overflow: hidden; }
+    .xp-bar-fill { height: 100%; background: #4ade80; width: 0%; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
+    .xp-bar-fill.band-shifted { background: #c084fc; }
 
     /* ─── QR MODAL ───────────────────────────── */
     dialog#qr-modal {
@@ -378,6 +400,7 @@
       <!-- Submit -->
       <div class="submit-bar">
         <button class="btn-submit" id="submit-btn" onclick="submitAnswers()">Submit Answers →</button>
+        <button class="btn-teach" onclick="openTeachMode(false)">Explain with AI →</button>
         <span class="submit-hint">Answers are auto-saved. Submit when done.</span>
       </div>
     </div>
@@ -417,9 +440,10 @@
       <div id="xp-summary-block"></div>
       <div id="result-list"></div>
 
-      <div style="display:flex;gap:12px;margin-top:24px">
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
         <a href="/" class="btn btn-yellow">← Home</a>
         <button class="btn btn-green" onclick="retakeTest()">Retake Test</button>
+        <button class="btn-teach" onclick="openTeachMode(true)">Explain with AI →</button>
       </div>
     </div>
   </main>
@@ -631,6 +655,7 @@
         });
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || 'Marking failed');
+        window._lastMarkResults = data;
         renderResults(data, answers);
       } catch (err) {
         setBadge('Error', '#ef4444', '#fff');
@@ -659,24 +684,50 @@
       // XP Summary
       const xpBlock = document.getElementById('xp-summary-block');
       if (xpResult && xpResult.results && xpResult.results.length > 0) {
+        const totalXP = xpResult.results.reduce((sum, x) => sum + x.delta, 0);
         const xpRows = xpResult.results.map(x => `
           <div class="xp-row">
-            <div class="xp-unit-name">Unit ${x.unitId}</div>
-            <div class="xp-delta">+${x.delta} XP</div>
-            <div class="xp-band-change">
-              ${x.bandShifted
-                ? `<span class="band-up">Band ${x.oldBand} → ${x.newBand} ↑</span>`
-                : `Band ${x.newBand} (${x.oldCum} → ${x.newCum})`
-              }
+            <div class="xp-row-top">
+              <div class="xp-unit-name">Unit ${x.unitId}</div>
+              <div class="xp-delta">+${x.delta} XP</div>
+              <div class="xp-band-change">
+                ${x.bandShifted
+                  ? `<span class="band-up">Band ${x.oldBand} → ${x.newBand} ↑</span>`
+                  : `Band ${x.newBand}`
+                }
+              </div>
+            </div>
+            <div class="xp-bar-wrap">
+              <div class="xp-bar-label">
+                <span>Band ${x.newBand}</span>
+                <span>${bandRangeText(x.newBand, x.newCum)}</span>
+              </div>
+              <div class="xp-bar-track">
+                <div class="xp-bar-fill ${x.bandShifted ? 'band-shifted' : ''}"
+                     id="xp-bar-${x.unitId}" style="width:0%"></div>
+              </div>
             </div>
           </div>
         `).join('');
         xpBlock.innerHTML = `
           <div class="xp-summary-block">
             <div class="xp-summary-header">⚡ XP Gained — Session ${xpResult.sessionId}</div>
+            <div class="xp-total-row">
+              <div class="xp-total-label">Total XP This Session</div>
+              <div class="xp-total-value">+${totalXP}</div>
+            </div>
             ${xpRows}
           </div>
         `;
+        // Animate bars after DOM paint
+        requestAnimationFrame(() => {
+          xpResult.results.forEach(x => {
+            const bar = document.getElementById(`xp-bar-${x.unitId}`);
+            if (bar) requestAnimationFrame(() => {
+              bar.style.width = xpBarFill(x.newCum, x.newBand) + '%';
+            });
+          });
+        });
       } else {
         xpBlock.innerHTML = '';
       }
@@ -744,6 +795,45 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    // ─── XP HELPERS ──────────────────────────────────────────────────────────────
+    const BAND_THRESHOLDS = [0, 150, 600, 1500, 2400];
+    const BAND_NAMES = ['I', 'II', 'III', 'IV', 'V'];
+
+    function xpBarFill(newCum, newBand) {
+      const idx = BAND_NAMES.indexOf(newBand);
+      if (idx < 0) return 0;
+      if (idx >= BAND_NAMES.length - 1) return 100;
+      const bandStart = BAND_THRESHOLDS[idx];
+      const bandEnd = BAND_THRESHOLDS[idx + 1];
+      const range = bandEnd - bandStart;
+      const within = Math.max(0, Math.min(newCum - bandStart, range));
+      return Math.round((within / range) * 100);
+    }
+
+    function bandRangeText(band, newCum) {
+      const idx = BAND_NAMES.indexOf(band);
+      if (idx < 0) return '';
+      if (idx >= BAND_NAMES.length - 1) return `${newCum} XP (Maxed)`;
+      const bandStart = BAND_THRESHOLDS[idx];
+      const bandEnd = BAND_THRESHOLDS[idx + 1];
+      return `${newCum - bandStart} / ${bandEnd - bandStart} XP`;
+    }
+
+    // ─── TEACH MODE ───────────────────────────────────────────────────────────────
+    function openTeachMode(withResults) {
+      const answers = questions.map(q => ({
+        id: q.id,
+        answer: (document.getElementById(`ans-${q.id}`)?.value || '').trim() || '(no answer)'
+      }));
+      const ctx = { domain, unitIds, questions, answers };
+      if (withResults && window._lastMarkResults) {
+        ctx.results = window._lastMarkResults.results;
+        ctx.xpResult = window._lastMarkResults.xpResult;
+      }
+      sessionStorage.setItem('teachContext', JSON.stringify(ctx));
+      window.location.href = '/teach';
     }
 
     // ─── QR MODAL ─────────────────────────────────────────────────────────────────
@@ -829,29 +919,37 @@
     }
 
     function applyOCRResults(ocrResults) {
+      const patterns = [
+        /^[Qq]\.?\s*(\d+)/,
+        /^[Aa]nswer\s+(\d+)/i,
+        /^(\d+)\s*[.):\-]/,
+      ];
+
       ocrResults.forEach((result, i) => {
-        const qId = questions[i]?.id;
-        if (qId === undefined) return;
-        const ta = document.getElementById(`ans-${qId}`);
-        if (!ta) return;
-        // Append to existing answer if already has text
-        const existing = ta.value.trim();
-        ta.value = existing ? `${existing}\n\n[OCR]\n${result.text}` : result.text;
-        ta.classList.add('ocr-filled');
-        saveAnswer(qId, ta.value);
-      });
-      // If more images than questions, append extra to last question
-      if (ocrResults.length > questions.length) {
-        const lastQ = questions[questions.length - 1];
-        if (lastQ) {
-          const ta = document.getElementById(`ans-${lastQ.id}`);
-          if (ta) {
-            const extras = ocrResults.slice(questions.length).map(r => r.text).join('\n\n');
-            ta.value += '\n\n[Additional OCR]\n' + extras;
-            saveAnswer(lastQ.id, ta.value);
+        const text = result.text || '';
+        let targetQId = null;
+
+        // Try to detect which question number the image is answering
+        for (const pat of patterns) {
+          const m = text.trim().match(pat);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            const q = questions.find(q => q.id === num);
+            if (q) { targetQId = num; break; }
           }
         }
-      }
+
+        // Fall back to positional order
+        if (targetQId === null) targetQId = questions[i]?.id;
+        if (targetQId === undefined || targetQId === null) return;
+
+        const ta = document.getElementById(`ans-${targetQId}`);
+        if (!ta) return;
+        const existing = ta.value.trim();
+        ta.value = existing ? `${existing}\n\n[OCR]\n${text}` : text;
+        ta.classList.add('ocr-filled');
+        saveAnswer(targetQId, ta.value);
+      });
     }
 
     // ─── RESET ────────────────────────────────────────────────────────────────────

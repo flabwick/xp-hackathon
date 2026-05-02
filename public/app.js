@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       opt.value = d; opt.textContent = d;
       el.domainSelect.appendChild(opt);
     });
-    if(domains.length) loadDomain(domains[0]);
+    if(domains.length) loadDomain(window.__domain && domains.includes(window.__domain) ? window.__domain : domains[0]);
   });
 
   // Load XP — domain is resolved per-request, init with empty

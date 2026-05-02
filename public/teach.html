@@ -419,103 +419,18 @@
   </main>
 
   <script>
-    const DEMO_MESSAGES = [
-      {
-        role: 'user',
-        text: 'Can you explain what a derivative is?'
-      },
-      {
-        role: 'ai',
-        text: `## What Is a Derivative?
-
-A **derivative** tells you how fast something is changing at an exact instant — the *instantaneous rate of change*.
-
-Think of driving: your position is $s(t)$. Your speed at any moment is the derivative of position.
-
-### Definition
-
-$$\\frac{df}{dx} = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$
-
-Nudge $x$ by a tiny amount $h$. The derivative is the ratio of the output change to the input change, as $h$ shrinks to zero.
-
-### Example
-
-For $f(x) = x^2$, applying the definition gives $f'(x) = 2x$.
-
-So at $x = 3$, the function is increasing at a rate of $6$.
-
-> The derivative at a point equals the **slope of the tangent line** to the curve there.`
-      },
-      {
-        role: 'user',
-        text: 'What are the main rules I need to know?'
-      },
-      {
-        role: 'ai',
-        text: `## Core Derivative Rules
-
-### Power Rule
-
-$$\\frac{d}{dx}[x^n] = nx^{n-1}$$
-
-Works for any $n$ — integers, fractions, negatives.
-
-### Product Rule
-
-$$\\frac{d}{dx}[fg] = f'g + fg'$$
-
-### Chain Rule — for composed functions
-
-$$\\frac{d}{dx}[f(g(x))] = f'(g(x)) \\cdot g'(x)$$
-
-**Example:** differentiate $y = \\sin(x^2)$:
-
-1. Outer $\\sin(u)$ → derivative $\\cos(u)$
-2. Inner $x^2$ → derivative $2x$
-3. Result: $\\dfrac{dy}{dx} = \\cos(x^2) \\cdot 2x$
-
-> **Pattern:** derivative of the outer (evaluated at the inner), times derivative of the inner.`
-      },
-      {
-        role: 'user',
-        text: 'What does the second derivative tell us?'
-      },
-      {
-        role: 'ai',
-        text: `## Second Derivative
-
-The derivative of the derivative:
-
-$$f''(x) = \\frac{d^2f}{dx^2}$$
-
-It measures **how fast the slope is changing** — i.e. the curvature of the graph.
-
-### Concavity
-
-| $f''(x)$ | Shape | Label |
-|---|---|---|
-| Positive | Bends upward | Concave up |
-| Negative | Bends downward | Concave down |
-| Zero | Flat curvature | Possible inflection |
-
-In motion: if $s(t)$ is position, then $s'(t)$ is velocity and $s''(t)$ is **acceleration**.
-
-### Second Derivative Test
-
-At a critical point $f'(c) = 0$:
-
-$$f''(c) > 0 \\implies \\text{local minimum}$$
-
-$$f''(c) < 0 \\implies \\text{local maximum}$$`
-      }
-    ];
+    // ─── STATE ───────────────────────────────────────────────────────────────────
+    let domain = null;
+    let unitIds = [];
+    let conversationMessages = [];
+    let isStreaming = false;
 
     const feed = document.getElementById('chat-feed');
     const input = document.getElementById('msg-input');
     const sendBtn = document.getElementById('btn-send');
 
+    // ─── MARKDOWN / MATH ─────────────────────────────────────────────────────────
     function renderMarkdown(text) {
-      // Stash math blocks before marked can mangle _ and * inside them
       const stash = [];
       const stashed = text
         .replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => {
@@ -529,13 +444,11 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
 
       let html = marked.parse(stashed);
 
-      // Restore math as KaTeX-ready delimiters
       html = html.replace(/MATHSTASH(\d+)X/g, (_, i) => {
         const { display, src } = stash[parseInt(i)];
         return display ? `$$${src}$$` : `$${src}$`;
       });
 
-      // Pull display math out of <p> wrappers so spacing is correct
       html = html.replace(/<p>\s*(\$\$[\s\S]*?\$\$)\s*<\/p>/g,
         '<div class="math-block">$1</div>');
 
@@ -562,6 +475,13 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
       pendingMathEls.length = 0;
     }
 
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ─── MESSAGE HELPERS ─────────────────────────────────────────────────────────
     function appendMessage(role, text) {
       const wrap = document.createElement('div');
       wrap.className = `msg msg-${role}`;
@@ -575,11 +495,8 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
 
       if (role === 'ai') {
         bubble.innerHTML = renderMarkdown(text);
-        if (window._katexReady) {
-          applyMath(bubble);
-        } else {
-          pendingMathEls.push(bubble);
-        }
+        if (window._katexReady) applyMath(bubble);
+        else pendingMathEls.push(bubble);
       } else {
         bubble.textContent = text;
       }
@@ -587,7 +504,6 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
       wrap.appendChild(label);
       wrap.appendChild(bubble);
       feed.appendChild(wrap);
-
       feed.scrollTo({ top: feed.scrollHeight, behavior: 'smooth' });
       return wrap;
     }
@@ -603,15 +519,12 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
       const wrap = document.createElement('div');
       wrap.className = 'msg msg-ai';
       wrap.id = 'typing-indicator';
-
       const label = document.createElement('div');
       label.className = 'msg-label';
       label.textContent = 'AI Tutor';
-
       const bubble = document.createElement('div');
       bubble.className = 'msg-bubble thinking';
       bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-
       wrap.appendChild(label);
       wrap.appendChild(bubble);
       feed.appendChild(wrap);
@@ -623,27 +536,199 @@ $$f''(c) < 0 \\implies \\text{local maximum}$$`
       if (el) el.remove();
     }
 
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
+    // ─── STREAMING ───────────────────────────────────────────────────────────────
+    async function streamMessage(userContent) {
+      conversationMessages.push({ role: 'user', content: userContent });
+      isStreaming = true;
+      sendBtn.disabled = true;
+      input.disabled = true;
 
-      input.value = '';
-      input.style.height = 'auto';
+      removeTypingIndicator();
 
-      appendMessage('user', text);
-      appendTypingIndicator();
+      const wrap = document.createElement('div');
+      wrap.className = 'msg msg-ai';
+      const lbl = document.createElement('div');
+      lbl.className = 'msg-label';
+      lbl.textContent = 'AI Tutor';
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+      wrap.appendChild(lbl);
+      wrap.appendChild(bubble);
+      feed.appendChild(wrap);
+      feed.scrollTo({ top: feed.scrollHeight, behavior: 'smooth' });
 
-      // Demo stub: echo a placeholder AI reply after a short delay
-      setTimeout(() => {
-        removeTypingIndicator();
-        appendMessage('ai', `**Got it.** You asked:\n\n> ${text}\n\nThis is a demo response. Connect the \`/api/teach\` endpoint to get real AI replies.`);
-      }, 1200);
+      let fullText = '';
+      let firstChunk = true;
+
+      try {
+        const res = await fetch('/api/teach/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, unitIds, messages: conversationMessages })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Request failed' }));
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const payload = line.slice(6).trim();
+            if (payload === '[DONE]') break;
+            try {
+              const chunk = JSON.parse(payload);
+              if (chunk && typeof chunk === 'object' && chunk.error) throw new Error(chunk.error);
+              if (typeof chunk === 'string') {
+                if (firstChunk) { bubble.textContent = ''; firstChunk = false; }
+                fullText += chunk;
+                bubble.textContent = fullText;
+                feed.scrollTo({ top: feed.scrollHeight, behavior: 'smooth' });
+              }
+            } catch (e) {
+              if (e.message.startsWith('HTTP ') || e.message !== 'Unexpected token') throw e;
+            }
+          }
+        }
+
+        bubble.innerHTML = renderMarkdown(fullText || '(no response)');
+        if (window._katexReady) applyMath(bubble);
+        else pendingMathEls.push(bubble);
+
+        conversationMessages.push({ role: 'assistant', content: fullText });
+
+      } catch (err) {
+        bubble.innerHTML = `<strong>Error:</strong> ${escapeHtml(err.message)}`;
+      } finally {
+        isStreaming = false;
+        sendBtn.disabled = false;
+        input.disabled = false;
+        feed.scrollTo({ top: feed.scrollHeight, behavior: 'smooth' });
+      }
     }
 
-    // Load demo messages
-    appendDivider('Session Start');
-    DEMO_MESSAGES.forEach(m => appendMessage(m.role, m.text));
-    appendDivider('End of Demo — Keep Chatting Below');
+    // ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+    async function sendMessage() {
+      if (isStreaming) return;
+      const text = input.value.trim();
+      if (!text) return;
+      if (!domain || !unitIds.length) {
+        alert('No subject context loaded. Go back and use the test page to open Teach mode.');
+        return;
+      }
+      input.value = '';
+      input.style.height = 'auto';
+      appendMessage('user', text);
+      appendTypingIndicator();
+      await streamMessage(text);
+    }
+
+    // ─── BUILD AUTO-EXPLAIN MESSAGE ───────────────────────────────────────────────
+    function buildAutoExplainMessage(ctx) {
+      const { questions, answers, results } = ctx;
+      if (!questions || !answers) return null;
+
+      const lines = [
+        'Please review my test answers below. For each question, explain the correct approach and where my answer fell short. Be thorough but clear.',
+        ''
+      ];
+
+      questions.forEach(q => {
+        const ans = answers.find(a => a.id === q.id);
+        const res = results ? results.find(r => r.id === q.id) : null;
+
+        lines.push(`---`);
+        lines.push(`**Question ${q.id}:** ${q.question}`);
+        lines.push(`**My answer:** ${ans?.answer || '(no answer)'}`);
+        if (res) {
+          lines.push(`**Result:** ${res.state}`);
+          if (res.feedback) lines.push(`**Feedback:** ${res.feedback}`);
+          if (res.exampleAnswer) lines.push(`**Model answer:** ${res.exampleAnswer}`);
+        }
+        lines.push('');
+      });
+
+      return lines.join('\n');
+    }
+
+    // ─── INIT ────────────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+      const raw = sessionStorage.getItem('teachContext');
+      if (raw) {
+        try {
+          const ctx = JSON.parse(raw);
+          domain = ctx.domain || null;
+          unitIds = Array.isArray(ctx.unitIds) ? ctx.unitIds : [];
+          sessionStorage.removeItem('teachContext');
+
+          feed.innerHTML = '';
+          appendDivider('Teach Session — ' + (domain || 'Unknown Domain'));
+
+          const autoMsg = buildAutoExplainMessage(ctx);
+          if (autoMsg) {
+            const hasResults = ctx.results && ctx.results.length > 0;
+            const displayMsg = hasResults
+              ? 'Explain my test results and help me understand where I went wrong.'
+              : 'Review my answers and explain the concepts clearly.';
+            appendMessage('user', displayMsg);
+            appendTypingIndicator();
+            await streamMessage(autoMsg);
+          }
+          return;
+        } catch (_) {}
+      }
+
+      // No context: try to get a domain so free chat works
+      try {
+        const domains = await fetch('/api/domains').then(r => r.json());
+        if (domains && domains.length > 0) {
+          domain = domains[0];
+          const unitsData = await fetch(`/api/units/${domain}`).then(r => r.json());
+          unitIds = [];
+          for (const bt of (unitsData.tree || [])) {
+            for (const cl of (bt.clusters || [])) {
+              for (const u of (cl.units || [])) unitIds.push(u.id);
+            }
+          }
+        }
+      } catch (_) {}
+
+      // Show demo messages as examples
+      appendDivider('Demo — Example Conversation');
+      appendMessage('user', 'Can you explain what a derivative is?');
+      appendMessage('ai', `## What Is a Derivative?
+
+A **derivative** tells you how fast something is changing at an exact instant — the *instantaneous rate of change*.
+
+Think of driving: your position is $s(t)$. Your speed at any moment is the derivative of position.
+
+### Definition
+
+$$\\frac{df}{dx} = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$
+
+Nudge $x$ by a tiny amount $h$. The derivative is the ratio of the output change to the input change, as $h$ shrinks to zero.
+
+### Example
+
+For $f(x) = x^2$, applying the definition gives $f'(x) = 2x$.
+
+So at $x = 3$, the function is increasing at a rate of $6$.
+
+> The derivative at a point equals the **slope of the tangent line** to the curve there.`);
+      appendDivider('Start Chatting Below');
+    });
 
     // Send on button click
     sendBtn.addEventListener('click', sendMessage);

@@ -6,6 +6,7 @@ const { compilePrompt } = require('./promptCompiler');
 const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
 const answersRouter = require('./answers/router');
+const pageRouter = require('./routes');
 const app = express();
 const PORT = 6969;
 
@@ -25,30 +26,14 @@ app.get('/api/server-info', (req, res) => {
   res.json({ ip: getLocalIP(), port: PORT });
 });
 
-// In production, serve the Vite build output
+// Page routes (must come before express.static so / serves domains.html, not index.html)
+app.use(pageRouter);
+
+// Static assets (CSS, JS, images)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'dist')));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
 } else {
   app.use(express.static('public'));
-  app.get('/mapping', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'mapping.html'));
-  });
-  app.get('/markdown-ui', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'markdown-ui.html'));
-  });
-  app.get('/test', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'test.html'));
-  });
-  app.get('/mobile-upload', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'mobile-upload.html'));
-  });
-  app.get('/teach', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'teach.html'));
-  });
 }
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────

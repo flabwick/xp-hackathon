@@ -522,31 +522,5 @@
         "sessionId": "monyngyws0zm"
       }
     ]
-  },
-  {
-    "sessionId": "monzy0p2inux",
-    "timestamp": "2026-05-02T07:04:41.990Z",
-    "injections": [
-      {
-        "unitId": 0,
-        "difficultyScore": 20,
-        "performanceRatio": 0,
-        "notes": "No comprehension or application of propositional logic concepts demonstrated."
-      }
-    ],
-    "results": [
-      {
-        "unitId": 0,
-        "oldBand": "I",
-        "newBand": "I",
-        "oldCum": 90,
-        "newCum": 90,
-        "dv": 0,
-        "bm": -0.5,
-        "delta": 0,
-        "bandShifted": false,
-        "sessionId": "monzy0p2inux"
-      }
-    ]
   }
 ]
