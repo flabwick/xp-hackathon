@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XP Study & Injection</title>
+  <title>StudyXP — Study Menu</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -14,9 +14,10 @@
 
 <header id="study-menu">
   <div class="header-top">
-    <a href="/" class="back-link" title="Back to domain picker">←</a>
-    <h1>STUDY MENU</h1>
+    <a href="/" class="back-link" title="Back to course picker">←</a>
+    <h1>STUDYXP</h1>
     <span class="header-badge" id="domain-badge">—</span>
+    <button id="open-keys-btn" class="back-link" title="Set API keys" style="margin-left:auto;">🔑</button>
   </div>
 
   <div class="controls">
@@ -94,6 +95,53 @@
     </div>
   </div>
 </dialog>
+
+<dialog id="keys-modal">
+  <div class="modal-header">
+    <h2>🔑 API Keys</h2>
+    <button class="btn close" id="keys-modal-close">✖</button>
+  </div>
+  <div style="padding: 18px 22px; display:flex; flex-direction:column; gap:14px;">
+    <p style="font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #444;">
+      Stored in your browser only. Sent per-request to the server.
+    </p>
+    <div>
+      <label style="display:block; font-family:'Space Mono',monospace; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Groq API Key</label>
+      <input id="study-groq-key" type="password" autocomplete="off" placeholder="gsk_..."
+        style="width:100%; border:2px solid #000; padding:10px 12px; font-family:'Space Mono',monospace; font-size:0.85rem; background:#f5f5f5;">
+    </div>
+    <div>
+      <label style="display:block; font-family:'Space Mono',monospace; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">OpenAI API Key (for Add Course)</label>
+      <input id="study-openai-key" type="password" autocomplete="off" placeholder="sk-..."
+        style="width:100%; border:2px solid #000; padding:10px 12px; font-family:'Space Mono',monospace; font-size:0.85rem; background:#f5f5f5;">
+    </div>
+    <button id="study-save-keys" class="btn"
+      style="background:#4ade80; border:2px solid #000; padding:10px 20px; font-weight:900; text-transform:uppercase;">
+      Save
+    </button>
+  </div>
+</dialog>
+
+<script>
+  // Tiny BYOK modal handler — same localStorage keys as domains.html.
+  (function() {
+    const keysModal  = document.getElementById('keys-modal');
+    const groqInput  = document.getElementById('study-groq-key');
+    const oaInput    = document.getElementById('study-openai-key');
+    document.getElementById('open-keys-btn')?.addEventListener('click', () => {
+      groqInput.value = localStorage.getItem('studyxp.groq_api_key')   || '';
+      oaInput.value   = localStorage.getItem('studyxp.openai_api_key') || '';
+      keysModal.showModal();
+    });
+    document.getElementById('keys-modal-close')?.addEventListener('click', () => keysModal.close());
+    document.getElementById('study-save-keys')?.addEventListener('click', () => {
+      const g = groqInput.value.trim(), o = oaInput.value.trim();
+      if (g) localStorage.setItem('studyxp.groq_api_key', g);   else localStorage.removeItem('studyxp.groq_api_key');
+      if (o) localStorage.setItem('studyxp.openai_api_key', o); else localStorage.removeItem('studyxp.openai_api_key');
+      keysModal.close();
+    });
+  })();
+</script>
 
 <script src="app.js?v=3"></script>
 </body>

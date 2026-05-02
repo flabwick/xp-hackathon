@@ -2,12 +2,19 @@ const Groq = require('groq-sdk');
 
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 
-async function generate(prompt, options = {}) {
-  if (!process.env.GROQ_API_KEY) {
-    throw new Error('Missing GROQ_API_KEY environment variable');
+/** Resolve the API key: per-request override > env. Throws if neither is set. */
+function resolveApiKey(options) {
+  const key = (options && options.apiKey) || process.env.GROQ_API_KEY;
+  if (!key) {
+    const err = new Error('Missing Groq API key. Set GROQ_API_KEY in the environment, or supply one via the in-app "API Key" button (sent as the X-Groq-Api-Key header).');
+    err.status = 401;
+    throw err;
   }
+  return key;
+}
 
-  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+async function generate(prompt, options = {}) {
+  const client = new Groq({ apiKey: resolveApiKey(options) });
 
   try {
     const completion = await client.chat.completions.create({
@@ -24,11 +31,7 @@ async function generate(prompt, options = {}) {
 }
 
 async function* chatStream(systemPrompt, messages, options = {}) {
-  if (!process.env.GROQ_API_KEY) {
-    throw new Error('Missing GROQ_API_KEY environment variable');
-  }
-
-  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const client = new Groq({ apiKey: resolveApiKey(options) });
 
   const stream = await client.chat.completions.create({
     model: options.model || DEFAULT_MODEL,
@@ -44,11 +47,7 @@ async function* chatStream(systemPrompt, messages, options = {}) {
 }
 
 async function chat(systemPrompt, messages, options = {}) {
-  if (!process.env.GROQ_API_KEY) {
-    throw new Error('Missing GROQ_API_KEY environment variable');
-  }
-
-  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const client = new Groq({ apiKey: resolveApiKey(options) });
 
   try {
     const completion = await client.chat.completions.create({

@@ -13,7 +13,7 @@ function validateQuestions(data) {
   }
 }
 
-async function testPromptCompile(domain, unitIds) {
+async function testPromptCompile(domain, unitIds, options = {}) {
   console.log(`[testPromptCompile] domain="${domain}" unitIds=[${unitIds.join(',')}]`);
 
   const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
@@ -26,7 +26,7 @@ async function testPromptCompile(domain, unitIds) {
     const p = attempt === 0 ? prompt
       : `${prompt}\n\nYour previous response failed validation: ${lastError}\nReturn valid JSON only, matching the exact shape specified.`;
     try {
-      const raw = await generate(p, { json: true });
+      const raw = await generate(p, { json: true, apiKey: options.apiKey });
       console.log(`[testPromptCompile] raw response length: ${raw.length} chars`);
       const parsed = JSON.parse(raw);
       validateQuestions(parsed);

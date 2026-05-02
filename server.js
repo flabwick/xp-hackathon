@@ -2,11 +2,19 @@ const express = require('express');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const multer = require('multer');
 const { compilePrompt } = require('./promptCompiler');
 const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
+const { addCourseFromPDF } = require('./addCourse');
 const answersRouter = require('./answers/router');
 const pageRouter = require('./routes');
+
+// In-memory PDF uploads, capped to keep memory and OpenAI prompt budget sane.
+const pdfUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
+});
 const app = express();
 // Honour Railway/host-injected PORT; fall back to 6969 for local dev.
 const PORT = parseInt(process.env.PORT, 10) || 6969;
@@ -25,6 +33,17 @@ app.use('/api/answers', answersRouter);
 
 app.get('/api/server-info', (req, res) => {
   res.json({ ip: getLocalIP(), port: PORT });
+});
+
+// Tells the UI whether the server has API keys baked in via env vars.
+// If hasGroqKey === false, the UI will require the user to bring their own.
+app.get('/api/config', (req, res) => {
+  res.json({
+    appName: 'StudyXP',
+    provider: process.env.AI_PROVIDER || 'groq',
+    hasGroqKey:   !!process.env.GROQ_API_KEY,
+    hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+  });
 });
 
 // Page routes (must come before express.static so / serves domains.html, not index.html)
@@ -157,6 +176,35 @@ app.get('/api/domains', (req, res) => {
     const files = fs.readdirSync(UNITS_DIR).filter(f => f.endsWith('.json'));
     res.json(files.map(f => f.replace('.json', '')));
   } catch (e) { res.status(500).json({ error: 'Failed to list domains' }); }
+});
+
+// Add a course from an uploaded PDF. Multipart form: field "pdf" (file) +
+// field "courseName" (string). OpenAI key comes from header X-OpenAI-Api-Key
+// (BYOK) or process.env.OPENAI_API_KEY.
+app.post('/api/add-course', pdfUpload.single('pdf'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'PDF file required (form field "pdf").' });
+    if (req.file.mimetype !== 'application/pdf' && !req.file.originalname.toLowerCase().endsWith('.pdf')) {
+      return res.status(400).json({ error: 'Uploaded file must be a PDF.' });
+    }
+    const courseName = (req.body.courseName || '').trim();
+    if (!courseName) return res.status(400).json({ error: 'courseName required.' });
+
+    const apiKey = req.headers['x-openai-api-key'] || undefined;
+    const result = await addCourseFromPDF(req.file.buffer, courseName, apiKey);
+
+    res.json({
+      success: true,
+      domain: result.slug,
+      courseName,
+      unitCount: result.unitCount,
+      pdfPages: result.pdfPages,
+      pdfChars: result.pdfChars,
+    });
+  } catch (err) {
+    console.error('add-course error:', err);
+    res.status(err.status || 500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/domains/:domain', (req, res) => {
@@ -488,6 +536,10 @@ async function generateJSONWithRetry(prompt, options, validate) {
   }
 }
 
+// Pull a user-supplied Groq key from the request, if present. Adapter falls
+// back to process.env.GROQ_API_KEY when this is undefined.
+const userGroqKey = (req) => req.headers['x-groq-api-key'] || undefined;
+
 app.post('/api/test/generate', async (req, res) => {
   const { domain, unitIds } = req.body;
   if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
@@ -496,11 +548,11 @@ app.post('/api/test/generate', async (req, res) => {
   try {
     const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
     const prompt = compilePrompt(template, { domain, unitIds });
-    const { questions } = await generateJSONWithRetry(prompt, { json: true }, validateGenerateShape);
+    const { questions } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateGenerateShape);
     res.json({ questions });
   } catch (err) {
     console.error('test/generate error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -518,12 +570,12 @@ app.post('/api/test/mark', async (req, res) => {
     ).join('\n\n');
     const prompt = `${base}\n\n---\n\n${qa}`;
 
-    const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true }, validateMarkShape);
+    const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateMarkShape);
     const xpResult = processXPInjections(domain, xpInjections);
     res.json({ results, xpResult });
   } catch (err) {
     console.error('test/mark error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -533,11 +585,11 @@ app.post('/api/test/compile-and-generate', async (req, res) => {
     return res.status(400).json({ error: 'domain and unitIds[] required' });
 
   try {
-    const { questions } = await testPromptCompile(domain, unitIds);
+    const { questions } = await testPromptCompile(domain, unitIds, { apiKey: userGroqKey(req) });
     res.json({ questions });
   } catch (err) {
     console.error('test/compile-and-generate error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -555,11 +607,11 @@ app.post('/api/teach', async (req, res) => {
   try {
     const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
     const systemPrompt = compilePrompt(template, { domain, unitIds });
-    const reply = await chat(systemPrompt, messages);
+    const reply = await chat(systemPrompt, messages, { apiKey: userGroqKey(req) });
     res.json({ role: 'assistant', reply });
   } catch (err) {
     console.error('teach error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 
@@ -580,7 +632,7 @@ app.post('/api/teach/stream', async (req, res) => {
   try {
     const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
     const systemPrompt = compilePrompt(template, { domain, unitIds });
-    for await (const chunk of chatStream(systemPrompt, messages)) {
+    for await (const chunk of chatStream(systemPrompt, messages, { apiKey: userGroqKey(req) })) {
       res.write(`data: ${JSON.stringify(chunk)}\n\n`);
     }
     res.write('data: [DONE]\n\n');
@@ -593,4 +645,4 @@ app.post('/api/teach/stream', async (req, res) => {
 });
 
 // Bind to 0.0.0.0 so PaaS hosts (Railway, Render, Fly, etc.) can route traffic in.
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Study App running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 StudyXP running on port ${PORT}`));
