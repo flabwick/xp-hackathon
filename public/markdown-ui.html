@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Renderer</title>
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="window._katexReady = true"></script>
+
+  <!-- marked -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@13.0.3/marked.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-sans: 'Space Grotesk', Arial, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --shadow-brutal: 4px 4px 0px 0px #000;
+      --shadow-brutal-sm: 2px 2px 0px 0px #000;
+      --shadow-brutal-lg: 6px 6px 0px 0px #000;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: #fde047;
+      border-bottom: 2px solid #000;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+
+    .header-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #000;
+      color: #fde047;
+      padding: 2px 8px;
+      letter-spacing: 0.08em;
+    }
+
+    .header-btns {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 2px solid #000;
+      padding: 6px 16px;
+      cursor: pointer;
+      box-shadow: var(--shadow-brutal-sm);
+      background: #fff;
+      transition: none;
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: #000;
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #222; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-success { background: #4ade80; color: #000; }
+
+    /* ─── SPLIT LAYOUT ───────────────────────────────────────── */
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .panel + .panel {
+      border-left: 2px solid #000;
+    }
+
+    .panel-label {
+      border-bottom: 2px solid #000;
+      padding: 6px 16px;
+      background: #f5f5f5;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-label-right {
+      background: #e0e7ff;
+    }
+
+    .char-count {
+      font-weight: 400;
+      color: #666;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+    }
+
+    /* ─── INPUT TEXTAREA ─────────────────────────────────────── */
+    #input {
+      flex: 1;
+      width: 100%;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      resize: none;
+      border: none;
+      outline: none;
+      background: #fff;
+      color: #111;
+    }
+
+    #input::placeholder { color: #aaa; }
+
+    /* ─── OUTPUT PANEL ───────────────────────────────────────── */
+    #output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #111;
+    }
+
+    .output-empty {
+      color: #aaa;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    /* ─── RENDERED MARKDOWN STYLES ───────────────────────────── */
+    #output h1 {
+      font-size: 1.9rem;
+      font-weight: 900;
+      border-bottom: 3px solid #000;
+      padding-bottom: 6px;
+      margin-bottom: 1rem;
+      margin-top: 0.5rem;
+      line-height: 1.2;
+    }
+
+    #output h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      border-bottom: 2px solid #000;
+      padding-bottom: 4px;
+      margin-bottom: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    #output h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    #output h4, #output h5, #output h6 {
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      margin-top: 1rem;
+    }
+
+    #output p {
+      margin-bottom: 0.8rem;
+    }
+
+    #output strong { font-weight: 800; }
+    #output em { font-style: italic; }
+
+    #output a {
+      color: #000;
+      font-weight: 700;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 2px;
+    }
+
+    #output code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      background: #f0f0f0;
+      border: 1.5px solid #000;
+      padding: 0.1em 0.4em;
+    }
+
+    #output pre {
+      background: #111;
+      color: #f0f0f0;
+      border: 2px solid #000;
+      box-shadow: var(--shadow-brutal);
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    #output pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #f0f0f0;
+      font-size: 0.82rem;
+    }
+
+    #output ul {
+      list-style: none;
+      padding-left: 1.1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    #output ul li::before {
+      content: "▸ ";
+      font-weight: 700;
+    }
+
+    #output ol {
+      list-style: none;
+      padding-left: 1.5rem;
+      margin-bottom: 0.8rem;
+      counter-reset: ol-counter;
+    }
+
+    #output ol li {
+      counter-increment: ol-counter;
+    }
+
+    #output ol li::before {
+      content: counter(ol-counter) ". ";
+      font-weight: 700;
+    }
+
+    #output li {
+      margin-bottom: 0.3rem;
+    }
+
+    #output blockquote {
+      border-left: 4px solid #000;
+      background: #fef9c3;
+      padding: 0.8rem 1.1rem;
+      margin-bottom: 0.8rem;
+      box-shadow: var(--shadow-brutal-sm);
+    }
+
+    #output hr {
+      border: none;
+      border-top: 3px solid #000;
+      margin: 1.5rem 0;
+    }
+
+    #output table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-brutal);
+    }
+
+    #output th {
+      background: #000;
+      color: #fff;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #output td {
+      border: 2px solid #000;
+      padding: 8px 12px;
+    }
+
+    #output tr:nth-child(even) td {
+      background: #f9f9f9;
+    }
+
+    #output img {
+      max-width: 100%;
+      border: 2px solid #000;
+      box-shadow: var(--shadow-brutal);
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    /* KaTeX display math */
+    #output .katex-display {
+      overflow-x: auto;
+      padding: 0.5rem 0;
+      margin: 0.5rem 0;
+    }
+
+    /* ─── SCROLLBAR ──────────────────────────────────────────── */
+    #output::-webkit-scrollbar,
+    #input::-webkit-scrollbar { width: 8px; }
+
+    #output::-webkit-scrollbar-track,
+    #input::-webkit-scrollbar-track { background: #f0f0f0; }
+
+    #output::-webkit-scrollbar-thumb,
+    #input::-webkit-scrollbar-thumb {
+      background: #000;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Markdown Renderer</h1>
+    <span class="header-badge">LaTeX + MD</span>
+    <div class="header-btns">
+      <button class="btn btn-danger" id="btn-clear">Clear</button>
+      <button class="btn btn-primary" id="btn-copy">Copy HTML</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Input -->
+    <div class="panel">
+      <div class="panel-label">
+        <span>Markdown Input</span>
+        <span class="char-count" id="char-count">0 chars</span>
+      </div>
+      <textarea
+        id="input"
+        spellcheck="false"
+        placeholder="# Heading&#10;&#10;Type **markdown** here. LaTeX supported:&#10;&#10;Inline: $E = mc^2$&#10;&#10;Block:&#10;$$\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}$$"
+      ></textarea>
+    </div>
+
+    <!-- Output -->
+    <div class="panel">
+      <div class="panel-label panel-label-right">
+        <span>Rendered Output</span>
+      </div>
+      <div id="output">
+        <span class="output-empty">Nothing to render yet — start typing on the left.</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const charCount = document.getElementById('char-count');
+
+    function render() {
+      const md = input.value;
+      charCount.textContent = md.length + ' chars';
+
+      if (!md.trim()) {
+        output.innerHTML = '<span class="output-empty">Nothing to render yet — start typing on the left.</span>';
+        return;
+      }
+
+      output.innerHTML = marked.parse(md);
+
+      if (window._katexReady) {
+        renderMathInElement(output, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    input.addEventListener('input', render);
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      input.value = '';
+      render();
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText(output.innerHTML).then(() => {
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = 'Copied!';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-primary');
+        setTimeout(() => {
+          btn.textContent = 'Copy HTML';
+          btn.classList.remove('btn-success');
+          btn.classList.add('btn-primary');
+        }, 1800);
+      });
+    });
+
+    // Re-render after KaTeX loads (it's deferred)
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new MutationObserver(() => {
+        if (window._katexReady && input.value.trim()) render();
+      });
+      observer.observe(document.head, { childList: true, subtree: true });
+      setTimeout(() => { if (input.value.trim()) render(); }, 800);
+    });
+  </script>
+
+</body>
+</html>
