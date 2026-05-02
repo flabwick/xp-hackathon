@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { compilePrompt } = require('./promptCompiler');
 const { generate } = require('./aiClient');
+const { testPromptCompile } = require('./testPromptCompile');
 const app = express();
 const PORT = 6969;
 
@@ -500,6 +501,20 @@ app.post('/api/test/mark', async (req, res) => {
     res.json({ results, xpResult });
   } catch (err) {
     console.error('test/mark error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/test/compile-and-generate', async (req, res) => {
+  const { domain, unitIds } = req.body;
+  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+    return res.status(400).json({ error: 'domain and unitIds[] required' });
+
+  try {
+    const { questions } = await testPromptCompile(domain, unitIds);
+    res.json({ questions });
+  } catch (err) {
+    console.error('test/compile-and-generate error:', err);
     res.status(500).json({ error: err.message });
   }
 });
