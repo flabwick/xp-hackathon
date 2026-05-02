@@ -1,0 +1,432 @@
+Conditionals and recursion
+==========================
+
+Chapter 5
+Conditionals and recursion
+Themaintopicofthischapteristheifstatement,whichexecutesdifferentcodedepending
+onthestateoftheprogram. ButfirstIwanttointroducetwonewoperators: floordivision
+andmodulus.
+5.1 Floor division and modulus
+Thefloordivisionoperator,//,dividestwonumbersandroundsdowntoaninteger. For
+example, supposetheruntimeofamovieis105minutes. Youmightwanttoknowhow
+longthatisinhours. Conventionaldivisionreturnsafloating-pointnumber:
+>>> minutes = 105
+>>> minutes / 60
+1.75
+Butwedon’tnormallywritehourswithdecimalpoints. Floordivisionreturnstheinteger
+numberofhours,roundingdown:
+>>> minutes = 105
+>>> hours = minutes // 60
+>>> hours
+1
+Togettheremainder,youcouldsubtractoffonehourinminutes:
+>>> remainder = minutes - hours * 60
+>>> remainder
+45
+Analternativeistousethemodulusoperator,%,whichdividestwonumbersandreturns
+theremainder.
+>>> remainder = minutes % 60
+>>> remainder
+45
+Themodulusoperatorismoreusefulthanitseems. Forexample,youcancheckwhether
+onenumberisdivisiblebyanother—ifx % yiszero,thenxisdivisiblebyy.
+
+40 Chapter5. Conditionalsandrecursion
+Also, you can extract the right-most digit or digits from a number. For example, x % 10
+yieldstheright-mostdigitofx(inbase10). Similarlyx % 100yieldsthelasttwodigits.
+If you are using Python 2, division works differently. The division operator, /, performs
+floordivisionifbothoperandsareintegers,andfloating-pointdivisionifeitheroperandis
+afloat.
+5.2 Boolean expressions
+Abooleanexpressionisanexpressionthatiseithertrueorfalse. Thefollowingexamples
+use the operator ==, which compares two operands and produces True if they are equal
+andFalseotherwise:
+>>> 5 == 5
+True
+>>> 5 == 6
+False
+TrueandFalsearespecialvaluesthatbelongtothetypebool;theyarenotstrings:
+>>> type(True)
+<class 'bool'>
+>>> type(False)
+<class 'bool'>
+The==operatorisoneoftherelationaloperators;theothersare:
+x != y # x is not equal to y
+x > y # x is greater than y
+x < y # x is less than y
+x >= y # x is greater than or equal to y
+x <= y # x is less than or equal to y
+Althoughtheseoperationsareprobablyfamiliartoyou,thePythonsymbolsaredifferent
+fromthemathematicalsymbols.Acommonerroristouseasingleequalsign(=)insteadof
+adoubleequalsign(==). Rememberthat=isanassignmentoperatorand==isarelational
+operator. Thereisnosuchthingas=<or=>.
+5.3 Logical operators
+There are three logical operators: and, or, and not. The semantics (meaning) of these
+operators is similar to their meaning in English. For example, x > 0 and x < 10 is true
+onlyifxisgreaterthan0andlessthan10.
+n%2 == 0 or n%3 == 0istrueifeitherorbothoftheconditionsistrue,thatis,ifthenumber
+isdivisibleby2or3.
+Finally, the not operator negates a boolean expression, so not (x > y) is true if x > y is
+false,thatis,ifxislessthanorequaltoy.
+Strictlyspeaking,theoperandsofthelogicaloperatorsshouldbebooleanexpressions,but
+Pythonisnotverystrict. AnynonzeronumberisinterpretedasTrue:
+
+5.4. Conditionalexecution 41
+>>> 42 and True
+True
+This flexibility can be useful, but there are some subtleties to it that might be confusing.
+Youmightwanttoavoidit(unlessyouknowwhatyouaredoing).
+5.4 Conditional execution
+Inordertowriteusefulprograms, wealmostalwaysneedtheabilitytocheckconditions
+andchangethebehavioroftheprogramaccordingly. Conditionalstatementsgiveusthis
+ability. Thesimplestformistheifstatement:
+if x > 0:
+print('x is positive')
+Thebooleanexpressionafterifiscalledthecondition. Ifitistrue,theindentedstatement
+runs. Ifnot,nothinghappens.
+if statements have the same structure as function definitions: a header followed by an
+indentedbody. Statementslikethisarecalledcompoundstatements.
+Thereisnolimitonthenumberofstatementsthatcanappearinthebody,buttherehasto
+be at least one. Occasionally, it is useful to have a body with no statements (usually as a
+placekeeperforcodeyouhaven’twrittenyet).Inthatcase,youcanusethepassstatement,
+whichdoesnothing.
+if x < 0:
+pass # TODO: need to handle negative values!
+5.5 Alternative execution
+Asecondformoftheifstatementis“alternativeexecution”,inwhichtherearetwopossi-
+bilitiesandtheconditiondetermineswhichoneruns. Thesyntaxlookslikethis:
+if x % 2 == 0:
+print('x is even')
+else:
+print('x is odd')
+Iftheremainderwhenxisdividedby2is0,thenweknowthatxiseven,andtheprogram
+displays an appropriate message. If the condition is false, the second set of statements
+runs. Sincetheconditionmustbetrueorfalse,exactlyoneofthealternativeswillrun. The
+alternativesarecalledbranches,becausetheyarebranchesintheflowofexecution.
+5.6 Chained conditionals
+Sometimes there are more than two possibilities and we need more than two branches.
+Onewaytoexpressacomputationlikethatisachainedconditional:
+
+42 Chapter5. Conditionalsandrecursion
+if x < y:
+print('x is less than y')
+elif x > y:
+print('x is greater than y')
+else:
+print('x and y are equal')
+elifisanabbreviationof“elseif”.Again,exactlyonebranchwillrun.Thereisnolimiton
+thenumberofelifstatements. Ifthereisanelseclause,ithastobeattheend,butthere
+doesn’thavetobeone.
+if choice == 'a':
+draw_a()
+elif choice == 'b':
+draw_b()
+elif choice == 'c':
+draw_c()
+Eachconditionischeckedinorder. Ifthefirstisfalse,thenextischecked,andsoon. Ifone
+ofthemistrue,thecorrespondingbranchrunsandthestatementends. Evenifmorethan
+oneconditionistrue,onlythefirsttruebranchruns.
+5.7 Nested conditionals
+Oneconditionalcanalsobenestedwithinanother. Wecouldhavewrittentheexamplein
+theprevioussectionlikethis:
+if x == y:
+print('x and y are equal')
+else:
+if x < y:
+print('x is less than y')
+else:
+print('x is greater than y')
+Theouterconditionalcontainstwobranches. Thefirstbranchcontainsasimplestatement.
+The second branch contains another if statement, which has two branches of its own.
+Thosetwobranchesarebothsimplestatements,althoughtheycouldhavebeenconditional
+statementsaswell.
+Although the indentation of the statements makes the structure apparent, nested condi-
+tionals become difficult to read very quickly. It is a good idea to avoid them when you
+can.
+Logical operators often provide a way to simplify nested conditional statements. For ex-
+ample,wecanrewritethefollowingcodeusingasingleconditional:
+if 0 < x:
+if x < 10:
+print('x is a positive single-digit number.')
+Theprintstatementrunsonlyifwemakeitpastbothconditionals,sowecangetthesame
+effectwiththeandoperator:
+if 0 < x and x < 10:
+print('x is a positive single-digit number.')
+
+5.8. Recursion 43
+Forthiskindofcondition,Pythonprovidesamoreconciseoption:
+if 0 < x < 10:
+print('x is a positive single-digit number.')
+5.8 Recursion
+Itislegalforonefunctiontocallanother;itisalsolegalforafunctiontocallitself. Itmay
+not be obvious why that is a good thing, but it turns out to be one of the most magical
+thingsaprogramcando. Forexample,lookatthefollowingfunction:
+def countdown(n):
+if n <= 0:
+print('Blastoff!')
+else:
+print(n)
+countdown(n-1)
+Ifnis0ornegative,itoutputstheword,“Blastoff!” Otherwise,itoutputsnandthencalls
+afunctionnamedcountdown—itself—passingn-1asanargument.
+Whathappensifwecallthisfunctionlikethis?
+>>> countdown(3)
+The execution of countdown begins with n=3, and since n is greater than 0, it outputs the
+value3,andthencallsitself...
+The execution of countdown begins with n=2, and since n is greater than 0, it
+outputsthevalue2,andthencallsitself...
+The execution of countdown begins with n=1, and since n is greater
+than0,itoutputsthevalue1,andthencallsitself...
+The execution of countdown begins with n=0, and since n is
+notgreaterthan0,itoutputstheword,“Blastoff!” andthen
+returns.
+Thecountdownthatgotn=1returns.
+Thecountdownthatgotn=2returns.
+Thecountdownthatgotn=3returns.
+Andthenyou’rebackin__main__. So,thetotaloutputlookslikethis:
+3
+2
+1
+Blastoff!
+Afunctionthatcallsitselfisrecursive;theprocessofexecutingitiscalledrecursion.
+Asanotherexample,wecanwriteafunctionthatprintsastringntimes.
+def print_n(s, n):
+if n <= 0:
+return
+print(s)
+print_n(s, n-1)
+
+44 Chapter5. Conditionalsandrecursion
+__main__
+countdown n 3
+countdown n 2
+countdown n 1
+countdown n 0
+Figure5.1: Stackdiagram.
+If n <= 0 the return statement exits the function. The flow of execution immediately re-
+turnstothecaller,andtheremaininglinesofthefunctiondon’trun.
+Therestofthefunctionissimilartocountdown: itdisplayssandthencallsitselftodisplay
+sn−1additionaltimes. Sothenumberoflinesofoutputis1 + (n - 1),whichaddsup
+ton.
+For simple examples like this, it is probably easier to use a for loop. But we will see
+exampleslaterthatarehardtowritewithaforloopandeasytowritewithrecursion,soit
+isgoodtostartearly.
+5.9 Stack diagrams for recursive functions
+InSection3.9,weusedastackdiagramtorepresentthestateofaprogramduringafunction
+call. Thesamekindofdiagramcanhelpinterpretarecursivefunction.
+Every time a function gets called, Python creates a frame to contain the function’s local
+variablesandparameters. Forarecursivefunction,theremightbemorethanoneframeon
+thestackatthesametime.
+Figure5.1showsastackdiagramforcountdowncalledwithn = 3.
+As usual, the top of the stack is the frame for __main__. It is empty because we did not
+createanyvariablesin__main__orpassanyargumentstoit.
+The four countdown frames have different values for the parameter n. The bottom of the
+stack,wheren=0,iscalledthebasecase. Itdoesnotmakearecursivecall,sothereareno
+moreframes.
+Asanexercise,drawastackdiagramforprint_ncalledwiths = 'Hello'andn=2. Then
+writeafunctioncalleddo_nthattakesafunctionobjectandanumber,n,asarguments,and
+thatcallsthegivenfunctionntimes.
+5.10 Infinite recursion
+Ifarecursionneverreachesabasecase,itgoesonmakingrecursivecallsforever,andthe
+program never terminates. This is known as infinite recursion, and it is generally not a
+goodidea. Hereisaminimalprogramwithaninfiniterecursion:
+
+5.11. Keyboardinput 45
+def recurse():
+recurse()
+Inmostprogrammingenvironments,aprogramwithinfiniterecursiondoesnotreallyrun
+forever. Pythonreportsanerrormessagewhenthemaximumrecursiondepthisreached:
+File "<stdin>", line 2, in recurse
+File "<stdin>", line 2, in recurse
+File "<stdin>", line 2, in recurse
+.
+.
+.
+File "<stdin>", line 2, in recurse
+RuntimeError: Maximum recursion depth exceeded
+Thistracebackisalittlebiggerthantheonewesawinthepreviouschapter.Whentheerror
+occurs,thereare1000recurseframesonthestack!
+If you encounter an infinite recursion by accident, review your function to confirm that
+thereisabasecasethatdoesnotmakearecursivecall. Andifthereisabasecase, check
+whetheryouareguaranteedtoreachit.
+5.11 Keyboard input
+Theprogramswehavewrittensofaracceptnoinputfromtheuser. Theyjustdothesame
+thingeverytime.
+Pythonprovidesabuilt-infunctioncalledinputthatstopstheprogramandwaitsforthe
+usertotypesomething. WhentheuserpressesReturnorEnter,theprogramresumesand
+input returns what the user typed as a string. In Python 2, the same function is called
+raw_input.
+>>> text = input()
+What are you waiting for?
+>>> text
+'What are you waiting for?'
+Beforegettinginputfromtheuser,itisagoodideatoprintaprompttellingtheuserwhat
+totype. inputcantakeapromptasanargument:
+>>> name = input('What...is your name?\n')
+What...is your name?
+Arthur, King of the Britons!
+>>> name
+'Arthur, King of the Britons!'
+Thesequence\nattheendofthepromptrepresentsanewline,whichisaspecialcharacter
+thatcausesalinebreak. That’swhytheuser’sinputappearsbelowtheprompt.
+Ifyouexpecttheusertotypeaninteger,youcantrytoconvertthereturnvaluetoint:
+>>> prompt = 'What...is the airspeed velocity of an unladen swallow?\n'
+>>> speed = input(prompt)
+What...is the airspeed velocity of an unladen swallow?
+42
+>>> int(speed)
+42
+
+46 Chapter5. Conditionalsandrecursion
+Butiftheusertypessomethingotherthanastringofdigits,yougetanerror:
+>>> speed = input(prompt)
+What...is the airspeed velocity of an unladen swallow?
+What do you mean, an African or a European swallow?
+>>> int(speed)
+ValueError: invalid literal for int() with base 10
+Wewillseehowtohandlethiskindoferrorlater.
+5.12 Debugging
+Whenasyntaxorruntimeerroroccurs,theerrormessagecontainsalotofinformation,but
+itcanbeoverwhelming. Themostusefulpartsareusually:
+• Whatkindoferroritwas,and
+• Whereitoccurred.
+Syntaxerrorsareusuallyeasytofind,butthereareafewgotchas. Whitespaceerrorscan
+betrickybecausespacesandtabsareinvisibleandweareusedtoignoringthem.
+>>> x = 5
+>>> y = 6
+File "<stdin>", line 1
+y = 6
+^
+IndentationError: unexpected indent
+Inthisexample,theproblemisthatthesecondlineisindentedbyonespace. Buttheerror
+message points to y, which is misleading. In general, error messages indicate where the
+problemwasdiscovered,buttheactualerrormightbeearlierinthecode,sometimesona
+previousline.
+The same is true of runtime errors. Suppose you are trying to compute a signal-to-noise
+ratio in decibels. The formula is SNR = 10log (P /P ). In Python, you might
+db 10 signal noise
+writesomethinglikethis:
+import math
+signal_power = 9
+noise_power = 10
+ratio = signal_power // noise_power
+decibels = 10 * math.log10(ratio)
+print(decibels)
+Whenyourunthisprogram,yougetanexception:
+Traceback (most recent call last):
+File "snr.py", line 5, in ?
+decibels = 10 * math.log10(ratio)
+ValueError: math domain error
+The error message indicates line 5, but there is nothing wrong with that line. To find the
+real error, it might be useful to print the value of ratio, which turns out to be 0. The
+problemisinline4,whichusesfloordivisioninsteadoffloating-pointdivision.
+Youshouldtakethetimetoreaderrormessagescarefully,butdon’tassumethateverything
+theysayiscorrect.
+
+5.13. Glossary 47
+5.13 Glossary
+floordivision: Anoperator,denoted//,thatdividestwonumbersandroundsdown(to-
+wardnegativeinfinity)toaninteger.
+modulusoperator: An operator, denoted with a percent sign (%), that works on integers
+andreturnstheremainderwhenonenumberisdividedbyanother.
+booleanexpression: AnexpressionwhosevalueiseitherTrueorFalse.
+relationaloperator: Oneoftheoperatorsthatcomparesitsoperands: ==,!=,>,<,>=,and
+<=.
+logicaloperator: One of the operators that combines boolean expressions: and, or, and
+not.
+conditionalstatement: Astatementthatcontrolstheflowofexecutiondependingonsome
+condition.
+condition: The boolean expression in a conditional statement that determines which
+branchruns.
+compoundstatement: Astatementthatconsistsofaheaderandabody. Theheaderends
+withacolon(:). Thebodyisindentedrelativetotheheader.
+branch: Oneofthealternativesequencesofstatementsinaconditionalstatement.
+chainedconditional: Aconditionalstatementwithaseriesofalternativebranches.
+nestedconditional: Aconditionalstatementthatappearsinoneofthebranchesofanother
+conditionalstatement.
+returnstatement: Astatementthatcausesafunctiontoendimmediatelyandreturntothe
+caller.
+recursion: Theprocessofcallingthefunctionthatiscurrentlyexecuting.
+basecase: Aconditionalbranchinarecursivefunctionthatdoesnotmakearecursivecall.
+infiniterecursion: Arecursionthatdoesn’thaveabasecase,orneverreachesit. Eventu-
+ally,aninfiniterecursioncausesaruntimeerror.
+5.14 Exercises
+Exercise 5.1. The time module provides a function, also named time, that returns the current
+Greenwich Mean Time in “the epoch”, which is an arbitrary time used as a reference point. On
+UNIXsystems,theepochis1January1970.
+>>> import time
+>>> time.time()
+1437746094.5735958
+Write a script that reads the current time and converts it to a time of day in hours, minutes, and
+seconds,plusthenumberofdayssincetheepoch.
+
+48 Chapter5. Conditionalsandrecursion
+Exercise5.2. Fermat’sLastTheoremsaysthattherearenopositiveintegersa,b,andcsuchthat
+an+bn = cn
+foranyvaluesofngreaterthan2.
+1. Write a function named check_fermat that takes four parameters—a, b, c and n—and
+checkstoseeifFermat’stheoremholds. Ifnisgreaterthan2and
+an+bn = cn
+theprogramshouldprint,“Holysmokes,Fermatwaswrong!”Otherwisetheprogramshould
+print,“No,thatdoesn’twork.”
+2. Write a function that prompts the user to input values for a, b, c and n, converts them to
+integers,andusescheck_fermattocheckwhethertheyviolateFermat’stheorem.
+Exercise5.3. Ifyouaregiventhreesticks,youmayormaynotbeabletoarrangetheminatriangle.
+Forexample,ifoneofthesticksis12incheslongandtheothertwoareoneinchlong,youwillnot
+beabletogettheshortstickstomeetinthemiddle. Foranythreelengths,thereisasimpletestto
+seeifitispossibletoformatriangle:
+Ifanyofthethreelengthsisgreaterthanthesumoftheothertwo,thenyoucannot
+formatriangle. Otherwise,youcan. (Ifthesumoftwolengthsequalsthethird,they
+formwhatiscalleda“degenerate”triangle.)
+1. Writeafunctionnamedis_trianglethattakesthreeintegersasarguments,andthatprints
+either “Yes” or “No”, depending on whether you can or cannot form a triangle from sticks
+withthegivenlengths.
+2. Writeafunctionthatpromptstheusertoinputthreesticklengths,convertsthemtointegers,
+andusesis_triangletocheckwhetherstickswiththegivenlengthscanformatriangle.
+Exercise5.4. Whatistheoutputofthefollowingprogram? Drawastackdiagramthatshowsthe
+stateoftheprogramwhenitprintstheresult.
+def recurse(n, s):
+if n == 0:
+print(s)
+else:
+recurse(n-1, n+s)
+recurse(3, 0)
+1. Whatwouldhappenifyoucalledthisfunctionlikethis: recurse(-1, 0)?
+2. Writeadocstringthatexplainseverythingsomeonewouldneedtoknowinordertousethis
+function(andnothingelse).
+Thefollowingexercisesusetheturtlemodule,describedinChapter4:
+Exercise5.5. Readthefollowingfunctionandseeifyoucanfigureoutwhatitdoes(seetheexam-
+plesinChapter4). Thenrunitandseeifyougotitright.
+
+5.14. Exercises 49
+Figure5.2: AKochcurve.
+def draw(t, length, n):
+if n == 0:
+return
+angle = 50
+t.fd(length*n)
+t.lt(angle)
+draw(t, length, n-1)
+t.rt(2*angle)
+draw(t, length, n-1)
+t.lt(angle)
+t.bk(length*n)
+Exercise 5.6. The Koch curve is a fractal that looks something like Figure 5.2. To draw a Koch
+curvewithlengthx,allyouhavetodois
+1. DrawaKochcurvewithlengthx/3.
+2. Turnleft60degrees.
+3. DrawaKochcurvewithlengthx/3.
+4. Turnright120degrees.
+5. DrawaKochcurvewithlengthx/3.
+6. Turnleft60degrees.
+7. DrawaKochcurvewithlengthx/3.
+Theexceptionisifxislessthan3: inthatcase,youcanjustdrawastraightlinewithlengthx.
+1. Writeafunctioncalledkochthattakesaturtleandalengthasparameters,andthatusesthe
+turtletodrawaKochcurvewiththegivenlength.
+2. Write a function called snowflake that draws three Koch curves to make the outline of a
+snowflake.
+Solution: https://thinkpython.com/code/koch.py.
+3. The Koch curve can be generalized in several ways. See http://en.wikipedia.org/
+wiki/Koch_snowflake forexamplesandimplementyourfavorite.
+
+50 Chapter5. Conditionalsandrecursion

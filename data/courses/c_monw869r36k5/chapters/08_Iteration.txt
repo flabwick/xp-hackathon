@@ -1,0 +1,299 @@
+Iteration
+=========
+
+Chapter 7
+Iteration
+Thischapterisaboutiteration,whichistheabilitytorunablockofstatementsrepeatedly.
+Wesawakindofiteration, usingrecursion, inSection5.8. Wesawanotherkind, usinga
+forloop,inSection4.2. Inthischapterwe’llseeyetanotherkind,usingawhilestatement.
+ButfirstIwanttosayalittlemoreaboutvariableassignment.
+7.1 Reassignment
+As you may have discovered, it is legal to make more than one assignment to the same
+variable. A new assignment makes an existing variable refer to a new value (and stop
+referringtotheoldvalue).
+>>> x = 5
+>>> x
+5
+>>> x = 7
+>>> x
+7
+Thefirsttimewedisplayx,itsvalueis5;thesecondtime,itsvalueis7.
+Figure7.1showswhatreassignmentlookslikeinastatediagram.
+At this point I want to address a common source of confusion. Because Python uses the
+equalsign(=)forassignment,itistemptingtointerpretastatementlikea = basamathe-
+maticalpropositionofequality;thatis,theclaimthataandbareequal. Butthisinterpre-
+tationiswrong.
+First, equality is a symmetric relationship and assignment is not. For example, in math-
+ematics, if a = 7 then 7 = a. But in Python, the statement a = 7 is legal and 7 = a is
+not.
+Also, in mathematics, a proposition of equality is either true or false for all time. If a =
+b now, then a will always equal b. In Python, an assignment statement can make two
+variablesequal,buttheydon’thavetostaythatway:
+
+64 Chapter7. Iteration
+5
+x
+7
+Figure7.1: Statediagram.
+>>> a = 5
+>>> b = a # a and b are now equal
+>>> a = 3 # a and b are no longer equal
+>>> b
+5
+The third line changes the value of a but does not change the value of b, so they are no
+longerequal.
+Reassigningvariablesis oftenuseful, butyoushould useitwithcaution. Ifthevalues of
+variableschangefrequently,itcanmakethecodedifficulttoreadanddebug.
+7.2 Updating variables
+Acommonkindofreassignmentisanupdate,wherethenewvalueofthevariabledepends
+ontheold.
+>>> x = x + 1
+Thismeans“getthecurrentvalueofx,addone,andthenupdatexwiththenewvalue.”
+Ifyoutrytoupdateavariablethatdoesn’texist,yougetanerror,becausePythonevaluates
+therightsidebeforeitassignsavaluetox:
+>>> x = x + 1
+NameError: name 'x' is not defined
+Before you can update a variable, you have to initialize it, usually with a simple assign-
+ment:
+>>> x = 0
+>>> x = x + 1
+Updatingavariablebyadding1iscalledanincrement;subtracting1iscalledadecrement.
+7.3 The while statement
+Computersareoftenusedtoautomaterepetitivetasks.Repeatingidenticalorsimilartasks
+without making errors is something that computers do well and people do poorly. In a
+computerprogram,repetitionisalsocallediteration.
+Wehavealreadyseentwofunctions,countdownandprint_n,thatiterateusingrecursion.
+Becauseiterationissocommon,Pythonprovideslanguagefeaturestomakeiteasier. One
+istheforstatementwesawinSection4.2. We’llgetbacktothatlater.
+Anotheristhewhilestatement.Hereisaversionofcountdownthatusesawhilestatement:
+
+7.3. Thewhilestatement 65
+def countdown(n):
+while n > 0:
+print(n)
+n = n - 1
+print('Blastoff!')
+YoucanalmostreadthewhilestatementasifitwereEnglish. Itmeans,“Whilenisgreater
+than0,displaythevalueofnandthendecrementn. Whenyougetto0,displaytheword
+Blastoff!”
+Moreformally,hereistheflowofexecutionforawhilestatement:
+1. Determinewhethertheconditionistrueorfalse.
+2. Iffalse,exitthewhilestatementandcontinueexecutionatthenextstatement.
+3. Iftheconditionistrue,runthebodyandthengobacktostep1.
+Thistypeofflowiscalledaloopbecausethethirdsteploopsbackaroundtothetop.
+Thebodyoftheloopshouldchangethevalueofoneormorevariablessothatthecondition
+becomesfalseeventuallyandtheloopterminates. Otherwisetheloopwillrepeatforever,
+whichiscalledaninfiniteloop. Anendlesssourceofamusementforcomputerscientists
+is the observation that the directions on shampoo, “Lather, rinse, repeat”, are an infinite
+loop.
+Inthecaseofcountdown,wecanprovethattheloopterminates:ifniszeroornegative,the
+loop never runs. Otherwise, n gets smaller each time through the loop, so eventually we
+havetogetto0.
+Forsomeotherloops,itisnotsoeasytotell. Forexample:
+def sequence(n):
+while n != 1:
+print(n)
+if n % 2 == 0: # n is even
+n = n / 2
+else: # n is odd
+n = n*3 + 1
+The condition for this loop is n != 1, so the loop will continue until n is 1, which makes
+theconditionfalse.
+Eachtimethroughtheloop,theprogramoutputsthevalueofnandthencheckswhether
+itisevenorodd. Ifitiseven,nisdividedby2. Ifitisodd,thevalueofnisreplacedwith
+n*3 + 1. For example, if the argument passed to sequence is 3, the resulting values of n
+are3,10,5,16,8,4,2,1.
+Sincensometimesincreasesandsometimesdecreases,thereisnoobviousproofthatnwill
+everreach1,orthattheprogramterminates. Forsomeparticularvaluesofn,wecanprove
+termination. For example, if the starting value is a power of two, n will be even every
+timethroughtheloopuntilitreaches1. Thepreviousexampleendswithsuchasequence,
+startingwith16.
+The hard question is whether we can prove that this program terminates for all posi-
+tive values of n. So far, no one has been able to prove it or disprove it! (See http:
+//en.wikipedia.org/wiki/Collatz_conjecture.)
+
+66 Chapter7. Iteration
+As an exercise, rewrite the function print_n from Section 5.8 using iteration instead of
+recursion.
+7.4 break
+Sometimesyoudon’tknowit’stimetoendaloopuntilyougethalfwaythroughthebody.
+Inthatcaseyoucanusethebreakstatementtojumpoutoftheloop.
+Forexample,supposeyouwanttotakeinputfromtheuseruntiltheytypedone.Youcould
+write:
+while True:
+line = input('> ')
+if line == 'done':
+break
+print(line)
+print('Done!')
+The loop condition is True, which is always true, so the loop runs until it hits the break
+statement.
+Each time through, it prompts the user with an angle bracket. If the user types done, the
+breakstatementexitstheloop.Otherwisetheprogramechoeswhatevertheusertypesand
+goesbacktothetopoftheloop. Here’sasamplerun:
+> not done
+not done
+> done
+Done!
+Thiswayofwritingwhileloopsiscommonbecauseyoucanchecktheconditionanywhere
+intheloop(notjustatthetop)andyoucanexpressthestopconditionaffirmatively(“stop
+whenthishappens”)ratherthannegatively(“keepgoinguntilthathappens”).
+7.5 Square roots
+Loopsareoftenusedinprogramsthatcomputenumericalresultsbystartingwithanap-
+proximateansweranditerativelyimprovingit.
+Forexample, onewayofcomputingsquarerootsisNewton’smethod. Supposethatyou
+wanttoknowthesquarerootof a. Ifyoustartwithalmostanyestimate, x,youcancom-
+puteabetterestimatewiththefollowingformula:
+x+a/x
+y =
+2
+Forexample,ifais4andxis3:
+>>> a = 4
+>>> x = 3
+>>> y = (x + a/x) / 2
+>>> y
+2.16666666667
+
+7.6. Algorithms 67
+√
+Theresultisclosertothecorrectanswer( 4 = 2). Ifwerepeattheprocesswiththenew
+estimate,itgetsevencloser:
+>>> x = y
+>>> y = (x + a/x) / 2
+>>> y
+2.00641025641
+Afterafewmoreupdates,theestimateisalmostexact:
+>>> x = y
+>>> y = (x + a/x) / 2
+>>> y
+2.00001024003
+>>> x = y
+>>> y = (x + a/x) / 2
+>>> y
+2.00000000003
+Ingeneralwedon’tknowaheadoftimehowmanystepsittakestogettotherightanswer,
+butweknowwhenwegettherebecausetheestimatestopschanging:
+>>> x = y
+>>> y = (x + a/x) / 2
+>>> y
+2.0
+>>> x = y
+>>> y = (x + a/x) / 2
+>>> y
+2.0
+When y == x, we can stop. Here is a loop that starts with an initial estimate, x, and im-
+provesituntilitstopschanging:
+while True:
+print(x)
+y = (x + a/x) / 2
+if y == x:
+break
+x = y
+Formostvaluesofathisworksfine, butingeneralitisdangeroustotestfloatequality.
+Floating-pointvaluesareonlyapproximatelyright: mostrationalnumbers, like1/3, and
+√
+irrationalnumbers,like 2,can’tberepresentedexactlywithafloat.
+Ratherthancheckingwhetherxandyareexactlyequal,itissafertousethebuilt-infunc-
+tionabstocomputetheabsolutevalue,ormagnitude,ofthedifferencebetweenthem:
+if abs(y-x) < epsilon:
+break
+Whereepsilonhasavaluelike0.0000001thatdetermineshowcloseiscloseenough.
+7.6 Algorithms
+Newton’smethodisanexampleofanalgorithm: itisamechanicalprocessforsolvinga
+categoryofproblems(inthiscase,computingsquareroots).
+
+68 Chapter7. Iteration
+To understand what an algorithm is, it might help to start with something that is not an
+algorithm. Whenyoulearnedtomultiplysingle-digitnumbers,youprobablymemorized
+the multiplication table. In effect, you memorized 100 specific solutions. That kind of
+knowledgeisnotalgorithmic.
+But if you were “lazy”, you might have learned a few tricks. For example, to find the
+product of n and 9, you can write n−1 as the first digit and 10−n as the second digit.
+This trick is a general solution for multiplying any single-digit number by 9. That’s an
+algorithm!
+Similarly,thetechniquesyoulearnedforadditionwithcarrying,subtractionwithborrow-
+ing, and long division are all algorithms. One of the characteristics of algorithms is that
+they do not require any intelligence to carry out. They are mechanical processes where
+eachstepfollowsfromthelastaccordingtoasimplesetofrules.
+Executing algorithms is boring, but designing them is interesting, intellectually challeng-
+ing,andacentralpartofcomputerscience.
+Some of the things that people do naturally, without difficulty or conscious thought, are
+thehardesttoexpressalgorithmically. Understandingnaturallanguageisagoodexample.
+Wealldoit,butsofarnoonehasbeenabletoexplainhowwedoit,atleastnotintheform
+ofanalgorithm.
+7.7 Debugging
+Asyoustartwritingbiggerprograms,youmightfindyourselfspendingmoretimedebug-
+ging. Morecodemeansmorechancestomakeanerrorandmoreplacesforbugstohide.
+One way to cut your debugging time is “debugging by bisection”. For example, if there
+are100linesinyourprogramandyoucheckthemoneatatime,itwouldtake100steps.
+Instead,trytobreaktheprobleminhalf. Lookatthemiddleoftheprogram,ornearit,for
+anintermediatevalueyoucancheck. Addaprintstatement(orsomethingelsethathasa
+verifiableeffect)andruntheprogram.
+Ifthemid-pointcheckisincorrect,theremustbeaprobleminthefirsthalfoftheprogram.
+Ifitiscorrect,theproblemisinthesecondhalf.
+Everytimeyouperformachecklikethis,youhalvethenumberoflinesyouhavetosearch.
+Aftersixsteps(whichisfewerthan100),youwouldbedowntooneortwolinesofcode,
+atleastintheory.
+Inpracticeitisnotalwaysclearwhatthe“middleoftheprogram”isandnotalwayspos-
+sibletocheckit. Itdoesn’tmakesensetocountlinesandfindtheexactmidpoint. Instead,
+thinkaboutplacesintheprogramwheretheremightbeerrorsandplaceswhereitiseasy
+to put a check. Then choose a spot where you think the chances are about the same that
+thebugisbeforeorafterthecheck.
+7.8 Glossary
+reassignment: Assigninganewvaluetoavariablethatalreadyexists.
+
+7.9. Exercises 69
+update: Anassignmentwherethenewvalueofthevariabledependsontheold.
+initialization: Anassignmentthatgivesaninitialvaluetoavariablethatwillbeupdated.
+increment: Anupdatethatincreasesthevalueofavariable(oftenbyone).
+decrement: Anupdatethatdecreasesthevalueofavariable.
+iteration: Repeated execution of a set of statements using either a recursive function call
+oraloop.
+infiniteloop: Aloopinwhichtheterminatingconditionisneversatisfied.
+algorithm: Ageneralprocessforsolvingacategoryofproblems.
+7.9 Exercises
+Exercise7.1. CopytheloopfromSection7.5andencapsulateitinafunctioncalledmysqrtthat
+takesaasaparameter,choosesareasonablevalueofx,andreturnsanestimateofthesquarerootof
+a.
+Totestit,writeafunctionnamedtest_square_rootthatprintsatablelikethis:
+a mysqrt(a) math.sqrt(a) diff
+- --------- ------------ ----
+1.0 1.0 1.0 0.0
+2.0 1.41421356237 1.41421356237 2.22044604925e-16
+3.0 1.73205080757 1.73205080757 0.0
+4.0 2.0 2.0 0.0
+5.0 2.2360679775 2.2360679775 0.0
+6.0 2.44948974278 2.44948974278 0.0
+7.0 2.64575131106 2.64575131106 0.0
+8.0 2.82842712475 2.82842712475 4.4408920985e-16
+9.0 3.0 3.0 0.0
+Thefirstcolumnisanumber, a;thesecondcolumnisthesquarerootof acomputedwithmysqrt;
+thethirdcolumnisthesquarerootcomputedbymath.sqrt;thefourthcolumnistheabsolutevalue
+ofthedifferencebetweenthetwoestimates.
+Exercise 7.2. The built-in function eval takes a string and evaluates it using the Python inter-
+preter. Forexample:
+>>> eval('1 + 2 * 3')
+7
+>>> import math
+>>> eval('math.sqrt(5)')
+2.2360679774997898
+>>> eval('type(math.pi)')
+<class 'float'>
+Writeafunctioncalledeval_loopthatiterativelypromptstheuser,takestheresultinginputand
+evaluatesitusingeval,andprintstheresult.
+Itshouldcontinueuntiltheuserenters'done',andthenreturnthevalueofthelastexpressionit
+evaluated.
+
+70 Chapter7. Iteration
+Exercise7.3. ThemathematicianSrinivasaRamanujanfoundaninfiniteseriesthatcanbeusedto
+generateanumericalapproximationof1/π:
+√
+∞
+1 2 2 ∑ (4k)!(1103+26390k)
+=
+π 9801 (k!)43964k
+k=0
+Writeafunctioncalledestimate_pithatusesthisformulatocomputeandreturnanestimateof
+π. Itshoulduseawhilelooptocomputetermsofthesummationuntilthelasttermissmallerthan
+1e-15(whichisPythonnotationfor10−15). Youcanchecktheresultbycomparingittomath.pi.
+Solution: https://thinkpython.com/code/pi.py.

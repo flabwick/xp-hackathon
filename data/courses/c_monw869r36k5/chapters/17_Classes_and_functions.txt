@@ -1,0 +1,240 @@
+Classes and functions
+=====================
+
+Chapter 16
+Classes and functions
+Now that we know how to create new types, the next step is to write functions that take
+programmer-defined objects as parameters and return them as results. In this chapter I
+alsopresent“functionalprogrammingstyle”andtwonewprogramdevelopmentplans.
+Code examples from this chapter are available from https://thinkpython.com/code/
+Time1.py. Solutionstotheexercisesareathttps://thinkpython.com/code/Time1_soln.
+py.
+16.1 Time
+As another example of a programmer-defined type, we’ll define a class called Time that
+recordsthetimeofday. Theclassdefinitionlookslikethis:
+class Time:
+"""Represents the time of day.
+attributes: hour, minute, second
+"""
+WecancreateanewTimeobjectandassignattributesforhours,minutes,andseconds:
+time = Time()
+time.hour = 11
+time.minute = 59
+time.second = 30
+ThestatediagramfortheTimeobjectlookslikeFigure16.1.
+Asanexercise,writeafunctioncalledprint_timethattakesaTimeobjectandprintsitin
+theformhour:minute:second. Hint: theformatsequence'%.2d'printsanintegerusing
+atleasttwodigits,includingaleadingzeroifnecessary.
+Write a boolean function called is_after that takes two Time objects, t1 and t2, and re-
+turnsTrueift1followst2chronologicallyandFalseotherwise. Challenge: don’tusean
+ifstatement.
+
+156 Chapter16. Classesandfunctions
+Time
+time hour 11
+minute 59
+second 30
+Figure16.1: Objectdiagram.
+16.2 Pure functions
+Inthenextfewsections,we’llwritetwofunctionsthataddtimevalues. Theydemonstrate
+two kinds of functions: pure functions and modifiers. They also demonstrate a develop-
+mentplanI’llcallprototypeandpatch,whichisawayoftacklingacomplexproblemby
+startingwithasimpleprototypeandincrementallydealingwiththecomplications.
+Hereisasimpleprototypeofadd_time:
+def add_time(t1, t2):
+sum = Time()
+sum.hour = t1.hour + t2.hour
+sum.minute = t1.minute + t2.minute
+sum.second = t1.second + t2.second
+return sum
+ThefunctioncreatesanewTimeobject,initializesitsattributes,andreturnsareferenceto
+thenewobject. Thisiscalledapurefunctionbecauseitdoesnotmodifyanyoftheobjects
+passedtoitasargumentsandithasnoeffect,likedisplayingavalueorgettinguserinput,
+otherthanreturningavalue.
+Totestthisfunction,I’llcreatetwoTimeobjects: startcontainsthestarttimeofamovie,
+like Monty Python and the Holy Grail, and duration contains the run time of the movie,
+whichisonehour35minutes.
+add_timefiguresoutwhenthemoviewillbedone.
+>>> start = Time()
+>>> start.hour = 9
+>>> start.minute = 45
+>>> start.second = 0
+>>> duration = Time()
+>>> duration.hour = 1
+>>> duration.minute = 35
+>>> duration.second = 0
+>>> done = add_time(start, duration)
+>>> print_time(done)
+10:80:00
+The result, 10:80:00 might not be what you were hoping for. The problem is that this
+function does not deal with cases where the number of seconds or minutes adds up to
+morethansixty. Whenthathappens,wehaveto“carry”theextrasecondsintotheminute
+columnortheextraminutesintothehourcolumn.
+Here’sanimprovedversion:
+
+16.3. Modifiers 157
+def add_time(t1, t2):
+sum = Time()
+sum.hour = t1.hour + t2.hour
+sum.minute = t1.minute + t2.minute
+sum.second = t1.second + t2.second
+if sum.second >= 60:
+sum.second -= 60
+sum.minute += 1
+if sum.minute >= 60:
+sum.minute -= 60
+sum.hour += 1
+return sum
+Althoughthisfunctioniscorrect,itisstartingtogetbig. Wewillseeashorteralternative
+later.
+16.3 Modifiers
+Sometimesitisusefulforafunctiontomodifytheobjectsitgetsasparameters.Inthatcase,
+thechangesarevisibletothecaller. Functionsthatworkthiswayarecalledmodifiers.
+increment,whichaddsagivennumberofsecondstoaTimeobject,canbewrittennaturally
+asamodifier. Hereisaroughdraft:
+def increment(time, seconds):
+time.second += seconds
+if time.second >= 60:
+time.second -= 60
+time.minute += 1
+if time.minute >= 60:
+time.minute -= 60
+time.hour += 1
+Thefirstlineperformsthebasicoperation; theremainderdealswiththespecialcaseswe
+sawbefore.
+Isthisfunctioncorrect? Whathappensifsecondsismuchgreaterthansixty?
+Inthatcase,itisnotenoughtocarryonce; wehavetokeepdoingituntiltime.secondis
+less than sixty. One solution is to replace the if statements with while statements. That
+would make the function correct, but not very efficient. As an exercise, write a correct
+versionofincrementthatdoesn’tcontainanyloops.
+Anything that can be done with modifiers can also be done with pure functions. In fact,
+some programming languages only allow pure functions. There is some evidence that
+programsthatusepurefunctionsarefastertodevelopandlesserror-pronethanprograms
+thatusemodifiers. Butmodifiersareconvenientattimes,andfunctionalprogramstendto
+belessefficient.
+
+158 Chapter16. Classesandfunctions
+Ingeneral,Irecommendthatyouwritepurefunctionswheneveritisreasonableandresort
+to modifiers only if there is a compelling advantage. This approach might be called a
+functionalprogrammingstyle.
+As an exercise, write a “pure” version of increment that creates and returns a new Time
+objectratherthanmodifyingtheparameter.
+16.4 Prototyping versus planning
+ThedevelopmentplanIamdemonstratingiscalled“prototypeandpatch”. Foreachfunc-
+tion,Iwroteaprototypethatperformedthebasiccalculationandthentestedit,patching
+errorsalongtheway.
+This approach can be effective, especially if you don’t yet have a deep understanding
+of the problem. But incremental corrections can generate code that is unnecessarily
+complicated—since it deals with many special cases—and unreliable—since it is hard to
+knowifyouhavefoundalltheerrors.
+Analternativeisdesigneddevelopment,inwhichhigh-levelinsightintotheproblemcan
+maketheprogrammingmucheasier. Inthiscase,theinsightisthataTimeobjectisreally
+athree-digitnumberinbase60(seehttp://en.wikipedia.org/wiki/Sexagesimal). The
+secondattributeisthe“onescolumn”,theminuteattributeisthe“sixtiescolumn”,andthe
+hourattributeisthe“thirty-sixhundredscolumn”.
+Whenwewroteadd_timeandincrement, wewereeffectivelydoingadditioninbase60,
+whichiswhywehadtocarryfromonecolumntothenext.
+Thisobservationsuggestsanotherapproachtothewholeproblem—wecanconvertTime
+objects to integers and take advantage of the fact that the computer knows how to do
+integerarithmetic.
+HereisafunctionthatconvertsTimestointegers:
+def time_to_int(time):
+minutes = time.hour * 60 + time.minute
+seconds = minutes * 60 + time.second
+return seconds
+AndhereisafunctionthatconvertsanintegertoaTime(recallthatdivmoddividesthefirst
+argumentbythesecondandreturnsthequotientandremainderasatuple).
+def int_to_time(seconds):
+time = Time()
+minutes, time.second = divmod(seconds, 60)
+time.hour, time.minute = divmod(minutes, 60)
+return time
+Youmighthavetothinkabit,andrunsometests,toconvinceyourselfthatthesefunctions
+arecorrect. Onewaytotestthemistocheckthattime_to_int(int_to_time(x)) == xfor
+manyvaluesofx. Thisisanexampleofaconsistencycheck.
+Onceyouareconvincedtheyarecorrect,youcanusethemtorewriteadd_time:
+def add_time(t1, t2):
+seconds = time_to_int(t1) + time_to_int(t2)
+return int_to_time(seconds)
+
+16.5. Debugging 159
+This version is shorter than the original, and easier to verify. As an exercise, rewrite
+incrementusingtime_to_intandint_to_time.
+Insomeways,convertingfrombase60tobase10andbackisharderthanjustdealingwith
+times.Baseconversionismoreabstract;ourintuitionfordealingwithtimevaluesisbetter.
+But if we have the insight to treat times as base 60 numbers and make the investment of
+writingtheconversionfunctions(time_to_intandint_to_time),wegetaprogramthat
+isshorter,easiertoreadanddebug,andmorereliable.
+Itisalsoeasiertoaddfeatureslater. Forexample, imaginesubtractingtwoTimestofind
+thedurationbetweenthem. Thenaiveapproachwouldbetoimplementsubtractionwith
+borrowing. Usingtheconversionfunctionswouldbeeasierandmorelikelytobecorrect.
+Ironically,sometimesmakingaproblemharder(ormoregeneral)makesiteasier(because
+therearefewerspecialcasesandfeweropportunitiesforerror).
+16.5 Debugging
+A Time object is well-formed if the values of minute and second are between 0 and 60
+(including0butnot60)andifhourispositive. hourandminuteshouldbeintegervalues,
+butwemightallowsecondtohaveafractionpart.
+Requirementslikethesearecalledinvariantsbecausetheyshouldalwaysbetrue. Toput
+itadifferentway,iftheyarenottrue,somethinghasgonewrong.
+Writingcodetocheckinvariantscanhelpdetecterrorsandfindtheircauses. Forexample,
+youmighthaveafunctionlikevalid_timethattakesaTimeobjectandreturnsFalseifit
+violatesaninvariant:
+def valid_time(time):
+if time.hour < 0 or time.minute < 0 or time.second < 0:
+return False
+if time.minute >= 60 or time.second >= 60:
+return False
+return True
+At the beginning of each function you could check the arguments to make sure they are
+valid:
+def add_time(t1, t2):
+if not valid_time(t1) or not valid_time(t2):
+raise ValueError('invalid Time object in add_time')
+seconds = time_to_int(t1) + time_to_int(t2)
+return int_to_time(seconds)
+Oryoucoulduseanassertstatement,whichchecksagiveninvariantandraisesanexcep-
+tionifitfails:
+def add_time(t1, t2):
+assert valid_time(t1) and valid_time(t2)
+seconds = time_to_int(t1) + time_to_int(t2)
+return int_to_time(seconds)
+assertstatementsareusefulbecausetheydistinguishcodethatdealswithnormalcondi-
+tionsfromcodethatchecksforerrors.
+
+160 Chapter16. Classesandfunctions
+16.6 Glossary
+prototypeandpatch: A development plan that involves writing a rough draft of a pro-
+gram,testing,andcorrectingerrorsastheyarefound.
+designeddevelopment: A development plan that involves high-level insight into the
+problem and more planning than incremental development or prototype develop-
+ment.
+purefunction: Afunctionthatdoesnotmodifyanyoftheobjectsitreceivesasarguments.
+Mostpurefunctionsarefruitful.
+modifier: Afunctionthatchangesoneormoreoftheobjectsitreceivesasarguments.Most
+modifiersarevoid;thatis,theyreturnNone.
+functionalprogrammingstyle: Astyleofprogramdesigninwhichthemajorityoffunc-
+tionsarepure.
+invariant: Aconditionthatshouldalwaysbetrueduringtheexecutionofaprogram.
+assertstatement: Astatementthatchecksaconditionandraisesanexceptionifitfails.
+16.7 Exercises
+Code examples from this chapter are available from https://thinkpython.com/code/
+Time1.py; solutionstotheexercisesareavailablefromhttps://thinkpython.com/code/
+Time1_soln.py.
+Exercise16.1. Writeafunctioncalledmul_timethattakesaTimeobjectandanumberandreturns
+anewTimeobjectthatcontainstheproductoftheoriginalTimeandthenumber.
+Thenusemul_timetowriteafunctionthattakesaTimeobjectthatrepresentsthefinishingtime
+inarace,andanumberthatrepresentsthedistance,andreturnsaTimeobjectthatrepresentsthe
+averagepace(timepermile).
+Exercise 16.2. The datetime module provides time objects that are similar to the Time objects
+in this chapter, but they provide a rich set of methods and operators. Read the documentation at
+http://docs.python.org/3/library/datetime.html.
+1. Usethedatetimemoduletowriteaprogramthatgetsthecurrentdateandprintsthedayof
+theweek.
+2. Writeaprogramthattakesabirthdayasinputandprintstheuser’sageandthenumberof
+days,hours,minutesandsecondsuntiltheirnextbirthday.
+3. For two people born on different days, there is a day when one is twice as old as the other.
+That’s their Double Day. Write a program that takes two birth dates and computes their
+DoubleDay.
+4. For a little more challenge, write the more general version that computes the day when one
+personisntimesolderthantheother.
+Solution: https://thinkpython.com/code/double.py

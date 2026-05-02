@@ -1,0 +1,524 @@
+Preface
+=======
+
+Preface
+The strange history of this book
+InJanuary1999IwaspreparingtoteachanintroductoryprogrammingclassinJava. Ihad
+taughtitthreetimesandIwasgettingfrustrated. Thefailurerateintheclasswastoohigh
+and,evenforstudentswhosucceeded,theoveralllevelofachievementwastoolow.
+OneoftheproblemsIsawwasthebooks. Theyweretoobig,withtoomuchunnecessary
+detailaboutJava,andnotenoughhigh-levelguidanceabouthowtoprogram.Andtheyall
+sufferedfromthetrapdooreffect: theywouldstartouteasy,proceedgradually,andthen
+somewherearoundChapter5thebottomwouldfallout.Thestudentswouldgettoomuch
+newmaterial,toofast,andIwouldspendtherestofthesemesterpickingupthepieces.
+Twoweeksbeforethefirstdayofclasses,Idecidedtowritemyownbook. Mygoalswere:
+• Keepitshort. Itisbetterforstudentstoread10pagesthannotread50pages.
+• Be careful with vocabulary. I tried to minimize jargon and define each term at first
+use.
+• Buildgradually. Toavoidtrapdoors, Itookthemostdifficulttopicsandsplitthem
+intoaseriesofsmallsteps.
+• Focus on programming, not the programming language. I included the minimum
+usefulsubsetofJavaandleftouttherest.
+Ineededatitle,soonawhimIchoseHowtoThinkLikeaComputerScientist.
+Myfirstversionwasrough,butitworked. Studentsdidthereading,andtheyunderstood
+enough that I could spend class time on the hard topics, the interesting topics and (most
+important)lettingthestudentspractice.
+I released the book under the GNU Free Documentation License, which allows users to
+copy,modify,anddistributethebook.
+Whathappenednextisthecoolpart. JeffElkner,ahighschoolteacherinVirginia,adopted
+mybookandtranslateditintoPython. Hesentmeacopyofhistranslation,andIhadthe
+unusual experience of learning Python by reading my own book. As Green Tea Press, I
+publishedthefirstPythonversionin2001.
+In2003IstartedteachingatOlinCollegeandIgottoteachPythonforthefirsttime. The
+contrast with Java was striking. Students struggled less, learned more, worked on more
+interestingprojects,andgenerallyhadalotmorefun.
+
+vi Chapter0. Preface
+Since then I’ve continued to develop the book, correcting errors, improving some of the
+examplesandaddingmaterial,especiallyexercises.
+Theresultisthisbook,nowwiththelessgrandiosetitleThinkPython. Someofthechanges
+are:
+• Iaddedasectionaboutdebuggingattheendofeachchapter. Thesesectionspresent
+general techniques for finding and avoiding bugs, and warnings about Python pit-
+falls.
+• Iaddedmoreexercises,rangingfromshorttestsofunderstandingtoafewsubstantial
+projects. Mostexercisesincludealinktomysolution.
+• Iaddedaseriesofcasestudies—longerexampleswithexercises,solutions,anddis-
+cussion.
+• Iexpandedthediscussionofprogramdevelopmentplansandbasicdesignpatterns.
+• Iaddedappendicesaboutdebuggingandanalysisofalgorithms.
+ThesecondeditionofThinkPythonhasthesenewfeatures:
+• ThebookandallsupportingcodehavebeenupdatedtoPython3.
+• I added a few sections, and more details on the web, to help beginners get started
+runningPythoninabrowser,soyoudon’thavetodealwithinstallingPythonuntil
+youwantto.
+• ForChapter4.1Iswitchedfrommyownturtlegraphicspackage,calledSwampy,toa
+morestandardPythonmodule,turtle,whichiseasiertoinstallandmorepowerful.
+• I added a new chapter called “The Goodies”, which introduces some additional
+Pythonfeaturesthatarenotstrictlynecessary,butsometimeshandy.
+Ihopeyouenjoyworkingwiththisbook,andthatithelpsyoulearntoprogramandthink
+likeacomputerscientist,atleastalittlebit.
+AllenB.Downey
+OlinCollege
+Acknowledgments
+Many thanks to Jeff Elkner, who translated my Java book into Python, which got this
+projectstartedandintroducedmetowhathasturnedouttobemyfavoritelanguage.
+ThanksalsotoChrisMeyers,whocontributedseveralsectionstoHowtoThinkLikeaCom-
+puterScientist.
+ThankstotheFreeSoftwareFoundationfordevelopingtheGNUFreeDocumentationLi-
+cense, which helped make my collaboration with Jeff and Chris possible, and Creative
+CommonsforthelicenseIamusingnow.
+
+vii
+ThankstotheeditorsatLuluwhoworkedonHowtoThinkLikeaComputerScientist.
+ThankstotheeditorsatO’ReillyMediawhoworkedonThinkPython.
+Thankstoallthestudentswhoworkedwithearlierversionsofthisbookandallthecon-
+tributors(listedbelow)whosentincorrectionsandsuggestions.
+Contributor List
+Morethan100sharp-eyedandthoughtfulreadershavesentinsuggestionsandcorrections
+overthepastfewyears. Theircontributions,andenthusiasmforthisproject,havebeena
+hugehelp.
+Ifyouhaveasuggestionorcorrection, pleasesendemailtofeedback@thinkpython.com.
+If I make a change based on your feedback, I will add you to the contributor list (unless
+youasktobeomitted).
+Ifyouincludeatleastpartofthesentencetheerrorappearsin,thatmakesiteasyformeto
+search. Pageandsectionnumbersarefine,too,butnotquiteaseasytoworkwith. Thanks!
+• LloydHughAllensentinacorrectiontoSection8.4.
+• YvonBouliannesentinacorrectionofasemanticerrorinChapter5.
+• FredBremmersubmittedacorrectioninSection2.1.
+• Jonah Cohen wrote the Perl scripts to convert the LaTeX source for this book into beautiful
+HTML.
+• Michael Conlon sent in a grammar correction in Chapter 2 and an improvement in style in
+Chapter1,andheinitiateddiscussiononthetechnicalaspectsofinterpreters.
+• BenoîtGirardsentinacorrectiontoahumorousmistakeinSection5.6.
+• CourtneyGleasonandKatherineSmithwrotehorsebet.py,whichwasusedasacasestudy
+inanearlierversionofthebook.Theirprogramcannowbefoundonthewebsite.
+• LeeHarrsubmittedmorecorrectionsthanwehaveroomtolisthere,andindeedheshouldbe
+listedasoneoftheprincipaleditorsofthetext.
+• JamesKaylinisastudentusingthetext.Hehassubmittednumerouscorrections.
+• DavidKershawfixedthebrokencatTwicefunctioninSection3.10.
+• EddieLamhassentinnumerouscorrectionstoChapters1,2,and3.HealsofixedtheMakefile
+sothatitcreatesanindexthefirsttimeitisrunandhelpedussetupaversioningscheme.
+• Man-YongLeesentinacorrectiontotheexamplecodeinSection2.4.
+• DavidMayopointedoutthattheword“unconsciously"inChapter1neededtobechangedto
+“subconsciously".
+• ChrisMcAloonsentinseveralcorrectionstoSections3.9and3.10.
+• MatthewJ.Moelterhasbeenalong-timecontributorwhosentinnumerouscorrectionsand
+suggestionstothebook.
+
+viii Chapter0. Preface
+• SimonDiconMontfordreportedamissingfunctiondefinitionandseveraltyposinChapter3.
+HealsofounderrorsintheincrementfunctioninChapter13.
+• JohnOuztscorrectedthedefinitionof“returnvalue"inChapter3.
+• KevinParkssentinvaluablecommentsandsuggestionsastohowtoimprovethedistribution
+ofthebook.
+• DavidPoolsentinatypointheglossaryofChapter1,aswellaskindwordsofencouragement.
+• MichaelSchmittsentinacorrectiontothechapteronfilesandexceptions.
+• RobinShawpointedoutanerrorinSection13.1,wheretheprintTimefunctionwasusedinan
+examplewithoutbeingdefined.
+• PaulSleighfoundanerrorinChapter7andabuginJonahCohen’sPerlscriptthatgenerates
+HTMLfromLaTeX.
+• CraigT.SnydalistestingthetextinacourseatDrewUniversity. Hehascontributedseveral
+valuablesuggestionsandcorrections.
+• IanThomasandhisstudentsareusingthetextinaprogrammingcourse.Theyarethefirstones
+totestthechaptersinthelatterhalfofthebook,andtheyhavemadenumerouscorrectionsand
+suggestions.
+• KeithVerheydensentinacorrectioninChapter3.
+• PeterWinstanleyletusknowaboutalongstandingerrorinourLatininChapter3.
+• ChrisWrobelmadecorrectionstothecodeinthechapteronfileI/Oandexceptions.
+• MosheZadkahasmadeinvaluablecontributionstothisproject.Inadditiontowritingthefirst
+draftofthechapteronDictionaries,heprovidedcontinualguidanceintheearlystagesofthe
+book.
+• ChristophZwerschkesentseveralcorrectionsandpedagogicsuggestions,andexplainedthe
+differencebetweengleichandselbe.
+• JamesMayersentusawholeslewofspellingandtypographicalerrors,includingtwointhe
+contributorlist.
+• HaydenMcAfeecaughtapotentiallyconfusinginconsistencybetweentwoexamples.
+• AngelArnalispartofaninternationalteamoftranslatorsworkingontheSpanishversionof
+thetext.HehasalsofoundseveralerrorsintheEnglishversion.
+• TauhidulHoqueandLexBerezhnycreatedtheillustrationsinChapter1andimprovedmany
+oftheotherillustrations.
+• Dr. MicheleAlzettacaughtanerrorinChapter8andsentsomeinterestingpedagogiccom-
+mentsandsuggestionsaboutFibonacciandOldMaid.
+• AndyMitchellcaughtatypoinChapter1andabrokenexampleinChapter2.
+• KalinHarveysuggestedaclarificationinChapter7andcaughtsometypos.
+• ChristopherP.SmithcaughtseveraltyposandhelpedusupdatethebookforPython2.2.
+• DavidHutchinscaughtatypointheForeword.
+• GregorLinglisteachingPythonatahighschoolinVienna,Austria. HeisworkingonaGer-
+mantranslationofthebook,andhecaughtacoupleofbaderrorsinChapter5.
+
+ix
+• JuliePeterscaughtatypointhePreface.
+• FlorinOprinasentinanimprovementinmakeTime,acorrectioninprintTime,andanicetypo.
+• D.J.WebresuggestedaclarificationinChapter3.
+• KenfoundafistfuloferrorsinChapters8,9and11.
+• IvoWevercaughtatypoinChapter5andsuggestedaclarificationinChapter3.
+• CurtisYankosuggestedaclarificationinChapter2.
+• BenLogansentinanumberoftyposandproblemswithtranslatingthebookintoHTML.
+• JasonArmstrongsawthemissingwordinChapter2.
+• LouisCordiernoticedaspotinChapter16wherethecodedidn’tmatchthetext.
+• BrianCainsuggestedseveralclarificationsinChapters2and3.
+• RobBlacksentinapasselofcorrections,includingsomechangesforPython2.2.
+• Jean-PhilippeReyatÉcoleCentraleParissentanumberofpatches,includingsomeupdates
+forPython2.2andotherthoughtfulimprovements.
+• JasonMaderatGeorgeWashingtonUniversitymadeanumberofusefulsuggestionsandcor-
+rections.
+• JanGundtofte-Bruunremindedusthat“aerror”isanerror.
+• AbelDavidandAlexisDinnoremindedusthatthepluralof“matrix”is“matrices”,not“ma-
+trixes”.Thiserrorwasinthebookforyears,buttworeaderswiththesameinitialsreportedit
+onthesameday.Weird.
+• CharlesThayerencouragedustogetridofthesemi-colonswehadputattheendsofsome
+statementsandtocleanupouruseof“argument”and“parameter”.
+• RogerSperbergpointedoutatwistedpieceoflogicinChapter3.
+• SamBullpointedoutaconfusingparagraphinChapter2.
+• AndrewCheungpointedouttwoinstancesof“usebeforedef”.
+• C.CoreyCapelspottedthemissingwordintheThirdTheoremofDebuggingandatypoin
+Chapter4.
+• AlessandrahelpedclearupsomeTurtleconfusion.
+• WimChampagnefoundabrain-oinadictionaryexample.
+• DouglasWrightpointedoutaproblemwithfloordivisioninarc.
+• JaredSpindorfoundsomejetsamattheendofasentence.
+• LinPeihengsentanumberofveryhelpfulsuggestions.
+• RayHagtvedtsentintwoerrorsandanot-quite-error.
+• TorstenHübschpointedoutaninconsistencyinSwampy.
+• IngaPetuhhovcorrectedanexampleinChapter14.
+• ArneBabenhauserheidesentseveralhelpfulcorrections.
+
+x Chapter0. Preface
+• MarkE.Casidaisisgoodatspottingrepeatedwords.
+• ScottTylerfilledinathatwasmissing.Andthensentinaheapofcorrections.
+• GordonShephardsentinseveralcorrections,allinseparateemails.
+• AndrewTurnerspottedanerrorinChapter8.
+• AdamHobartfixedaproblemwithfloordivisioninarc.
+• DarylHammondandSarahZimmermanpointedoutthatIservedupmath.pitooearly. And
+Zimspottedatypo.
+• GeorgeSassfoundabuginaDebuggingsection.
+• BrianBinghamsuggestedExercise11.5.
+• LeahEngelbert-FentonpointedoutthatIusedtupleasavariablename,contrarytomyown
+advice.Andthenfoundabunchoftyposanda“usebeforedef”.
+• JoeFunkespottedatypo.
+• Chao-chaoChenfoundaninconsistencyintheFibonacciexample.
+• JeffPaineknowsthedifferencebetweenspaceandspam.
+• LubosPintessentinatypo.
+• GreggLindandAbigailHeithoffsuggestedExercise14.3.
+• MaxHailperinhassentinanumberofcorrectionsandsuggestions.Maxisoneoftheauthors
+oftheextraordinaryConcreteAbstractions,whichyoumightwanttoreadwhenyouaredone
+withthisbook.
+• ChotipatPornavalaifoundanerrorinanerrormessage.
+• StanislawAntolsentalistofveryhelpfulsuggestions.
+• EricPashmansentanumberofcorrectionsforChapters4–11.
+• MiguelAzevedofoundsometypos.
+• JianhuaLiusentinalonglistofcorrections.
+• NickKingfoundamissingword.
+• MartinZuthersentalonglistofsuggestions.
+• AdamZimmermanfoundaninconsistencyinmyinstanceofan“instance”andseveralother
+errors.
+• RatnakarTiwarisuggestedafootnoteexplainingdegeneratetriangles.
+• AnuragGoelsuggestedanothersolutionforis_abecedarianandsentsomeadditionalcorrec-
+tions.AndheknowshowtospellJaneAusten.
+• KelliKratzerspottedoneofthetypos.
+• MarkGriffithspointedoutaconfusingexampleinChapter3.
+• RoydanOngiefoundanerrorinmyNewton’smethod.
+• PatrykWolowiechelpedmewithaproblemintheHTMLversion.
+
+xi
+• MarkChonofskytoldmeaboutanewkeywordinPython3.
+• RussellColemanhelpedmewithmygeometry.
+• NamNguyenfoundatypoandpointedoutthatIusedtheDecoratorpatternbutdidn’tmen-
+tionitbyname.
+• StéphaneMorinsentinseveralcorrectionsandsuggestions.
+• PaulStoopcorrectedatypoinuses_only.
+• EricBronnerpointedoutaconfusioninthediscussionoftheorderofoperations.
+• AlexandrosGezerlissetanewstandardforthenumberandqualityofsuggestionshesubmit-
+ted.Wearedeeplygrateful!
+• GrayThomasknowshisrightfromhisleft.
+• GiovanniEscobarSosasentalonglistofcorrectionsandsuggestions.
+• DanielNeilsoncorrectedanerrorabouttheorderofoperations.
+• WillMcGinnispointedoutthatpolylinewasdefineddifferentlyintwoplaces.
+• FrankHeckerpointedoutanexercisethatwasunder-specified,andsomebrokenlinks.
+• AnimeshBhelpedmecleanupaconfusingexample.
+• MartinCaspersenfoundtworound-offerrors.
+• GregorUlmsentseveralcorrectionsandsuggestions.
+• DimitriosTsirigkassuggestedIclarifyanexercise.
+• CarlosTafursentapageofcorrectionsandsuggestions.
+• MartinNordslettenfoundabuginanexercisesolution.
+• SvenHoexterpointedoutthatavariablenamedinputshadowsabuild-infunction.
+• StephenGregorypointedouttheproblemwithcmpinPython3.
+• IshwarBhatcorrectedmystatementofFermat’slasttheorem.
+• Andrea Zanella translated the book into Italian, and sent a number of corrections along the
+way.
+• Many,manythankstoMelissaLewisandLucianoRamalhoforexcellentcommentsandsug-
+gestionsonthesecondedition.
+• ThankstoHarryPercivalfromPythonAnywhereforhishelpgettingpeoplestartedrunning
+Pythoninabrowser.
+• XavierVanAubelmadeseveralusefulcorrectionsinthesecondedition.
+• WilliamMurraycorrectedmydefinitionoffloordivision.
+• PerStarbäckbroughtmeuptodateonuniversalnewlinesinPython3.
+• LaurentRosenfeldandMihaelaRotarutranslatedthisbookintoFrench. Alongtheway,they
+sentmanycorrectionsandsuggestions.
+Inaddition,peoplewhospottedtyposormadecorrectionsincludeCzeslawCzapla,DaleWil-
+son,FrancescoCarloCimini,RichardFursa,BrianMcGhie,LokeshKumarMakani,Matthew
+Shultz, Viet Le, Victor Simeone, Lars O.D. Christensen, Swarup Sahoo, Alix Etienne, Kuang
+He,WeiHuang,KarenBarber,andEricRansom.
+
+xii Chapter0. Preface
+
+Contents
+Preface v
+1 Thewayoftheprogram 1
+1.1 Whatisaprogram? . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 1
+1.2 RunningPython . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+1.3 Thefirstprogram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.4 Arithmeticoperators . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.5 Valuesandtypes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+1.6 Formalandnaturallanguages . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+1.7 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+1.8 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+1.9 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2 Variables,expressionsandstatements 9
+2.1 Assignmentstatements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.2 Variablenames . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.3 Expressionsandstatements . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.4 Scriptmode . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.5 Orderofoperations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.6 Stringoperations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+2.7 Comments . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+2.8 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2.9 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+2.10 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+
+xiv Contents
+3 Functions 17
+3.1 Functioncalls . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+3.2 Mathfunctions. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+3.3 Composition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+3.4 Addingnewfunctions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+3.5 Definitionsanduses . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+3.6 Flowofexecution . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+3.7 Parametersandarguments . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+3.8 Variablesandparametersarelocal . . . . . . . . . . . . . . . . . . . . . . . 22
+3.9 Stackdiagrams . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+3.10 Fruitfulfunctionsandvoidfunctions . . . . . . . . . . . . . . . . . . . . . . 24
+3.11 Whyfunctions? . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24
+3.12 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+3.13 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 25
+3.14 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 26
+4 Casestudy: interfacedesign 29
+4.1 Theturtlemodule . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
+4.2 Simplerepetition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 30
+4.3 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+4.4 Encapsulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+4.5 Generalization . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+4.6 Interfacedesign . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+4.7 Refactoring . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 34
+4.8 Adevelopmentplan . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+4.9 docstring . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+4.10 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+4.11 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+4.12 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+
+Contents xv
+5 Conditionalsandrecursion 39
+5.1 Floordivisionandmodulus . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+5.2 Booleanexpressions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+5.3 Logicaloperators . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 40
+5.4 Conditionalexecution . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+5.5 Alternativeexecution . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+5.6 Chainedconditionals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+5.7 Nestedconditionals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42
+5.8 Recursion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
+5.9 Stackdiagramsforrecursivefunctions . . . . . . . . . . . . . . . . . . . . . 44
+5.10 Infiniterecursion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+5.11 Keyboardinput . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+5.12 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+5.13 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+5.14 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+6 Fruitfulfunctions 51
+6.1 Returnvalues . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+6.2 Incrementaldevelopment . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+6.3 Composition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+6.4 Booleanfunctions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+6.5 Morerecursion. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
+6.6 Leapoffaith . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
+6.7 Onemoreexample . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
+6.8 Checkingtypes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 58
+6.9 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 59
+6.10 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+6.11 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+
+xvi Contents
+7 Iteration 63
+7.1 Reassignment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+7.2 Updatingvariables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64
+7.3 Thewhilestatement . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64
+7.4 break . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 66
+7.5 Squareroots . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 66
+7.6 Algorithms . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 67
+7.7 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68
+7.8 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68
+7.9 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69
+8 Strings 71
+8.1 Astringisasequence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71
+8.2 len . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+8.3 Traversalwithaforloop . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72
+8.4 Stringslices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73
+8.5 Stringsareimmutable . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 74
+8.6 Searching . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 74
+8.7 Loopingandcounting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 75
+8.8 Stringmethods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 75
+8.9 Theinoperator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+8.10 Stringcomparison . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
+8.11 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 77
+8.12 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 79
+8.13 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 79
+9 Casestudy: wordplay 83
+9.1 Readingwordlists . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 83
+9.2 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 84
+9.3 Search . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
+9.4 Loopingwithindices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 86
+9.5 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 87
+9.6 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 87
+9.7 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 88
+
+Contents xvii
+10 Lists 89
+10.1 Alistisasequence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 89
+10.2 Listsaremutable . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 90
+10.3 Traversingalist . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 91
+10.4 Listoperations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 91
+10.5 Listslices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 91
+10.6 Listmethods . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 92
+10.7 Map,filterandreduce . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 93
+10.8 Deletingelements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 94
+10.9 Listsandstrings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 94
+10.10 Objectsandvalues . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 95
+10.11 Aliasing. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 96
+10.12 Listarguments . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 97
+10.13 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 98
+10.14 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 100
+10.15 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 100
+11 Dictionaries 103
+11.1 Adictionaryisamapping . . . . . . . . . . . . . . . . . . . . . . . . . . . . 103
+11.2 Dictionaryasacollectionofcounters . . . . . . . . . . . . . . . . . . . . . . 104
+11.3 Loopinganddictionaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 106
+11.4 Reverselookup . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 106
+11.5 Dictionariesandlists . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 107
+11.6 Memos . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 109
+11.7 Globalvariables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 110
+11.8 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 111
+11.9 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 112
+11.10 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 113
+
+xviii Contents
+12 Tuples 115
+12.1 Tuplesareimmutable . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 115
+12.2 Tupleassignment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 116
+12.3 Tuplesasreturnvalues . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 117
+12.4 Variable-lengthargumenttuples . . . . . . . . . . . . . . . . . . . . . . . . 118
+12.5 Listsandtuples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 118
+12.6 Dictionariesandtuples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 120
+12.7 Sequencesofsequences . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 121
+12.8 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 122
+12.9 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 122
+12.10 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 123
+13 Casestudy: datastructureselection 125
+13.1 Wordfrequencyanalysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 125
+13.2 Randomnumbers . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 126
+13.3 Wordhistogram . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 127
+13.4 Mostcommonwords . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 128
+13.5 Optionalparameters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 129
+13.6 Dictionarysubtraction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 129
+13.7 Randomwords . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 130
+13.8 Markovanalysis . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 130
+13.9 Datastructures. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 132
+13.10 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 133
+13.11 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 134
+13.12 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 134
+14 Files 137
+14.1 Persistence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 137
+14.2 Readingandwriting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 137
+14.3 Formatoperator . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 138
+14.4 Filenamesandpaths . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 139
+14.5 Catchingexceptions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 140
+
+Contents xix
+14.6 Databases. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 141
+14.7 Pickling . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 142
+14.8 Pipes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 142
+14.9 Writingmodules. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 143
+14.10 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 144
+14.11 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 145
+14.12 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 145
+15 Classesandobjects 147
+15.1 Programmer-definedtypes . . . . . . . . . . . . . . . . . . . . . . . . . . . . 147
+15.2 Attributes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 148
+15.3 Rectangles . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 149
+15.4 Instancesasreturnvalues . . . . . . . . . . . . . . . . . . . . . . . . . . . . 150
+15.5 Objectsaremutable . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 151
+15.6 Copying . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 151
+15.7 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 152
+15.8 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 153
+15.9 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 154
+16 Classesandfunctions 155
+16.1 Time. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 155
+16.2 Purefunctions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 156
+16.3 Modifiers . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 157
+16.4 Prototypingversusplanning . . . . . . . . . . . . . . . . . . . . . . . . . . . 158
+16.5 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 159
+16.6 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 160
+16.7 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 160
+17 Classesandmethods 161
+17.1 Object-orientedfeatures . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 161
+17.2 Printingobjects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 162
+17.3 Anotherexample . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 163
+
+xx Contents
+17.4 Amorecomplicatedexample . . . . . . . . . . . . . . . . . . . . . . . . . . 164
+17.5 Theinitmethod . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 164
+17.6 The__str__method . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 165
+17.7 Operatoroverloading . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 165
+17.8 Type-baseddispatch . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 166
+17.9 Polymorphism . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 167
+17.10 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 168
+17.11 Interfaceandimplementation . . . . . . . . . . . . . . . . . . . . . . . . . . 169
+17.12 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 169
+17.13 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 170
+18 Inheritance 171
+18.1 Cardobjects . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 171
+18.2 Classattributes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 172
+18.3 Comparingcards . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173
+18.4 Decks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 174
+18.5 Printingthedeck . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 174
+18.6 Add,remove,shuffleandsort . . . . . . . . . . . . . . . . . . . . . . . . . . 175
+18.7 Inheritance . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 176
+18.8 Classdiagrams . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 177
+18.9 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 178
+18.10 Dataencapsulation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 179
+18.11 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 180
+18.12 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 181
+19 TheGoodies 183
+19.1 Conditionalexpressions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 183
+19.2 Listcomprehensions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 184
+19.3 Generatorexpressions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 185
+19.4 anyandall . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 185
+19.5 Sets . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 186
+19.6 Counters . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 187
+
+Contents xxi
+19.7 defaultdict . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 188
+19.8 Namedtuples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 189
+19.9 Gatheringkeywordargs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 190
+19.10 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 191
+19.11 Exercises . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 192
+A Debugging 193
+A.1 Syntaxerrors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 193
+A.2 Runtimeerrors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 195
+A.3 Semanticerrors . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 198
+B AnalysisofAlgorithms 201
+B.1 Orderofgrowth . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 202
+B.2 AnalysisofbasicPythonoperations . . . . . . . . . . . . . . . . . . . . . . 204
+B.3 Analysisofsearchalgorithms . . . . . . . . . . . . . . . . . . . . . . . . . . 205
+B.4 Hashtables . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 206
+B.5 Glossary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 209
+
+xxii Contents

@@ -1,0 +1,293 @@
+Classes and objects
+===================
+
+Chapter 15
+Classes and objects
+Atthispointyouknowhowtousefunctionstoorganizecodeandbuilt-intypestoorganize
+data. The next step is to learn “object-oriented programming”, which uses programmer-
+definedtypestoorganizebothcodeanddata. Object-orientedprogrammingisabigtopic;
+itwilltakeafewchapterstogetthere.
+Code examples from this chapter are available from https://thinkpython.com/code/
+Point1.py;solutionstotheexercisesareavailablefromhttps://thinkpython.com/code/
+Point1_soln.py.
+15.1 Programmer-defined types
+WehaveusedmanyofPython’sbuilt-intypes;nowwearegoingtodefineanewtype. As
+anexample,wewillcreateatypecalledPointthatrepresentsapointintwo-dimensional
+space.
+Inmathematicalnotation,pointsareoftenwritteninparentheseswithacommaseparating
+thecoordinates. Forexample,(0,0)representstheorigin,and(x,y)representsthepointx
+unitstotherightandyunitsupfromtheorigin.
+ThereareseveralwayswemightrepresentpointsinPython:
+• Wecouldstorethecoordinatesseparatelyintwovariables,xandy.
+• Wecouldstorethecoordinatesaselementsinalistortuple.
+• Wecouldcreateanewtypetorepresentpointsasobjects.
+Creatinganewtypeismorecomplicatedthantheotheroptions,butithasadvantagesthat
+willbeapparentsoon.
+Aprogrammer-definedtypeisalsocalledaclass. Aclassdefinitionlookslikethis:
+class Point:
+"""Represents a point in 2-D space."""
+
+148 Chapter15. Classesandobjects
+Point
+blank x 3.0
+y 4.0
+Figure15.1: Objectdiagram.
+The header indicates that the new class is called Point. The body is a docstring that ex-
+plainswhattheclassisfor. Youcandefinevariablesandmethodsinsideaclassdefinition,
+butwewillgetbacktothatlater.
+DefiningaclassnamedPointcreatesaclassobject.
+>>> Point
+<class '__main__.Point'>
+BecausePointisdefinedatthetoplevel,its“fullname”is__main__.Point.
+Theclassobjectislikeafactoryforcreatingobjects. TocreateaPoint,youcallPointasifit
+wereafunction.
+>>> blank = Point()
+>>> blank
+<__main__.Point object at 0xb7e9d3ac>
+ThereturnvalueisareferencetoaPointobject,whichweassigntoblank.
+Creatinganewobjectiscalledinstantiation,andtheobjectisaninstanceoftheclass.
+Whenyouprintaninstance,Pythontellsyouwhatclassitbelongstoandwhereitisstored
+inmemory(theprefix0xmeansthatthefollowingnumberisinhexadecimal).
+Every object is an instance of some class, so “object” and “instance” are interchangeable.
+But in this chapter I use “instance” to indicate that I am talking about a programmer-
+definedtype.
+15.2 Attributes
+Youcanassignvaluestoaninstanceusingdotnotation:
+>>> blank.x = 3.0
+>>> blank.y = 4.0
+Thissyntaxissimilartothesyntaxforselectingavariablefromamodule,suchasmath.pi
+orstring.whitespace. Inthiscase,though,weareassigningvaluestonamedelementsof
+anobject. Theseelementsarecalledattributes.
+Asanoun,“AT-trib-ute”ispronouncedwithemphasisonthefirstsyllable,asopposedto
+“a-TRIB-ute”,whichisaverb.
+Figure15.1isastatediagramthatshowstheresultoftheseassignments. Astatediagram
+thatshowsanobjectanditsattributesiscalledanobjectdiagram.
+The variable blank refers to a Point object, which contains two attributes. Each attribute
+referstoafloating-pointnumber.
+Youcanreadthevalueofanattributeusingthesamesyntax:
+
+15.3. Rectangles 149
+>>> blank.y
+4.0
+>>> x = blank.x
+>>> x
+3.0
+Theexpressionblank.xmeans,“Gototheobjectblankreferstoandgetthevalueofx.” In
+theexample,weassignthatvaluetoavariablenamedx. Thereisnoconflictbetweenthe
+variablexandtheattributex.
+Youcanusedotnotationaspartofanyexpression. Forexample:
+>>> '(%g, %g)' % (blank.x, blank.y)
+'(3.0, 4.0)'
+>>> distance = math.sqrt(blank.x**2 + blank.y**2)
+>>> distance
+5.0
+Youcanpassaninstanceasanargumentintheusualway. Forexample:
+def print_point(p):
+print('(%g, %g)' % (p.x, p.y))
+print_point takes a point as an argument and displays it in mathematical notation. To
+invokeit,youcanpassblankasanargument:
+>>> print_point(blank)
+(3.0, 4.0)
+Insidethefunction,pisanaliasforblank,soifthefunctionmodifiesp,blankchanges.
+Asanexercise,writeafunctioncalleddistance_between_pointsthattakestwoPointsas
+argumentsandreturnsthedistancebetweenthem.
+15.3 Rectangles
+Sometimesitisobviouswhattheattributesofanobjectshouldbe,butothertimesyouhave
+tomakedecisions. Forexample,imagineyouaredesigningaclasstorepresentrectangles.
+Whatattributeswouldyouusetospecifythelocationandsizeofarectangle? Youcanig-
+noreangle;tokeepthingssimple,assumethattherectangleiseitherverticalorhorizontal.
+Thereareatleasttwopossibilities:
+• You could specify one corner of the rectangle (or the center), the width, and the
+height.
+• Youcouldspecifytwoopposingcorners.
+Atthispointitishardtosaywhethereitherisbetterthantheother,sowe’llimplementthe
+firstone,justasanexample.
+Hereistheclassdefinition:
+
+150 Chapter15. Classesandobjects
+Rectangle
+box width 100.0
+Point
+height 200.0
+x 0.0
+corner
+y 0.0
+Figure15.2: Objectdiagram.
+class Rectangle:
+"""Represents a rectangle.
+attributes: width, height, corner.
+"""
+Thedocstringliststheattributes: widthandheightarenumbers;cornerisaPointobject
+thatspecifiesthelower-leftcorner.
+Torepresentarectangle,youhavetoinstantiateaRectangleobjectandassignvaluestothe
+attributes:
+box = Rectangle()
+box.width = 100.0
+box.height = 200.0
+box.corner = Point()
+box.corner.x = 0.0
+box.corner.y = 0.0
+Theexpressionbox.corner.xmeans,“Gototheobjectboxreferstoandselecttheattribute
+namedcorner;thengotothatobjectandselecttheattributenamedx.”
+Figure15.2showsthestateofthisobject. Anobjectthatisanattributeofanotherobjectis
+embedded.
+15.4 Instances as return values
+Functionscanreturninstances. Forexample, find_centertakesaRectangleasanargu-
+mentandreturnsaPointthatcontainsthecoordinatesofthecenteroftheRectangle:
+def find_center(rect):
+p = Point()
+p.x = rect.corner.x + rect.width/2
+p.y = rect.corner.y + rect.height/2
+return p
+Here is an example that passes box as an argument and assigns the resulting Point to
+center:
+>>> center = find_center(box)
+>>> print_point(center)
+(50, 100)
+
+15.5. Objectsaremutable 151
+15.5 Objects are mutable
+Youcanchangethestateofanobjectbymakinganassignmenttooneofitsattributes. For
+example, to change the size of a rectangle without changing its position, you can modify
+thevaluesofwidthandheight:
+box.width = box.width + 50
+box.height = box.height + 100
+You can also write functions that modify objects. For example, grow_rectangle takes a
+Rectangle object and two numbers, dwidth and dheight, and adds the numbers to the
+widthandheightoftherectangle:
+def grow_rectangle(rect, dwidth, dheight):
+rect.width += dwidth
+rect.height += dheight
+Hereisanexamplethatdemonstratestheeffect:
+>>> box.width, box.height
+(150.0, 300.0)
+>>> grow_rectangle(box, 50, 100)
+>>> box.width, box.height
+(200.0, 400.0)
+Inside the function, rect is an alias for box, so when the function modifies rect, box
+changes.
+As an exercise, write a function named move_rectangle that takes a Rectangle and two
+numbersnameddxanddy. Itshouldchangethelocationoftherectanglebyaddingdxto
+thexcoordinateofcornerandaddingdytotheycoordinateofcorner.
+15.6 Copying
+Aliasing can make a program difficult to read because changes in one place might have
+unexpectedeffectsinanotherplace. Itishardtokeeptrackofallthevariablesthatmight
+refertoagivenobject.
+Copyinganobjectisoftenanalternativetoaliasing. Thecopymodulecontainsafunction
+calledcopythatcanduplicateanyobject:
+>>> p1 = Point()
+>>> p1.x = 3.0
+>>> p1.y = 4.0
+>>> import copy
+>>> p2 = copy.copy(p1)
+p1andp2containthesamedata,buttheyarenotthesamePoint.
+>>> print_point(p1)
+(3, 4)
+>>> print_point(p2)
+(3, 4)
+>>> p1 is p2
+False
+
+152 Chapter15. Classesandobjects
+box width 100.0 100.0 width box2
+height 200.0 200.0 height
+x 0.0
+corner corner
+y 0.0
+Figure15.3: Objectdiagram.
+>>> p1 == p2
+False
+The is operator indicates that p1 and p2 are not the same object, which is what we ex-
+pected. But you might have expected == to yield True because these points contain the
+same data. In that case, you will be disappointed to learn that for instances, the default
+behavior of the == operator is the same as the is operator; it checks object identity, not
+object equivalence. That’s because for programmer-defined types, Python doesn’t know
+whatshouldbeconsideredequivalent. Atleast,notyet.
+If you use copy.copy to duplicate a Rectangle, you will find that it copies the Rectangle
+objectbutnottheembeddedPoint.
+>>> box2 = copy.copy(box)
+>>> box2 is box
+False
+>>> box2.corner is box.corner
+True
+Figure15.3showswhattheobjectdiagramlookslike. Thisoperationiscalledashallow
+copy because it copies the object and any references it contains, but not the embedded
+objects.
+For most applications, this is not what you want. In this example, invoking
+grow_rectangle on one of the Rectangles would not affect the other, but invoking
+move_rectangleoneitherwouldaffectboth! Thisbehaviorisconfusinganderror-prone.
+Fortunately,thecopymoduleprovidesamethodnameddeepcopythatcopiesnotonlythe
+objectbutalsotheobjectsitrefersto,andtheobjectstheyreferto,andsoon. Youwillnot
+besurprisedtolearnthatthisoperationiscalledadeepcopy.
+>>> box3 = copy.deepcopy(box)
+>>> box3 is box
+False
+>>> box3.corner is box.corner
+False
+box3andboxarecompletelyseparateobjects.
+Asanexercise,writeaversionofmove_rectanglethatcreatesandreturnsanewRectangle
+insteadofmodifyingtheoldone.
+15.7 Debugging
+Whenyoustartworkingwithobjects,youarelikelytoencountersomenewexceptions. If
+youtrytoaccessanattributethatdoesn’texist,yougetanAttributeError:
+
+15.8. Glossary 153
+>>> p = Point()
+>>> p.x = 3
+>>> p.y = 4
+>>> p.z
+AttributeError: Point instance has no attribute 'z'
+Ifyouarenotsurewhattypeanobjectis,youcanask:
+>>> type(p)
+<class '__main__.Point'>
+Youcanalsouseisinstancetocheckwhetheranobjectisaninstanceofaclass:
+>>> isinstance(p, Point)
+True
+If you are not sure whether an object has a particular attribute, you can use the built-in
+functionhasattr:
+>>> hasattr(p, 'x')
+True
+>>> hasattr(p, 'z')
+False
+Thefirstargumentcanbeanyobject;thesecondargumentisastringthatcontainsthename
+oftheattribute.
+Youcanalsouseatrystatementtoseeiftheobjecthastheattributesyouneed:
+try:
+x = p.x
+except AttributeError:
+x = 0
+This approach can make it easier to write functions that work with different types; more
+onthattopiciscomingupinSection17.9.
+15.8 Glossary
+class: Aprogrammer-definedtype. Aclassdefinitioncreatesanewclassobject.
+classobject: An object that contains information about a programmer-defined type. The
+classobjectcanbeusedtocreateinstancesofthetype.
+instance: Anobjectthatbelongstoaclass.
+instantiate: Tocreateanewobject.
+attribute: Oneofthenamedvaluesassociatedwithanobject.
+embeddedobject: Anobjectthatisstoredasanattributeofanotherobject.
+shallowcopy: To copy the contents of an object, including any references to embedded
+objects;implementedbythecopyfunctioninthecopymodule.
+deepcopy: To copy the contents of an object as well as any embedded objects, and any
+objectsembeddedinthem,andsoon;implementedbythedeepcopyfunctioninthe
+copymodule.
+objectdiagram: A diagram that shows objects, their attributes, and the values of the at-
+tributes.
+
+154 Chapter15. Classesandobjects
+15.9 Exercises
+Exercise15.1. WriteadefinitionforaclassnamedCirclewithattributescenterandradius,
+wherecenterisaPointobjectandradiusisanumber.
+InstantiateaCircleobjectthatrepresentsacirclewithitscenterat(150,100)andradius75.
+Writeafunctionnamedpoint_in_circlethattakesaCircleandaPointandreturnsTrueifthe
+Pointliesinorontheboundaryofthecircle.
+Writeafunctionnamedrect_in_circlethattakesaCircleandaRectangleandreturnsTrueif
+theRectangleliesentirelyinorontheboundaryofthecircle.
+Write a function named rect_circle_overlap that takes a Circle and a Rectangle and returns
+TrueifanyofthecornersoftheRectanglefallinsidetheCircle. Orasamorechallengingversion,
+returnTrueifanypartoftheRectanglefallsinsidetheCircle.
+Solution: https://thinkpython.com/code/Circle.py.
+Exercise15.2. Writeafunctioncalleddraw_rectthattakesaTurtleobjectandaRectangleand
+usestheTurtletodrawtheRectangle. SeeChapter4forexamplesusingTurtleobjects.
+Writeafunctioncalleddraw_circlethattakesaTurtleandaCircleanddrawstheCircle.
+Solution: https://thinkpython.com/code/draw.py.

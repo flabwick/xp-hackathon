@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XP Study & Injection</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header id="study-menu">
+  <a href="/" class="btn mapping-btn">← BACK TO COURSES</a>
+  <h1>📚 STUDY MENU</h1>
+  <a href="/mapping" class="btn mapping-btn" target="_blank">🗺️ MAPPING</a>
+  <div class="controls">
+    <div class="toggle-group">
+      <label>Mode:</label>
+      <select id="prompt-mode">
+        <option value="test">Test</option>
+        <option value="study">Study</option>
+        <option value="revise" disabled>Revise (Disabled)</option>
+      </select>
+    </div>
+
+    <div class="toggle-group">
+      <label>Selection:</label>
+      <button id="mode-toggle" class="btn toggle active" data-target="select">Select Mode</button>
+      <button id="mode-priority" class="btn toggle" data-target="priority">Priority Mode</button>
+    </div>
+
+    <div id="priority-controls" class="hidden">
+      <label>Units to Study:</label>
+      <input type="range" id="priority-count" min="1" max="50" value="5">
+      <span id="priority-val">5</span>
+    </div>
+
+    <button id="copy-prompt" class="btn primary">📋 COPY PROMPT</button>
+    <button id="add-context" class="btn">📚 ADD CONTEXT</button>
+    <input id="pdf-file-input" type="file" accept="application/pdf" hidden>
+  </div>
+</header>
+
+<section id="injection-menu">
+  <h2>💉 INJECTION MENU</h2>
+  
+  <div class="injection-grid">
+    <!-- XP INJECTION -->
+    <div class="card">
+      <h3>XP Injection</h3>
+      <textarea id="xp-input" placeholder='[{"unitId":0, "difficultyScore":65, "performanceRatio":0.82, "notes":"Good"}]'></textarea>
+      <button id="process-xp" class="btn primary">PROCESS XP</button>
+    </div>
+
+    <!-- TEACHING INJECTION -->
+    <div class="card">
+      <h3>Teaching Injection</h3>
+      <textarea id="teaching-input" placeholder='[{"question":"What is a supremum?","answer":"The least upper bound of a set","relevantUnits":[3]},{"question":"Define compactness","answer":"Every open cover has a finite subcover","relevantUnits":[11]}]'></textarea>
+      <button id="copy-teaching" class="btn secondary">📋 COPY TEACHING PROMPT</button>
+    </div>
+
+    <!-- XP HISTORY -->
+    <div class="card">
+      <h3>XP History</h3>
+      <button id="show-xp-history" class="btn outline">📖 VIEW HISTORY</button>
+    </div>
+  </div>
+</section>
+
+<main id="content-area">
+  <!-- SELECT MODE TREE -->
+  <section id="tree-container">
+    <div id="tree-loader" class="placeholder">Select a domain to load units.</div>
+  </section>
+  
+  <!-- PRIORITY MODE LIST -->
+  <section id="priority-list" class="hidden">
+    <div id="priority-loader" class="placeholder">Priority calculation requires loaded domain & XP.</div>
+  </section>
+</main>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- XP MODAL -->
+<dialog id="xp-modal">
+  <div class="modal-header">
+    <h2>📊 XP Update Results</h2>
+    <button class="btn close" id="close-modal">✖</button>
+  </div>
+  <div id="modal-tabs">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="latest">Latest</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </div>
+    <div id="tab-latest" class="tab-panel active">
+      <div id="modal-stats"></div>
+    </div>
+    <div id="tab-history" class="tab-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
+        <strong>Injection History</strong>
+        <button id="clear-all-history" class="btn-undo" style="font-size:0.75rem">🗑 CLEAR ALL</button>
+      </div>
+      <div id="modal-history"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ADD CONTEXT MODAL -->
+<dialog id="add-context-modal">
+  <div class="modal-header">
+    <h2>📚 Add Context</h2>
+    <button class="btn close" id="close-add-context">✖</button>
+  </div>
+  <div style="padding:1.2rem">
+    <div id="ac-choose">
+      <p style="margin:0 0 1rem;font-weight:600">Choose upload method:</p>
+      <div style="display:flex;gap:0.8rem">
+        <button id="ac-pdf-splitter" class="btn primary">📄 PDF SPLITTER</button>
+        <button class="btn" disabled title="Coming soon">✍️ MANUAL UPLOAD</button>
+      </div>
+    </div>
+    <div id="ac-progress" hidden>
+      <p id="ac-progress-text" style="margin:0;font-weight:600"></p>
+    </div>
+    <div id="ac-result" hidden>
+      <div id="ac-result-content"></div>
+      <button class="btn" id="ac-try-again" style="margin-top:1rem">← TRY AGAIN</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="app.js?v=2"></script>
+</body>
+</html>

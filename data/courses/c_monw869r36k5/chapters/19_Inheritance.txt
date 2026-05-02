@@ -1,0 +1,458 @@
+Inheritance
+===========
+
+Chapter 18
+Inheritance
+The language feature most often associated with object-oriented programming is inheri-
+tance. Inheritance is the ability to define a new class that is a modified version of an ex-
+istingclass. InthischapterIdemonstrateinheritanceusingclassesthatrepresentplaying
+cards,decksofcards,andpokerhands.
+Ifyoudon’tplaypoker,youcanreadaboutitathttp://en.wikipedia.org/wiki/Poker,
+butyoudon’thaveto;I’lltellyouwhatyouneedtoknowfortheexercises.
+Code examples from this chapter are available from https://thinkpython.com/code/
+Card.py.
+18.1 Card objects
+Therearefifty-twocardsinadeck, eachofwhichbelongstooneoffoursuitsandoneof
+thirteenranks. ThesuitsareSpades,Hearts,Diamonds,andClubs(indescendingorderin
+bridge). TheranksareAce, 2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, andKing. Dependingon
+thegamethatyouareplaying,anAcemaybehigherthanKingorlowerthan2.
+If we want to define a new object to represent a playing card, it is obvious what the at-
+tributesshouldbe: rankandsuit. Itisnotasobviouswhattypetheattributesshouldbe.
+One possibility is to use strings containing words like 'Spade' for suits and 'Queen' for
+ranks.Oneproblemwiththisimplementationisthatitwouldnotbeeasytocomparecards
+toseewhichhadahigherrankorsuit.
+An alternative is to use integers to encode the ranks and suits. In this context, “encode”
+means that we are going to define a mapping between numbers and suits, or between
+numbers and ranks. This kind of encoding is not meant to be a secret (that would be
+“encryption”).
+Forexample,thistableshowsthesuitsandthecorrespondingintegercodes:
+Spades (cid:55)→ 3
+Hearts (cid:55)→ 2
+Diamonds (cid:55)→ 1
+Clubs (cid:55)→ 0
+
+172 Chapter18. Inheritance
+Thiscodemakesiteasytocomparecards;becausehighersuitsmaptohighernumbers,we
+cancomparesuitsbycomparingtheircodes.
+The mapping for ranks is fairly obvious; each of the numerical ranks maps to the corre-
+spondinginteger,andforfacecards:
+Jack (cid:55)→ 11
+Queen (cid:55)→ 12
+King (cid:55)→ 13
+Iamusingthe (cid:55)→ symboltomakeitclearthatthesemappingsarenotpartofthePython
+program.Theyarepartoftheprogramdesign,buttheydon’tappearexplicitlyinthecode.
+TheclassdefinitionforCardlookslikethis:
+class Card:
+"""Represents a standard playing card."""
+def __init__(self, suit=0, rank=2):
+self.suit = suit
+self.rank = rank
+Asusual,theinitmethodtakesanoptionalparameterforeachattribute. Thedefaultcard
+isthe2ofClubs.
+TocreateaCard,youcallCardwiththesuitandrankofthecardyouwant.
+queen_of_diamonds = Card(1, 12)
+18.2 Class attributes
+In order to print Card objects in a way that people can easily read, we need a mapping
+from the integer codes to the corresponding ranks and suits. A natural way to do that is
+withlistsofstrings. Weassigntheseliststoclassattributes:
+# inside class Card:
+suit_names = ['Clubs', 'Diamonds', 'Hearts', 'Spades']
+rank_names = [None, 'Ace', '2', '3', '4', '5', '6', '7',
+'8', '9', '10', 'Jack', 'Queen', 'King']
+def __str__(self):
+return '%s of %s' % (Card.rank_names[self.rank],
+Card.suit_names[self.suit])
+Variables like suit_names and rank_names, which are defined inside a class but outside
+ofanymethod,arecalledclassattributesbecausetheyareassociatedwiththeclassobject
+Card.
+Thistermdistinguishesthemfromvariableslikesuitandrank,whicharecalledinstance
+attributesbecausetheyareassociatedwithaparticularinstance.
+Both kinds of attribute are accessed using dot notation. For example, in __str__, self
+is a Card object, and self.rank is its rank. Similarly, Card is a class object, and
+Card.rank_namesisalistofstringsassociatedwiththeclass.
+
+18.3. Comparingcards 173
+type list
+Card suit_names
+list
+rank_names
+Card
+card1 suit 1
+rank 11
+Figure18.1: Objectdiagram.
+Every card has its own suit and rank, but there is only one copy of suit_names and
+rank_names.
+Putting it all together, the expression Card.rank_names[self.rank] means “use the at-
+tributerankfromtheobjectselfasanindexintothelistrank_namesfromtheclassCard,
+andselecttheappropriatestring.”
+Thefirstelementofrank_namesisNonebecausethereisnocardwithrankzero. Byinclud-
+ingNoneasaplace-keeper,wegetamappingwiththenicepropertythattheindex2maps
+tothestring'2',andsoon. Toavoidthistweak,wecouldhaveusedadictionaryinstead
+ofalist.
+Withthemethodswehavesofar,wecancreateandprintcards:
+>>> card1 = Card(2, 11)
+>>> print(card1)
+Jack of Hearts
+Figure 18.1 is a diagram of the Card class object and one Card instance. Card is a class
+object; its type is type. card1 is an instance of Card, so its type is Card. To save space, I
+didn’tdrawthecontentsofsuit_namesandrank_names.
+18.3 Comparing cards
+Forbuilt-intypes,therearerelationaloperators(<,>,==,etc.) thatcomparevaluesandde-
+terminewhenoneisgreaterthan,lessthan,orequaltoanother. Forprogrammer-defined
+types,wecanoverridethebehaviorofthebuilt-inoperatorsbyprovidingamethodnamed
+__lt__,whichstandsfor“lessthan”.
+__lt__takestwoparameters,selfandother,andreturnsTrueifselfisstrictlylessthan
+other.
+Thecorrectorderingforcardsisnotobvious. Forexample,whichisbetter,the3ofClubs
+orthe2ofDiamonds? Onehasahigherrank,buttheotherhasahighersuit. Inorderto
+comparecards,youhavetodecidewhetherrankorsuitismoreimportant.
+Theanswermightdependonwhatgameyouareplaying,buttokeepthingssimple,we’ll
+makethearbitrarychoicethatsuitismoreimportant,soalloftheSpadesoutrankallofthe
+Diamonds,andsoon.
+
+174 Chapter18. Inheritance
+Withthatdecided,wecanwrite__lt__:
+# inside class Card:
+def __lt__(self, other):
+# check the suits
+if self.suit < other.suit: return True
+if self.suit > other.suit: return False
+# suits are the same... check ranks
+return self.rank < other.rank
+Youcanwritethismoreconciselyusingtuplecomparison:
+# inside class Card:
+def __lt__(self, other):
+t1 = self.suit, self.rank
+t2 = other.suit, other.rank
+return t1 < t2
+As an exercise, write an __lt__ method for Time objects. You can use tuple comparison,
+butyoualsomightconsidercomparingintegers.
+18.4 Decks
+NowthatwehaveCards,thenextstepistodefineDecks.Sinceadeckismadeupofcards,
+itisnaturalforeachDecktocontainalistofcardsasanattribute.
+ThefollowingisaclassdefinitionforDeck. Theinitmethodcreatestheattributecardsand
+generatesthestandardsetoffifty-twocards:
+class Deck:
+def __init__(self):
+self.cards = []
+for suit in range(4):
+for rank in range(1, 14):
+card = Card(suit, rank)
+self.cards.append(card)
+Theeasiestwaytopopulatethedeckiswithanestedloop. Theouterloopenumeratesthe
+suitsfrom0to3. Theinnerloopenumeratestheranksfrom1to13. Eachiterationcreates
+anewCardwiththecurrentsuitandrank,andappendsittoself.cards.
+18.5 Printing the deck
+Hereisa__str__methodforDeck:
+# inside class Deck:
+def __str__(self):
+res = []
+
+18.6. Add,remove,shuffleandsort 175
+for card in self.cards:
+res.append(str(card))
+return '\n'.join(res)
+This method demonstrates an efficient way to accumulate a large string: building a list
+of strings and then using the string method join. The built-in function str invokes the
+__str__methodoneachcardandreturnsthestringrepresentation.
+Sinceweinvokejoinonanewlinecharacter,thecardsareseparatedbynewlines. Here’s
+whattheresultlookslike:
+>>> deck = Deck()
+>>> print(deck)
+Ace of Clubs
+2 of Clubs
+3 of Clubs
+...
+10 of Spades
+Jack of Spades
+Queen of Spades
+King of Spades
+Eventhoughtheresultappearson52lines,itisonelongstringthatcontainsnewlines.
+18.6 Add, remove, shuffle and sort
+To deal cards, we would like a method that removes a card from the deck and returns it.
+Thelistmethodpopprovidesaconvenientwaytodothat:
+# inside class Deck:
+def pop_card(self):
+return self.cards.pop()
+Sincepopremovesthelastcardinthelist,wearedealingfromthebottomofthedeck.
+Toaddacard,wecanusethelistmethodappend:
+# inside class Deck:
+def add_card(self, card):
+self.cards.append(card)
+Amethodlikethisthatusesanothermethodwithoutdoingmuchworkissometimescalled
+aveneer. Themetaphorcomesfromwoodworking,whereaveneerisathinlayerofgood
+qualitywoodgluedtothesurfaceofacheaperpieceofwoodtoimprovetheappearance.
+Inthiscaseadd_cardisa“thin”methodthatexpressesalistoperationintermsappropriate
+fordecks. Itimprovestheappearance,orinterface,oftheimplementation.
+As another example, we can write a Deck method named shuffle using the function
+shufflefromtherandommodule:
+# inside class Deck:
+def shuffle(self):
+random.shuffle(self.cards)
+
+176 Chapter18. Inheritance
+Don’tforgettoimportrandom.
+Asanexercise,writeaDeckmethodnamedsortthatusesthelistmethodsorttosortthe
+cardsinaDeck. sortusesthe__lt__methodwedefinedtodeterminetheorder.
+18.7 Inheritance
+Inheritanceistheabilitytodefineanewclassthatisamodifiedversionofanexistingclass.
+As an example, let’s say we want a class to represent a “hand”, that is, the cards held by
+oneplayer. Ahandissimilartoadeck: botharemadeupofacollectionofcards,andboth
+requireoperationslikeaddingandremovingcards.
+A hand is also different from a deck; there are operations we want for hands that don’t
+makesenseforadeck. Forexample,inpokerwemightcomparetwohandstoseewhich
+onewins. Inbridge,wemightcomputeascoreforahandinordertomakeabid.
+This relationship between classes—similar, but different—lends itself to inheritance. To
+define a new class that inherits from an existing class, you put the name of the existing
+classinparentheses:
+class Hand(Deck):
+"""Represents a hand of playing cards."""
+ThisdefinitionindicatesthatHandinheritsfromDeck;thatmeanswecanusemethodslike
+pop_cardandadd_cardforHandsaswellasDecks.
+When a new class inherits from an existing one, the existing one is called the parent and
+thenewclassiscalledthechild.
+Inthisexample,Handinherits__init__fromDeck,butitdoesn’treallydowhatwewant:
+insteadofpopulatingthehandwith52newcards, theinitmethodforHandsshouldini-
+tializecardswithanemptylist.
+IfweprovideaninitmethodintheHandclass,itoverridestheoneintheDeckclass:
+# inside class Hand:
+def __init__(self, label=''):
+self.cards = []
+self.label = label
+WhenyoucreateaHand,Pythoninvokesthisinitmethod,nottheoneinDeck.
+>>> hand = Hand('new hand')
+>>> hand.cards
+[]
+>>> hand.label
+'new hand'
+TheothermethodsareinheritedfromDeck,sowecanusepop_cardandadd_cardtodeal
+acard:
+>>> deck = Deck()
+>>> card = deck.pop_card()
+>>> hand.add_card(card)
+>>> print(hand)
+King of Spades
+
+18.8. Classdiagrams 177
+Anaturalnextstepistoencapsulatethiscodeinamethodcalledmove_cards:
+# inside class Deck:
+def move_cards(self, hand, num):
+for i in range(num):
+hand.add_card(self.pop_card())
+move_cardstakestwoarguments,aHandobjectandthenumberofcardstodeal. Itmodi-
+fiesbothselfandhand,andreturnsNone.
+In some games, cards are moved from one hand to another, or from a hand back to the
+deck. Youcanusemove_cardsforanyoftheseoperations: selfcanbeeitheraDeckora
+Hand,andhand,despitethename,canalsobeaDeck.
+Inheritanceisausefulfeature.Someprogramsthatwouldberepetitivewithoutinheritance
+canbewrittenmoreelegantlywithit. Inheritancecanfacilitatecodereuse, sinceyoucan
+customize the behavior of parent classes without having to modify them. In some cases,
+the inheritance structure reflects the natural structure of the problem, which makes the
+designeasiertounderstand.
+On the other hand, inheritance can make programs difficult to read. When a method is
+invoked, it is sometimes not clear where to find its definition. The relevant code may be
+spreadacrossseveralmodules.Also,manyofthethingsthatcanbedoneusinginheritance
+canbedoneaswellorbetterwithoutit.
+18.8 Class diagrams
+So far we have seen stack diagrams, which show the state of a program, and object dia-
+grams,whichshowtheattributesofanobjectandtheirvalues. Thesediagramsrepresent
+asnapshotintheexecutionofaprogram,sotheychangeastheprogramruns.
+Theyarealsohighlydetailed; forsomepurposes,toodetailed. Aclassdiagramisamore
+abstract representation of the structure of a program. Instead of showing individual ob-
+jects,itshowsclassesandtherelationshipsbetweenthem.
+Thereareseveralkindsofrelationshipbetweenclasses:
+• Objectsinoneclassmightcontainreferencestoobjectsinanotherclass. Forexample,
+eachRectanglecontainsareferencetoaPoint,andeachDeckcontainsreferencesto
+many Cards. This kind of relationship is called HAS-A, as in, “a Rectangle has a
+Point.”
+• Oneclassmightinheritfromanother. ThisrelationshipiscalledIS-A,asin,“aHand
+isakindofaDeck.”
+• One class might depend on another in the sense that objects in one class take ob-
+jectsinthesecondclassasparameters,oruseobjectsinthesecondclassaspartofa
+computation. Thiskindofrelationshipiscalledadependency.
+A class diagram is a graphical representation of these relationships. For example, Fig-
+ure18.2showstherelationshipsbetweenCard,DeckandHand.
+
+178 Chapter18. Inheritance
+*
+Deck Card
+Hand
+Figure18.2: Classdiagram.
+ThearrowwithahollowtriangleheadrepresentsanIS-Arelationship;inthiscaseitindi-
+catesthatHandinheritsfromDeck.
+The standard arrow head represents a HAS-A relationship; in this case a Deck has refer-
+encestoCardobjects.
+Thestar(*)nearthearrowheadisamultiplicity;itindicateshowmanyCardsaDeckhas.
+Amultiplicitycanbeasimplenumber,like52,arange,like5..7orastar,whichindicates
+thataDeckcanhaveanynumberofCards.
+Therearenodependenciesinthisdiagram. Theywouldnormallybeshownwithadashed
+arrow. Oriftherearealotofdependencies,theyaresometimesomitted.
+A more detailed diagram might show that a Deck actually contains a list of Cards, but
+built-intypeslikelistanddictareusuallynotincludedinclassdiagrams.
+18.9 Debugging
+Inheritancecanmakedebuggingdifficultbecausewhenyouinvokeamethodonanobject,
+itmightbehardtofigureoutwhichmethodwillbeinvoked.
+Suppose you are writing a function that works with Hand objects. You would like it to
+workwithallkindsofHands,likePokerHands,BridgeHands,etc. Ifyouinvokeamethod
+likeshuffle,youmightgettheonedefinedinDeck,butifanyofthesubclassesoverride
+this method, you’ll get that version instead. This behavior is usually a good thing, but it
+canbeconfusing.
+Any time you are unsure about the flow of execution through your program, the sim-
+plest solution is to add print statements at the beginning of the relevant methods. If
+Deck.shuffleprintsamessagethatsayssomethinglike Running Deck.shuffle, thenas
+theprogramrunsittracestheflowofexecution.
+Asanalternative, youcouldusethisfunction, whichtakesanobjectandamethodname
+(asastring)andreturnstheclassthatprovidesthedefinitionofthemethod:
+def find_defining_class(obj, meth_name):
+for ty in type(obj).mro():
+if meth_name in ty.__dict__:
+return ty
+Here’sanexample:
+>>> hand = Hand()
+>>> find_defining_class(hand, 'shuffle')
+<class '__main__.Deck'>
+
+18.10. Dataencapsulation 179
+SotheshufflemethodforthisHandistheoneinDeck.
+find_defining_classusesthemromethodtogetthelistofclassobjects(types)thatwillbe
+searchedformethods.“MRO”standsfor“methodresolutionorder”,whichisthesequence
+ofclassesPythonsearchesto“resolve”amethodname.
+Here’sadesignsuggestion: whenyouoverrideamethod,theinterfaceofthenewmethod
+shouldbethesameastheold. Itshouldtakethesameparameters, returnthesametype,
+andobeythesamepreconditionsandpostconditions. Ifyoufollowthisrule,youwillfind
+thatanyfunctiondesignedtoworkwithaninstanceofaparentclass,likeaDeck,willalso
+workwithinstancesofchildclasseslikeaHandandPokerHand.
+Ifyouviolatethisrule,whichiscalledthe“Liskovsubstitutionprinciple”,yourcodewill
+collapselike(sorry)ahouseofcards.
+18.10 Data encapsulation
+The previous chapters demonstrate a development plan we might call “object-oriented
+design”. Weidentifiedobjectsweneeded—likePoint,RectangleandTime—anddefined
+classes to represent them. In each case there is an obvious correspondence between the
+objectandsomeentityintherealworld(oratleastamathematicalworld).
+But sometimes it is less obvious what objects you need and how they should interact. In
+that case you need a different development plan. In the same way that we discovered
+function interfaces by encapsulation and generalization, we can discover class interfaces
+bydataencapsulation.
+Markov analysis, from Section 13.8, provides a good example. If you download my
+codefromhttps://thinkpython.com/code/markov.py, you’llseethatitusestwoglobal
+variables—suffix_mapandprefix—thatarereadandwrittenfromseveralfunctions.
+suffix_map = {}
+prefix = ()
+Becausethesevariablesareglobal,wecanonlyrunoneanalysisatatime. Ifwereadtwo
+texts,theirprefixesandsuffixeswouldbeaddedtothesamedatastructures(whichmakes
+forsomeinterestinggeneratedtext).
+To run multiple analyses, and keep them separate, we can encapsulate the state of each
+analysisinanobject. Here’swhatthatlookslike:
+class Markov:
+def __init__(self):
+self.suffix_map = {}
+self.prefix = ()
+Next,wetransformthefunctionsintomethods. Forexample,here’sprocess_word:
+def process_word(self, word, order=2):
+if len(self.prefix) < order:
+self.prefix += (word,)
+return
+
+180 Chapter18. Inheritance
+try:
+self.suffix_map[self.prefix].append(word)
+except KeyError:
+# if there is no entry for this prefix, make one
+self.suffix_map[self.prefix] = [word]
+self.prefix = shift(self.prefix, word)
+Transformingaprogramlikethis—changingthedesignwithoutchangingthebehavior—is
+anotherexampleofrefactoring(seeSection4.7).
+Thisexamplesuggestsadevelopmentplanfordesigningobjectsandmethods:
+1. Startbywritingfunctionsthatreadandwriteglobalvariables(whennecessary).
+2. Once you get the program working, look for associations between global variables
+andthefunctionsthatusethem.
+3. Encapsulaterelatedvariablesasattributesofanobject.
+4. Transformtheassociatedfunctionsintomethodsofthenewclass.
+As an exercise, download my Markov code from https://thinkpython.com/code/
+markov.py, and follow the steps described above to encapsulate the global variables
+as attributes of a new class called Markov. Solution: https://thinkpython.com/code/
+markov2.py.
+18.11 Glossary
+encode: Torepresentonesetofvaluesusinganothersetofvaluesbyconstructingamap-
+pingbetweenthem.
+classattribute: An attribute associated with a class object. Class attributes are defined
+insideaclassdefinitionbutoutsideanymethod.
+instanceattribute: Anattributeassociatedwithaninstanceofaclass.
+veneer: Amethodorfunctionthatprovidesadifferentinterfacetoanotherfunctionwith-
+outdoingmuchcomputation.
+inheritance: The ability to define a new class that is a modified version of a previously
+definedclass.
+parentclass: Theclassfromwhichachildclassinherits.
+childclass: A new class created by inheriting from an existing class; also called a “sub-
+class”.
+IS-Arelationship: Arelationshipbetweenachildclassanditsparentclass.
+HAS-Arelationship: Arelationshipbetweentwoclasseswhereinstancesofoneclasscon-
+tainreferencestoinstancesoftheother.
+dependency: A relationship between two classes where instances of one class use in-
+stancesoftheotherclass,butdonotstorethemasattributes.
+
+18.12. Exercises 181
+classdiagram: A diagram that shows the classes in a program and the relationships be-
+tweenthem.
+multiplicity: A notation in a class diagram that shows, for a HAS-A relationship, how
+manyreferencestherearetoinstancesofanotherclass.
+dataencapsulation: Aprogramdevelopmentplanthatinvolvesaprototypeusingglobal
+variablesandafinalversionthatmakestheglobalvariablesintoinstanceattributes.
+18.12 Exercises
+Exercise18.1. Forthefollowingprogram,drawaUMLclassdiagramthatshowstheseclassesand
+therelationshipsamongthem.
+class PingPongParent:
+pass
+class Ping(PingPongParent):
+def __init__(self, pong):
+self.pong = pong
+class Pong(PingPongParent):
+def __init__(self, pings=None):
+if pings is None:
+self.pings = []
+else:
+self.pings = pings
+def add_ping(self, ping):
+self.pings.append(ping)
+pong = Pong()
+ping = Ping(pong)
+pong.add_ping(ping)
+Exercise18.2. WriteaDeckmethodcalleddeal_handsthattakestwoparameters,thenumberof
+handsandthenumberofcardsperhand. ItshouldcreatetheappropriatenumberofHandobjects,
+dealtheappropriatenumberofcardsperhand,andreturnalistofHands.
+Exercise 18.3. The following are the possible hands in poker, in increasing order of value and
+decreasingorderofprobability:
+pair: twocardswiththesamerank
+twopair: twopairsofcardswiththesamerank
+threeofakind: threecardswiththesamerank
+straight: fivecardswithranksinsequence(acescanbehighorlow,soAce-2-3-4-5isastraight
+andsois10-Jack-Queen-King-Ace,butQueen-King-Ace-2-3isnot.)
+flush: fivecardswiththesamesuit
+fullhouse: threecardswithonerank,twocardswithanother
+
+182 Chapter18. Inheritance
+fourofakind: fourcardswiththesamerank
+straightflush: fivecardsinsequence(asdefinedabove)andwiththesamesuit
+Thegoaloftheseexercisesistoestimatetheprobabilityofdrawingthesevarioushands.
+1. Downloadthefollowingfilesfromhttps://thinkpython.com/code:
+Card.py : AcompleteversionoftheCard,DeckandHandclassesinthischapter.
+PokerHand.py : Anincompleteimplementationofaclassthatrepresentsapokerhand,and
+somecodethattestsit.
+2. IfyourunPokerHand.py,itdealsseven7-cardpokerhandsandcheckstoseeifanyofthem
+containsaflush. Readthiscodecarefullybeforeyougoon.
+3. Add methods to PokerHand.py named has_pair, has_twopair, etc. that return True or
+False according to whether or not the hand meets the relevant criteria. Your code should
+workcorrectlyfor“hands”thatcontainanynumberofcards(although5and7arethemost
+commonsizes).
+4. Writeamethodnamedclassifythatfiguresoutthehighest-valueclassificationforahand
+andsetsthelabelattributeaccordingly. Forexample,a7-cardhandmightcontainaflush
+andapair;itshouldbelabeled“flush”.
+5. Whenyouareconvincedthatyourclassificationmethodsareworking,thenextstepistoesti-
+matetheprobabilitiesofthevarioushands. WriteafunctioninPokerHand.pythatshuffles
+a deck of cards, divides it into hands, classifies the hands, and counts the number of times
+variousclassificationsappear.
+6. Printatableoftheclassificationsandtheirprobabilities. Runyourprogramwithlargerand
+larger numbers of hands until the output values converge to a reasonable degree of accu-
+racy. Compare your results to the values at http://en.wikipedia.org/wiki/Hand_
+rankings.
+Solution: https://thinkpython.com/code/PokerHandSoln.py.

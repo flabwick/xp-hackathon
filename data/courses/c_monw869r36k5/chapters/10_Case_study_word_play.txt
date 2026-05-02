@@ -1,0 +1,245 @@
+Case study: word play
+=====================
+
+Chapter 9
+Case study: word play
+This chapter presents the second case study, which involves solving word puzzles by
+searchingforwordsthathavecertainproperties. Forexample,we’llfindthelongestpalin-
+dromes in English and search for words whose letters appear in alphabetical order. And
+Iwillpresentanotherprogramdevelopmentplan: reductiontoapreviouslysolvedprob-
+lem.
+9.1 Reading word lists
+For the exercises in this chapter we need a list of English words. There are lots of word
+listsavailableontheWeb,buttheonemostsuitableforourpurposeisoneofthewordlists
+collected and contributed to the public domain by Grady Ward as part of the Moby lexi-
+conproject(seehttp://wikipedia.org/wiki/Moby_Project). Itisalistof113,809official
+crosswords;thatis,wordsthatareconsideredvalidincrosswordpuzzlesandotherword
+games. In the Moby collection, the filename is 113809of.fic; you can download a copy,
+withthesimplernamewords.txt,fromhttps://thinkpython.com/code/words.txt.
+Thisfileisinplaintext,soyoucanopenitwithatexteditor,butyoucanalsoreaditfrom
+Python. Thebuilt-infunctionopentakesthenameofthefileasaparameterandreturnsa
+fileobjectyoucanusetoreadthefile.
+>>> fin = open('words.txt')
+fin is a common name for a file object used for input. The file object provides several
+methodsforreading,includingreadline,whichreadscharactersfromthefileuntilitgets
+toanewlineandreturnstheresultasastring:
+>>> fin.readline()
+'aa\n'
+The first word in this particular list is “aa”, which is a kind of lava. The sequence \n
+representsthenewlinecharacterthatseparatesthiswordfromthenext.
+Thefileobjectkeepstrackofwhereitisinthefile, soifyoucallreadlineagain, youget
+thenextword:
+>>> fin.readline()
+'aah\n'
+
+84 Chapter9. Casestudy: wordplay
+The next word is “aah”, which is a perfectly legitimate word, so stop looking at me like
+that. Or, if it’s the newline character that’s bothering you, we can get rid of it with the
+stringmethodstrip:
+>>> line = fin.readline()
+>>> word = line.strip()
+>>> word
+'aahed'
+You can also use a file object as part of a for loop. This program reads words.txt and
+printseachword,oneperline:
+fin = open('words.txt')
+for line in fin:
+word = line.strip()
+print(word)
+9.2 Exercises
+Therearesolutionstotheseexercisesinthenextsection. Youshouldatleastattempteach
+onebeforeyoureadthesolutions.
+Exercise9.1. Writeaprogramthatreadswords.txtandprintsonlythewordswithmorethan20
+characters(notcountingwhitespace).
+Exercise9.2. In1939ErnestVincentWrightpublisheda50,000wordnovelcalledGadsbythat
+doesnotcontaintheletter“e”. Since“e”isthemostcommonletterinEnglish, that’snoteasyto
+do.
+Infact,itisdifficulttoconstructasolitarythoughtwithoutusingthatmostcommonsymbol. Itis
+slowgoingatfirst,butwithcautionandhoursoftrainingyoucangraduallygainfacility.
+Allright,I’llstopnow.
+Writeafunctioncalledhas_no_ethatreturnsTrueifthegivenworddoesn’thavetheletter“e”in
+it.
+Writeaprogramthatreadswords.txtandprintsonlythewordsthathaveno“e”. Computethe
+percentageofwordsinthelistthathaveno“e”.
+Exercise9.3. Writeafunctionnamedavoidsthattakesawordandastringofforbiddenletters,
+andthatreturnsTrueiftheworddoesn’tuseanyoftheforbiddenletters.
+Write a program that prompts the user to enter a string of forbidden letters and then prints the
+numberofwordsthatdon’tcontainanyofthem. Canyoufindacombinationof5forbiddenletters
+thatexcludesthesmallestnumberofwords?
+Exercise 9.4. Write a function named uses_only that takes a word and a string of letters, and
+thatreturnsTrueifthewordcontainsonlylettersinthelist. Canyoumakeasentenceusingonly
+thelettersacefhlo? Otherthan“Hoealfalfa”?
+Exercise9.5. Writeafunctionnameduses_allthattakesawordandastringofrequiredletters,
+andthatreturnsTrueifthewordusesalltherequiredlettersatleastonce. Howmanywordsare
+therethatuseallthevowelsaeiou? Howaboutaeiouy?
+Exercise9.6. Writeafunctioncalledis_abecedarianthatreturnsTrueifthelettersinaword
+appearinalphabeticalorder(doublelettersareok). Howmanyabecedarianwordsarethere?
+
+9.3. Search 85
+9.3 Search
+Alloftheexercisesintheprevioussectionhavesomethingincommon;theycanbesolved
+withthesearchpatternwesawinSection8.6. Thesimplestexampleis:
+def has_no_e(word):
+for letter in word:
+if letter == 'e':
+return False
+return True
+Theforlooptraversesthecharactersinword. Ifwefindtheletter“e”,wecanimmediately
+returnFalse;otherwisewehavetogotothenextletter. Ifweexittheloopnormally,that
+meanswedidn’tfindan“e”,sowereturnTrue.
+Youcouldwritethisfunctionmoreconciselyusingtheinoperator,butIstartedwiththis
+versionbecauseitdemonstratesthelogicofthesearchpattern.
+avoidsisamoregeneralversionofhas_no_ebutithasthesamestructure:
+def avoids(word, forbidden):
+for letter in word:
+if letter in forbidden:
+return False
+return True
+WecanreturnFalseassoonaswefindaforbiddenletter;ifwegettotheendoftheloop,
+wereturnTrue.
+uses_onlyissimilarexceptthatthesenseoftheconditionisreversed:
+def uses_only(word, available):
+for letter in word:
+if letter not in available:
+return False
+return True
+Insteadofalistofforbiddenletters,wehavealistofavailableletters. Ifwefindaletterin
+wordthatisnotinavailable,wecanreturnFalse.
+uses_allissimilarexceptthatwereversetheroleofthewordandthestringofletters:
+def uses_all(word, required):
+for letter in required:
+if letter not in word:
+return False
+return True
+Insteadoftraversingthelettersinword,thelooptraversestherequiredletters. Ifanyofthe
+requiredlettersdonotappearintheword,wecanreturnFalse.
+If you were really thinking like a computer scientist, you would have recognized that
+uses_allwasaninstanceofapreviouslysolvedproblem,andyouwouldhavewritten:
+def uses_all(word, required):
+return uses_only(required, word)
+Thisisanexampleofaprogramdevelopmentplancalledreductiontoapreviouslysolved
+problem,whichmeansthatyourecognizetheproblemyouareworkingonasaninstance
+ofasolvedproblemandapplyanexistingsolution.
+
+86 Chapter9. Casestudy: wordplay
+9.4 Looping with indices
+I wrote the functions in the previous section with for loops because I only needed the
+charactersinthestrings;Ididn’thavetodoanythingwiththeindices.
+Foris_abecedarianwehavetocompareadjacentletters,whichisalittletrickywithafor
+loop:
+def is_abecedarian(word):
+previous = word[0]
+for c in word:
+if c < previous:
+return False
+previous = c
+return True
+Analternativeistouserecursion:
+def is_abecedarian(word):
+if len(word) <= 1:
+return True
+if word[0] > word[1]:
+return False
+return is_abecedarian(word[1:])
+Anotheroptionistouseawhileloop:
+def is_abecedarian(word):
+i = 0
+while i < len(word)-1:
+if word[i+1] < word[i]:
+return False
+i = i+1
+return True
+Theloopstartsati=0andendswheni=len(word)-1. Eachtimethroughtheloop,itcom-
+pares the ith character (which you can think of as the current character) to the i+1th
+character(whichyoucanthinkofasthenext).
+Ifthenextcharacterislessthan(alphabeticallybefore)thecurrentone,thenwehavedis-
+coveredabreakintheabecedariantrend,andwereturnFalse.
+Ifwegettotheendoftheloopwithoutfindingafault, thenthewordpassesthetest. To
+convince yourself that the loop ends correctly, consider an example like 'flossy'. The
+lengthofthewordis6,sothelasttimethelooprunsiswheniis4,whichistheindexof
+thesecond-to-lastcharacter. Onthelastiteration,itcomparesthesecond-to-lastcharacter
+tothelast,whichiswhatwewant.
+Here is a version of is_palindrome (see Exercise 6.3) that uses two indices; one starts at
+thebeginningandgoesup;theotherstartsattheendandgoesdown.
+def is_palindrome(word):
+i = 0
+j = len(word)-1
+while i<j:
+if word[i] != word[j]:
+
+9.5. Debugging 87
+return False
+i = i+1
+j = j-1
+return True
+Orwecouldreducetoapreviouslysolvedproblemandwrite:
+def is_palindrome(word):
+return is_reverse(word, word)
+Usingis_reversefromSection8.11.
+9.5 Debugging
+Testingprogramsishard. Thefunctionsinthischapterarerelativelyeasytotestbecause
+youcanchecktheresultsbyhand. Evenso,itissomewherebetweendifficultandimpos-
+sibletochooseasetofwordsthattestforallpossibleerrors.
+Takinghas_no_easanexample,therearetwoobviouscasestocheck: wordsthathavean
+‘e’ should return False, and words that don’t should return True. You should have no
+troublecomingupwithoneofeach.
+Within each case, there are some less obvious subcases. Among the words that have an
+“e”, you should test words with an “e” at the beginning, the end, and somewhere in the
+middle. You should test long words, short words, and very short words, like the empty
+string. Theemptystringisanexampleofaspecialcase,whichisoneofthenon-obvious
+caseswhereerrorsoftenlurk.
+Inadditiontothetestcasesyougenerate,youcanalsotestyourprogramwithawordlist
+likewords.txt. Byscanningtheoutput,youmightbeabletocatcherrors,butbecareful:
+you might catch one kind of error (words that should not be included, but are) and not
+another(wordsthatshouldbeincluded,butaren’t).
+In general, testing can help you find bugs, but it is not easy to generate a good set of
+test cases, and even if you do, you can’t be sure your program is correct. According to a
+legendarycomputerscientist:
+Programtestingcanbeusedtoshowthepresenceofbugs, butnevertoshow
+theirabsence!
+—EdsgerW.Dijkstra
+9.6 Glossary
+fileobject: Avaluethatrepresentsanopenfile.
+reductiontoapreviouslysolvedproblem: A way of solving a problem by expressing it
+asaninstanceofapreviouslysolvedproblem.
+specialcase: Atestcasethatisatypicalornon-obvious(andlesslikelytobehandledcor-
+rectly).
+
+88 Chapter9. Casestudy: wordplay
+9.7 Exercises
+Exercise 9.7. This question is based on a Puzzler that was broadcast on the radio program Car
+Talk(http://www.cartalk.com/content/puzzlers):
+Give me a word with three consecutive double letters. I’ll give you a couple of words
+thatalmostqualify,butdon’t. Forexample,thewordcommittee,c-o-m-m-i-t-t-e-e. It
+would be great except for the ‘i’ that sneaks in there. Or Mississippi: M-i-s-s-i-s-s-i-
+p-p-i. Ifyoucouldtakeoutthosei’sitwouldwork. Butthereisawordthathasthree
+consecutivepairsoflettersandtothebestofmyknowledgethismaybetheonlyword.
+Ofcoursethereareprobably500morebutIcanonlythinkofone. Whatistheword?
+Writeaprogramtofindit. Solution: https://thinkpython.com/code/cartalk1.py.
+Exercise 9.8. Here’s another Car Talk Puzzler (http://www.cartalk.com/content/
+puzzlers):
+“I was driving on the highway the other day and I happened to notice my odometer.
+Likemostodometers,itshowssixdigits,inwholemilesonly. So,ifmycarhad300,000
+miles,forexample,I’dsee3-0-0-0-0-0.
+“Now, what I saw that day was very interesting. I noticed that the last 4 digits were
+palindromic;thatis,theyreadthesameforwardasbackward. Forexample,5-4-4-5isa
+palindrome,somyodometercouldhaveread3-1-5-4-4-5.
+“Onemilelater,thelast5numberswerepalindromic. Forexample,itcouldhaveread
+3-6-5-4-5-6. Onemileafterthat,themiddle4outof6numberswerepalindromic. And
+youreadyforthis? Onemilelater,all6werepalindromic!
+“Thequestionis,whatwasontheodometerwhenIfirstlooked?”
+Write a Python program that tests all the six-digit numbers and prints any numbers that satisfy
+theserequirements. Solution: https://thinkpython.com/code/cartalk2.py.
+Exercise 9.9. Here’s another Car Talk Puzzler you can solve with a search (http://www.
+cartalk.com/content/puzzlers):
+“Recently I had a visit with my mom and we realized that the two digits that make
+up my age when reversed resulted in her age. For example, if she’s 73, I’m 37. We
+wonderedhowoftenthishashappenedovertheyearsbutwegotsidetrackedwithother
+topicsandwenevercameupwithananswer.
+“WhenIgothomeIfiguredoutthatthedigitsofourageshavebeenreversiblesixtimes
+sofar. Ialsofiguredoutthatifwe’reluckyitwouldhappenagaininafewyears,and
+ifwe’rereallyluckyitwouldhappenonemoretimeafterthat. Inotherwords,itwould
+havehappened8timesoverall. Sothequestionis,howoldamInow?”
+WriteaPythonprogramthatsearchesforsolutionstothisPuzzler. Hint: youmightfindthestring
+methodzfilluseful.
+Solution: https://thinkpython.com/code/cartalk3.py.

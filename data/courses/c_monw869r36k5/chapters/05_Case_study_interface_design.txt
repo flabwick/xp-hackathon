@@ -1,0 +1,350 @@
+Case study: interface design
+============================
+
+Chapter 4
+Case study: interface design
+Thischapterpresentsacasestudythatdemonstratesaprocessfordesigningfunctionsthat
+worktogether.
+Itintroducestheturtlemodule,whichallowsyoutocreateimagesusingturtlegraphics.
+TheturtlemoduleisincludedinmostPythoninstallations,butifyouarerunningPython
+usingPythonAnywhere,youwon’tbeabletoruntheturtleexamples(atleastyoucouldn’t
+whenIwrotethis).
+If you have already installed Python on your computer, you should be able to run the
+examples. Otherwise, now is a good time to install. I have posted instructions at http:
+//tinyurl.com/thinkpython2e.
+Code examples from this chapter are available from https://thinkpython.com/code/
+polygon.py.
+4.1 The turtle module
+Tocheckwhetheryouhavetheturtlemodule,openthePythoninterpreterandtype
+>>> import turtle
+>>> bob = turtle.Turtle()
+Whenyourunthiscode,itshouldcreateanewwindowwithsmallarrowthatrepresents
+theturtle. Closethewindow.
+Createafilenamedmypolygon.pyandtypeinthefollowingcode:
+import turtle
+bob = turtle.Turtle()
+print(bob)
+turtle.mainloop()
+Theturtlemodule(withalowercase’t’)providesafunctioncalledTurtle(withanup-
+percase’T’)thatcreatesaTurtleobject,whichweassigntoavariablenamedbob. Printing
+bobdisplayssomethinglike:
+<turtle.Turtle object at 0xb7bfbf4c>
+
+30 Chapter4. Casestudy: interfacedesign
+ThismeansthatbobreferstoanobjectwithtypeTurtleasdefinedinmoduleturtle.
+mainloop tells the window to wait for the user to do something, although in this case
+there’snotmuchfortheusertodoexceptclosethewindow.
+OnceyoucreateaTurtle,youcancallamethodtomoveitaroundthewindow. Amethod
+issimilartoafunction,butitusesslightlydifferentsyntax. Forexample,tomovetheturtle
+forward:
+bob.fd(100)
+Themethod,fd,isassociatedwiththeturtleobjectwe’recallingbob. Callingamethodis
+likemakingarequest: youareaskingbobtomoveforward.
+Theargumentoffdisadistanceinpixels,sotheactualsizedependsonyourdisplay.
+OthermethodsyoucancallonaTurtlearebktomovebackward, ltforleftturn, andrt
+rightturn. Theargumentforltandrtisanangleindegrees.
+Also,eachTurtleisholdingapen,whichiseitherdownorup;ifthepenisdown,theTurtle
+leavesatrailwhenitmoves. Themethodspuandpdstandfor“penup”and“pendown”.
+Todrawarightangle,addtheselinestotheprogram(aftercreatingbobandbeforecalling
+mainloop):
+bob.fd(100)
+bob.lt(90)
+bob.fd(100)
+When you run this program, you should see bob move east and then north, leaving two
+linesegmentsbehind.
+Nowmodifytheprogramtodrawasquare. Don’tgoonuntilyou’vegotitworking!
+4.2 Simple repetition
+Chancesareyouwrotesomethinglikethis:
+bob.fd(100)
+bob.lt(90)
+bob.fd(100)
+bob.lt(90)
+bob.fd(100)
+bob.lt(90)
+bob.fd(100)
+We can do the same thing more concisely with a for statement. Add this example to
+mypolygon.pyandrunitagain:
+for i in range(4):
+print('Hello!')
+Youshouldseesomethinglikethis:
+
+4.3. Exercises 31
+Hello!
+Hello!
+Hello!
+Hello!
+This is the simplest use of the for statement; we will see more later. But that should be
+enoughtoletyourewriteyoursquare-drawingprogram. Don’tgoonuntilyoudo.
+Hereisaforstatementthatdrawsasquare:
+for i in range(4):
+bob.fd(100)
+bob.lt(90)
+Thesyntaxofaforstatementissimilartoafunctiondefinition. Ithasaheaderthatends
+withacolonandanindentedbody. Thebodycancontainanynumberofstatements.
+Aforstatementisalsocalledaloopbecausetheflowofexecutionrunsthroughthebody
+andthenloopsbacktothetop. Inthiscase,itrunsthebodyfourtimes.
+Thisversionisactuallyalittledifferentfromtheprevioussquare-drawingcodebecauseit
+makes another turn after drawing the last side of the square. The extra turn takes more
+time,butitsimplifiesthecodeifwedothesamethingeverytimethroughtheloop. This
+version also has the effect of leaving the turtle back in the starting position, facing in the
+startingdirection.
+4.3 Exercises
+Thefollowingisaseriesofexercisesusingtheturtlemodule. Theyaremeanttobefun,
+buttheyhaveapoint,too. Whileyouareworkingonthem,thinkaboutwhatthepointis.
+Thefollowingsectionshavesolutionstotheexercises,sodon’tlookuntilyouhavefinished
+(oratleasttried).
+1. Writeafunctioncalledsquarethattakesaparameternamedt, whichisaturtle. It
+shouldusetheturtletodrawasquare.
+Write a function call that passes bob as an argument to square, and then run the
+programagain.
+2. Addanotherparameter,namedlength,tosquare. Modifythebodysolengthofthe
+sidesislength,andthenmodifythefunctioncalltoprovideasecondargument.Run
+theprogramagain. Testyourprogramwitharangeofvaluesforlength.
+3. Make a copy of square and change the name to polygon. Add another parameter
+named n and modify the body so it draws an n-sided regular polygon. Hint: The
+exterioranglesofann-sidedregularpolygonare360/ndegrees.
+4. Writeafunctioncalledcirclethattakesaturtle,t,andradius,r,asparametersand
+thatdrawsanapproximatecirclebycallingpolygonwithanappropriatelengthand
+numberofsides. Testyourfunctionwitharangeofvaluesofr.
+Hint: figure out the circumference of the circle and make sure that length * n =
+circumference.
+5. Makeamoregeneralversionofcirclecalledarcthattakesanadditionalparameter
+angle,whichdetermineswhatfractionofacircletodraw.angleisinunitsofdegrees,
+sowhenangle=360,arcshoulddrawacompletecircle.
+
+32 Chapter4. Casestudy: interfacedesign
+4.4 Encapsulation
+Thefirstexerciseasksyoutoputyoursquare-drawingcodeintoafunctiondefinitionand
+thencallthefunction,passingtheturtleasaparameter. Hereisasolution:
+def square(t):
+for i in range(4):
+t.fd(100)
+t.lt(90)
+square(bob)
+The innermost statements, fd and lt are indented twice to show that they are inside the
+forloop,whichisinsidethefunctiondefinition. Thenextline,square(bob),isflushwith
+theleftmargin,whichindicatestheendofboththeforloopandthefunctiondefinition.
+Inside the function, t refers to the same turtle bob, so t.lt(90) has the same effect as
+bob.lt(90). In that case, why not call the parameter bob? The idea is that t can be any
+turtle,notjustbob,soyoucouldcreateasecondturtleandpassitasanargumenttosquare:
+alice = turtle.Turtle()
+square(alice)
+Wrappingapieceofcodeupinafunctioniscalledencapsulation. Oneofthebenefitsof
+encapsulationisthatitattachesanametothecode,whichservesasakindofdocumenta-
+tion. Anotheradvantageisthatifyoure-usethecode,itismoreconcisetocallafunction
+twicethantocopyandpastethebody!
+4.5 Generalization
+Thenextstepistoaddalengthparametertosquare. Hereisasolution:
+def square(t, length):
+for i in range(4):
+t.fd(length)
+t.lt(90)
+square(bob, 100)
+Adding a parameter to a function is called generalization because it makes the function
+moregeneral: inthepreviousversion,thesquareisalwaysthesamesize;inthisversionit
+canbeanysize.
+Thenextstepisalsoageneralization. Insteadofdrawingsquares,polygondrawsregular
+polygonswithanynumberofsides. Hereisasolution:
+def polygon(t, n, length):
+angle = 360 / n
+for i in range(n):
+t.fd(length)
+t.lt(angle)
+polygon(bob, 7, 70)
+
+4.6. Interfacedesign 33
+Thisexampledrawsa7-sidedpolygonwithsidelength70.
+If you are using Python 2, the value of angle might be off because of integer division. A
+simple solution is to compute angle = 360.0 / n. Because the numerator is a floating-
+pointnumber,theresultisfloatingpoint.
+Whenafunctionhasmorethanafewnumericarguments,itiseasytoforgetwhattheyare,
+orwhatordertheyshouldbein. Inthatcaseitisoftenagoodideatoincludethenamesof
+theparametersintheargumentlist:
+polygon(bob, n=7, length=70)
+Thesearecalledkeywordargumentsbecausetheyincludetheparameternamesas“key-
+words”(nottobeconfusedwithPythonkeywordslikewhileanddef).
+Thissyntaxmakestheprogrammorereadable. Itisalsoareminderabouthowarguments
+andparameterswork: whenyoucallafunction,theargumentsareassignedtotheparam-
+eters.
+4.6 Interface design
+Thenextstepistowritecircle,whichtakesaradius,r,asaparameter. Hereisasimple
+solutionthatusespolygontodrawa50-sidedpolygon:
+import math
+def circle(t, r):
+circumference = 2 * math.pi * r
+n = 50
+length = circumference / n
+polygon(t, n, length)
+Thefirstlinecomputesthecircumferenceofacirclewithradiusrusingtheformula2πr.
+Since we use math.pi, we have to import math. By convention, import statements are
+usuallyatthebeginningofthescript.
+nisthenumberoflinesegmentsinourapproximationofacircle, solengthisthelength
+ofeachsegment. Thus,polygondrawsa50-sidedpolygonthatapproximatesacirclewith
+radiusr.
+Onelimitationofthissolutionisthatnisaconstant,whichmeansthatforverybigcircles,
+the line segments are too long, and for small circles, we waste time drawing very small
+segments. One solution would be to generalize the function by taking n as a parameter.
+Thiswouldgivetheuser(whoevercallscircle)morecontrol,buttheinterfacewouldbe
+lessclean.
+Theinterfaceofafunctionisasummaryofhowitisused: whataretheparameters? What
+doesthefunctiondo? Andwhatisthereturnvalue? Aninterfaceis“clean”ifitallowsthe
+callertodowhattheywantwithoutdealingwithunnecessarydetails.
+Inthisexample, rbelongsintheinterfacebecauseitspecifiesthecircletobedrawn. nis
+lessappropriatebecauseitpertainstothedetailsofhowthecircleshouldberendered.
+Ratherthanclutteruptheinterface,itisbettertochooseanappropriatevalueofndepend-
+ingoncircumference:
+
+34 Chapter4. Casestudy: interfacedesign
+def circle(t, r):
+circumference = 2 * math.pi * r
+n = int(circumference / 3) + 3
+length = circumference / n
+polygon(t, n, length)
+Now the number of segments is an integer near circumference/3, so the length of each
+segment is approximately 3, which is small enough that the circles look good, but big
+enoughtobeefficient,andacceptableforanysizecircle.
+Adding3tonguaranteesthatthepolygonhasatleast3sides.
+4.7 Refactoring
+WhenIwrotecircle,Iwasabletore-usepolygonbecauseamany-sidedpolygonisagood
+approximationofacircle. Butarcisnotascooperative;wecan’tusepolygonorcircleto
+drawanarc.
+One alternative is to start with a copy of polygon and transform it into arc. The result
+mightlooklikethis:
+def arc(t, r, angle):
+arc_length = 2 * math.pi * r * angle / 360
+n = int(arc_length / 3) + 1
+step_length = arc_length / n
+step_angle = angle / n
+for i in range(n):
+t.fd(step_length)
+t.lt(step_angle)
+The second half of this function looks like polygon, but we can’t re-use polygon without
+changingtheinterface. Wecouldgeneralizepolygontotakeanangleasathirdargument,
+but then polygon would no longer be an appropriate name! Instead, let’s call the more
+generalfunctionpolyline:
+def polyline(t, n, length, angle):
+for i in range(n):
+t.fd(length)
+t.lt(angle)
+Nowwecanrewritepolygonandarctousepolyline:
+def polygon(t, n, length):
+angle = 360.0 / n
+polyline(t, n, length, angle)
+def arc(t, r, angle):
+arc_length = 2 * math.pi * r * angle / 360
+n = int(arc_length / 3) + 1
+step_length = arc_length / n
+step_angle = float(angle) / n
+polyline(t, n, step_length, step_angle)
+Finally,wecanrewritecircletousearc:
+
+4.8. Adevelopmentplan 35
+def circle(t, r):
+arc(t, r, 360)
+This process—rearranging a program to improve interfaces and facilitate code re-use—is
+calledrefactoring. Inthiscase,wenoticedthattherewassimilarcodeinarcandpolygon,
+sowe“factoreditout”intopolyline.
+Ifwehadplannedahead, wemighthavewrittenpolylinefirstandavoidedrefactoring,
+butoftenyoudon’tknowenoughatthebeginningofaprojecttodesignalltheinterfaces.
+Onceyoustartcoding,youunderstandtheproblembetter. Sometimesrefactoringisasign
+thatyouhavelearnedsomething.
+4.8 A development plan
+Adevelopmentplanisaprocessforwritingprograms. Theprocessweusedinthiscase
+studyis“encapsulationandgeneralization”. Thestepsofthisprocessare:
+1. Startbywritingasmallprogramwithnofunctiondefinitions.
+2. Once you get the program working, identify a coherent piece of it, encapsulate the
+pieceinafunctionandgiveitaname.
+3. Generalizethefunctionbyaddingappropriateparameters.
+4. Repeatsteps1–3untilyouhaveasetofworkingfunctions. Copyandpasteworking
+codetoavoidretyping(andre-debugging).
+5. Look for opportunities to improve the program by refactoring. For example, if you
+havesimilarcodeinseveralplaces,considerfactoringitintoanappropriatelygeneral
+function.
+This process has some drawbacks—we will see alternatives later—but it can be useful if
+you don’t know ahead of time how to divide the program into functions. This approach
+letsyoudesignasyougoalong.
+4.9 docstring
+A docstring is a string at the beginning of a function that explains the interface (“doc” is
+shortfor“documentation”). Hereisanexample:
+def polyline(t, n, length, angle):
+"""Draws n line segments with the given length and
+angle (in degrees) between them. t is a turtle.
+"""
+for i in range(n):
+t.fd(length)
+t.lt(angle)
+By convention, all docstrings are triple-quoted strings, also known as multiline strings
+becausethetriplequotesallowthestringtospanmorethanoneline.
+
+36 Chapter4. Casestudy: interfacedesign
+Itisterse, butitcontainstheessentialinformationsomeonewouldneedtousethisfunc-
+tion. Itexplainsconciselywhatthefunctiondoes(withoutgettingintothedetailsofhow
+itdoesit). Itexplainswhateffecteachparameterhasonthebehaviorofthefunctionand
+whattypeeachparametershouldbe(ifitisnotobvious).
+Writing this kind of documentation is an important part of interface design. A well-
+designed interface should be simple to explain; if you have a hard time explaining one
+ofyourfunctions,maybetheinterfacecouldbeimproved.
+4.10 Debugging
+Aninterfaceislikeacontractbetweenafunctionandacaller. Thecalleragreestoprovide
+certainparametersandthefunctionagreestodocertainwork.
+Forexample,polylinerequiresfourarguments:thastobeaTurtle;nhastobeaninteger;
+lengthshouldbeapositivenumber;andanglehastobeanumber,whichisunderstood
+tobeindegrees.
+Theserequirementsarecalledpreconditionsbecausetheyaresupposedtobetruebefore
+the function starts executing. Conversely, conditions at the end of the function are post-
+conditions. Postconditions include the intended effect of the function (like drawing line
+segments)andanysideeffects(likemovingtheTurtleormakingotherchanges).
+Preconditions are the responsibility of the caller. If the caller violates a (properly docu-
+mented!) preconditionandthefunctiondoesn’tworkcorrectly,thebugisinthecaller,not
+thefunction.
+Ifthepreconditionsaresatisfiedandthepostconditionsarenot,thebugisinthefunction.
+Ifyourpre-andpostconditionsareclear,theycanhelpwithdebugging.
+4.11 Glossary
+method: Afunctionthatisassociatedwithanobjectandcalledusingdotnotation.
+loop: Apartofaprogramthatcanrunrepeatedly.
+encapsulation: Theprocessoftransformingasequenceofstatementsintoafunctiondefi-
+nition.
+generalization: Theprocessofreplacingsomethingunnecessarilyspecific(likeanumber)
+withsomethingappropriatelygeneral(likeavariableorparameter).
+keywordargument: An argument that includes the name of the parameter as a “key-
+word”.
+interface: Adescriptionofhowtouseafunction,includingthenameanddescriptionsof
+theargumentsandreturnvalue.
+refactoring: Theprocessofmodifyingaworkingprogramtoimprovefunctioninterfaces
+andotherqualitiesofthecode.
+developmentplan: Aprocessforwritingprograms.
+
+4.12. Exercises 37
+Figure4.1: Turtleflowers.
+Figure4.2: Turtlepies.
+docstring: Astringthatappearsatthetopofafunctiondefinitiontodocumentthefunc-
+tion’sinterface.
+precondition: Arequirementthatshouldbesatisfiedbythecallerbeforeafunctionstarts.
+postcondition: Arequirementthatshouldbesatisfiedbythefunctionbeforeitends.
+4.12 Exercises
+Exercise 4.1. Download the code in this chapter from https://thinkpython.com/code/
+polygon.py.
+1. Draw a stack diagram that shows the state of the program while executing circle(bob,
+radius). Youcandothearithmeticbyhandoraddprintstatementstothecode.
+2. TheversionofarcinSection4.7isnotveryaccuratebecausethelinearapproximationofthe
+circleisalwaysoutsidethetruecircle. Asaresult,theTurtleendsupafewpixelsawayfrom
+thecorrectdestination. Mysolutionshowsawaytoreducetheeffectofthiserror. Readthe
+codeandseeifitmakessensetoyou. Ifyoudrawadiagram,youmightseehowitworks.
+Exercise4.2. WriteanappropriatelygeneralsetoffunctionsthatcandrawflowersasinFigure4.1.
+Solution: https://thinkpython.com/code/flower.py, also requires https:
+//thinkpython.com/code/polygon.py.
+Exercise4.3. WriteanappropriatelygeneralsetoffunctionsthatcandrawshapesasinFigure4.2.
+Solution: https://thinkpython.com/code/pie.py.
+Exercise 4.4. The letters of the alphabet can be constructed from a moderate number of basic ele-
+ments, like vertical and horizontal lines and a few curves. Design an alphabet that can be drawn
+withaminimalnumberofbasicelementsandthenwritefunctionsthatdrawtheletters.
+You should write one function for each letter, with names draw_a, draw_b, etc., and put your
+functions in a file named letters.py. You can download a “turtle typewriter” from https:
+//thinkpython.com/code/typewriter.py tohelpyoutestyourcode.
+
+38 Chapter4. Casestudy: interfacedesign
+Youcangetasolutionfromhttps://thinkpython.com/code/letters.py; italsorequires
+https://thinkpython.com/code/polygon.py.
+Exercise 4.5. Read about spirals at http://en.wikipedia.org/wiki/Spiral; then write
+a program that draws an Archimedian spiral (or one of the other kinds). Solution: https://
+thinkpython.com/code/spiral.py.
