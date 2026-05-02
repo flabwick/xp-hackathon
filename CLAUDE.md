@@ -11,6 +11,10 @@ npm start      # Start production server
 
 No test or lint tooling is configured.
 
+## UI Design
+
+All UI must follow **neobrutalism**: bold black borders, flat solid colors, hard drop shadows (no blur), raw sans-serif typography, and high contrast. No gradients, rounded corners, or soft shadows.
+
 ## Architecture
 
 This is a Node.js/Express backend for an adaptive learning system that tracks student mastery through XP progression across mathematical units. There is no frontend beyond a static mapping page.
