@@ -12,7 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 const { OpenAI } = require('openai');
 
 const DATA_DIR      = path.join(__dirname, 'data');
@@ -80,18 +80,24 @@ async function extractUnitsFromPDF(pdfBuffer, courseName, apiKey) {
     throw err;
   }
 
-  // 1. PDF → text
-  let pdfData;
+  // 1. PDF → text (pdf-parse@2 API: stateful PDFParse class, must call destroy)
+  let text = '';
+  let numPages = 0;
+  const parser = new PDFParse({ data: pdfBuffer });
   try {
-    pdfData = await pdfParse(pdfBuffer);
+    const result = await parser.getText();
+    text = (result.text || '').trim();
+    numPages = result.total || result.numpages || result.pages?.length || 0;
   } catch (e) {
+    await parser.destroy().catch(() => {});
     const err = new Error(`Failed to parse PDF: ${e.message}`);
     err.status = 400;
     throw err;
   }
-  const text = (pdfData.text || '').trim();
+  await parser.destroy().catch(() => {});
+
   if (text.length < 200) {
-    const err = new Error(`PDF text extraction yielded only ${text.length} chars — file may be image-only / scanned.`);
+    const err = new Error(`PDF text extraction yielded only ${text.length} chars — the file may be image-only or scanned. Try a text-based PDF (or run OCR first).`);
     err.status = 400;
     throw err;
   }
@@ -123,7 +129,7 @@ async function extractUnitsFromPDF(pdfBuffer, courseName, apiKey) {
   }
 
   validateUnitsShape(parsed);
-  return { units: parsed, pdfPages: pdfData.numpages, pdfChars: text.length };
+  return { units: parsed, pdfPages: numPages, pdfChars: text.length };
 }
 
 function validateUnitsShape(data) {
