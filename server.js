@@ -20,6 +20,12 @@ if (process.env.NODE_ENV === 'production') {
   app.get('/mapping', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'mapping.html'));
   });
+  app.get('/markdown-ui', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'markdown-ui.html'));
+  });
+  app.get('/test', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'test.html'));
+  });
 }
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────
