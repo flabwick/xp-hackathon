@@ -463,6 +463,13 @@ function compilePrompt(template, context = {}) {
     result = result.replace(/{{SUMMARY}}/g, summaryText);
   }
 
+  // Compile TEACHING_FORMAT
+  if (result.includes('{{TEACHING_FORMAT}}')) {
+    const fmtPath = path.join(__dirname, 'teaching-format.md');
+    const fmtText = fs.existsSync(fmtPath) ? fs.readFileSync(fmtPath, 'utf8') : '';
+    result = result.replace(/{{TEACHING_FORMAT}}/g, fmtText);
+  }
+
   return result;
 }
 
