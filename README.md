@@ -2,6 +2,10 @@
 
 **Adaptive XP-based learning that turns any PDF textbook into a personalised mastery curriculum.**
 
+> **Live demo: [xp-hackathon-production.up.railway.app](https://xp-hackathon-production.up.railway.app/)**
+>
+> Grab a free Groq API key at [console.groq.com/keys](https://console.groq.com/keys), paste it into the in-app modal, and you are in. No sign-up, no waitlist, no charge.
+
 StudyXP treats studying like a long-form RPG. Every concept is a unit, every test session injects experience points, and the system continuously rebalances what you should learn next based on what you have actually mastered. You can upload your own textbooks, generate fresh question sets on demand, and watch your progress climb through five competency bands.
 
 The hosted demo is bring-your-own-key: you supply a free Groq API key and an optional OpenAI key, and the platform never touches a server-side credential.
@@ -316,6 +320,8 @@ All AI endpoints honour the `X-Groq-Api-Key` request header. The Add Course endp
 ---
 
 ## Deployment
+
+The official public instance lives at **[xp-hackathon-production.up.railway.app](https://xp-hackathon-production.up.railway.app/)** and runs the latest commit of the `master` branch. It is configured for strict bring-your-own-key, so you can use it freely with your own Groq and OpenAI credentials.
 
 StudyXP is built to deploy to Railway with zero configuration. The repository ships with a `Procfile` and `railway.json` that point Railway at `node server.js` and listen on Railway's injected `PORT` environment variable.
 
