@@ -123,23 +123,63 @@
 </dialog>
 
 <script>
-  // Tiny BYOK modal handler — same localStorage keys as domains.html.
+  // BYOK: gate the TEST button on a Groq key being available
+  // (either user-supplied via localStorage, or server-side env in local dev).
   (function() {
     const keysModal  = document.getElementById('keys-modal');
     const groqInput  = document.getElementById('study-groq-key');
     const oaInput    = document.getElementById('study-openai-key');
+    const testBtn    = document.getElementById('test-btn');
+    let serverHasGroqKey = false;
+
+    fetch('/api/config').then(r => r.json()).then(cfg => {
+      serverHasGroqKey = !!cfg.hasGroqKey;
+      refreshTestGate();
+    }).catch(() => refreshTestGate());
+
+    function userHasGroqKey() {
+      return !!localStorage.getItem('studyxp.groq_api_key');
+    }
+    function refreshTestGate() {
+      if (!testBtn) return;
+      const hasKey = userHasGroqKey() || serverHasGroqKey;
+      if (hasKey) {
+        testBtn.disabled = false;
+        testBtn.title = 'Generate a test on the selected units';
+        testBtn.textContent = '▶ TEST';
+      } else {
+        testBtn.disabled = true;
+        testBtn.title = 'Add your Groq API key first (🔑 in the header)';
+        testBtn.textContent = '🔒 ADD KEY TO TEST';
+      }
+    }
+
     document.getElementById('open-keys-btn')?.addEventListener('click', () => {
       groqInput.value = localStorage.getItem('studyxp.groq_api_key')   || '';
       oaInput.value   = localStorage.getItem('studyxp.openai_api_key') || '';
       keysModal.showModal();
     });
-    document.getElementById('keys-modal-close')?.addEventListener('click', () => keysModal.close());
+    document.getElementById('keys-modal-close')?.addEventListener('click', () => {
+      keysModal.close();
+      refreshTestGate();
+    });
     document.getElementById('study-save-keys')?.addEventListener('click', () => {
       const g = groqInput.value.trim(), o = oaInput.value.trim();
       if (g) localStorage.setItem('studyxp.groq_api_key', g);   else localStorage.removeItem('studyxp.groq_api_key');
       if (o) localStorage.setItem('studyxp.openai_api_key', o); else localStorage.removeItem('studyxp.openai_api_key');
       keysModal.close();
+      refreshTestGate();
     });
+
+    // Intercept TEST clicks while gated (the disabled prop blocks the click,
+    // but if anything dynamically re-enables it we still want the modal to pop).
+    testBtn?.addEventListener('click', (e) => {
+      if (!userHasGroqKey() && !serverHasGroqKey) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        keysModal.showModal();
+      }
+    }, true); // capture phase so this runs before app.js's own handler
   })();
 </script>
 
