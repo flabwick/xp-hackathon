@@ -3,10 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const { compilePrompt } = require('./promptCompiler');
 const { generate } = require('./aiClient');
+const answersRouter = require('./answers/router');
 const app = express();
 const PORT = 6969;
 
 app.use(express.json({ limit: '10mb' }));
+app.use('/api/answers', answersRouter);
 
 // In production, serve the Vite build output
 if (process.env.NODE_ENV === 'production') {
@@ -25,6 +27,9 @@ if (process.env.NODE_ENV === 'production') {
   });
   app.get('/test', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test.html'));
+  });
+  app.get('/mobile-upload', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'mobile-upload.html'));
   });
 }
 

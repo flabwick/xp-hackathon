@@ -471,6 +471,22 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTree();
   }
 
+  // ─── TEST NAVIGATION ────────────────────────────────────────────────────────────
+  window.goToTest = function() {
+    let ids;
+    if (state.mode === 'priority') {
+      const count = parseInt(el.priorityCount?.value || '5');
+      const top = getTopPriorityUnits(count);
+      if (!top.length) return alert('No units available for priority mode.');
+      ids = top.map(u => u.id);
+    } else {
+      if (state.selectedUnits.size === 0) return alert('Select at least one unit first.');
+      ids = Array.from(state.selectedUnits);
+    }
+    if (!state.domain) return alert('Select a domain first.');
+    window.location.href = `/test?domain=${encodeURIComponent(state.domain)}&units=${ids.join(',')}`;
+  };
+
   // XP INJECTION — reads from textarea, sends API, shows modal
   document.getElementById('process-xp').addEventListener('click', async () => {
     const raw = document.getElementById('xp-input').value.trim();

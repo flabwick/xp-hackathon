@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Upload Answers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-sans: 'Space Grotesk', Arial, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --shadow: 4px 4px 0 #000;
+      --shadow-sm: 2px 2px 0 #000;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #fde047;
+      border-bottom: 2px solid #000;
+      padding: 16px 20px;
+    }
+    header h1 {
+      font-size: 1.3rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 4px;
+      color: #333;
+      font-family: var(--font-mono);
+    }
+    main {
+      flex: 1;
+      padding: 24px 20px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card {
+      border: 2px solid #000;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background: #000;
+      color: #fde047;
+      padding: 10px 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-family: var(--font-mono);
+    }
+    .card-body { padding: 20px 16px; }
+    .upload-area {
+      border: 2px dashed #000;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #f9f9f9;
+      position: relative;
+      transition: background 0.1s;
+    }
+    .upload-area:active { background: #fde047; }
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 100px;
+    }
+    .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .upload-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .upload-hint {
+      font-size: 0.78rem;
+      color: #555;
+      font-family: var(--font-mono);
+    }
+    .btn {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 2px solid #000;
+      padding: 10px 20px;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      background: #fff;
+      width: 100%;
+      display: block;
+      text-align: center;
+    }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn-primary { background: #4ade80; }
+    .btn-camera { background: #818cf8; color: #fff; margin-bottom: 12px; }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .preview-item {
+      border: 2px solid #000;
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.75);
+      color: #fde047;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      padding: 4px 6px;
+    }
+    .preview-remove {
+      position: absolute;
+      top: 4px; right: 4px;
+      background: #ef4444;
+      color: #fff;
+      border: 1.5px solid #000;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    .status-bar {
+      border: 2px solid #000;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f5f5f5;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      border: 2px solid #000;
+      border-radius: 0;
+      flex-shrink: 0;
+    }
+    .status-dot.waiting { background: #fde047; }
+    .status-dot.uploading { background: #818cf8; animation: pulse 1s infinite; }
+    .status-dot.done { background: #4ade80; }
+    .status-dot.error { background: #ef4444; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .status-text {
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+    #success-panel {
+      border: 2px solid #000;
+      box-shadow: var(--shadow);
+      background: #4ade80;
+      padding: 32px 20px;
+      text-align: center;
+      display: none;
+    }
+    #success-panel h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    #success-panel p {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+    #error-panel {
+      border: 2px solid #000;
+      box-shadow: var(--shadow);
+      background: #fca5a5;
+      padding: 20px;
+      display: none;
+      margin-bottom: 20px;
+    }
+    #error-panel p {
+      font-weight: 700;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+    }
+    #no-token {
+      padding: 32px 20px;
+      text-align: center;
+    }
+    #no-token h2 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    #no-token p { font-size: 0.85rem; color: #555; font-family: var(--font-mono); }
+    .count-badge {
+      display: inline-block;
+      background: #000;
+      color: #fde047;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Upload Answers <span id="q-count-badge" class="count-badge" style="display:none"></span></h1>
+    <p id="header-hint">Take photos of your handwritten answers</p>
+  </header>
+
+  <main>
+    <div id="no-token" style="display:none">
+      <h2>Invalid Link</h2>
+      <p>This link is missing a session token. Scan the QR code from your desktop again.</p>
+    </div>
+
+    <div id="upload-ui">
+      <div class="status-bar">
+        <div class="status-dot waiting" id="status-dot"></div>
+        <span class="status-text" id="status-text">Ready to upload</span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Select Photos</div>
+        <div class="card-body">
+          <button class="btn btn-camera" id="camera-btn" onclick="document.getElementById('camera-input').click()">
+            📷 Take Photo with Camera
+          </button>
+          <input type="file" id="camera-input" accept="image/*" capture="environment" multiple style="display:none">
+
+          <div class="upload-area" id="file-drop">
+            <input type="file" id="file-input" accept="image/*" multiple>
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-title">Select from Gallery</div>
+            <div class="upload-hint">Tap to pick one or more images</div>
+          </div>
+
+          <div class="preview-grid" id="preview-grid"></div>
+        </div>
+      </div>
+
+      <div id="error-panel">
+        <p id="error-msg"></p>
+      </div>
+
+      <button class="btn btn-primary" id="upload-btn" disabled>
+        Upload & Process (0 images)
+      </button>
+    </div>
+
+    <div id="success-panel">
+      <h2>✓ Uploaded!</h2>
+      <p id="success-msg">Your answers are being processed.<br>Return to your desktop — it will auto-fill shortly.</p>
+    </div>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const questionCount = parseInt(params.get('q') || '0', 10);
+
+    if (!token) {
+      document.getElementById('no-token').style.display = 'block';
+      document.getElementById('upload-ui').style.display = 'none';
+    } else {
+      if (questionCount > 0) {
+        document.getElementById('q-count-badge').textContent = questionCount + ' questions';
+        document.getElementById('q-count-badge').style.display = '';
+        document.getElementById('header-hint').textContent =
+          `Upload ${questionCount} image${questionCount !== 1 ? 's' : ''} — one per question (in order)`;
+      }
+    }
+
+    const selectedFiles = [];
+
+    function setStatus(type, text) {
+      const dot = document.getElementById('status-dot');
+      dot.className = 'status-dot ' + type;
+      document.getElementById('status-text').textContent = text;
+    }
+
+    function updateUploadBtn() {
+      const btn = document.getElementById('upload-btn');
+      btn.disabled = selectedFiles.length === 0;
+      btn.textContent = `Upload & Process (${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''})`;
+    }
+
+    function addFiles(files) {
+      for (const f of files) {
+        if (!f.type.startsWith('image/')) continue;
+        selectedFiles.push(f);
+      }
+      renderPreviews();
+      updateUploadBtn();
+    }
+
+    function renderPreviews() {
+      const grid = document.getElementById('preview-grid');
+      grid.innerHTML = '';
+      selectedFiles.forEach((f, i) => {
+        const url = URL.createObjectURL(f);
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        item.innerHTML = `
+          <img src="${url}" alt="Answer ${i+1}">
+          <div class="preview-label">Q${i + 1}</div>
+          <button class="preview-remove" data-idx="${i}">✕</button>
+        `;
+        item.querySelector('.preview-remove').addEventListener('click', () => {
+          selectedFiles.splice(i, 1);
+          renderPreviews();
+          updateUploadBtn();
+        });
+        grid.appendChild(item);
+      });
+    }
+
+    document.getElementById('file-input').addEventListener('change', e => addFiles(e.target.files));
+    document.getElementById('camera-input').addEventListener('change', e => addFiles(e.target.files));
+
+    document.getElementById('upload-btn').addEventListener('click', async () => {
+      if (!token || selectedFiles.length === 0) return;
+      setStatus('uploading', 'Uploading and running OCR...');
+      document.getElementById('upload-btn').disabled = true;
+      document.getElementById('error-panel').style.display = 'none';
+
+      const fd = new FormData();
+      selectedFiles.forEach(f => fd.append('images', f));
+
+      try {
+        const res = await fetch(`/api/answers/upload/${token}`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Upload failed');
+
+        setStatus('done', 'Done! Return to your desktop.');
+        document.getElementById('upload-ui').style.display = 'none';
+        document.getElementById('success-panel').style.display = 'block';
+        document.getElementById('success-msg').textContent =
+          `${data.count} image${data.count !== 1 ? 's' : ''} processed. Return to your desktop — it will auto-fill shortly.`;
+      } catch (err) {
+        setStatus('error', 'Upload failed');
+        document.getElementById('error-panel').style.display = 'block';
+        document.getElementById('error-msg').textContent = '⚠ ' + err.message;
+        document.getElementById('upload-btn').disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
