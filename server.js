@@ -5,7 +5,7 @@ const os = require('os');
 const { spawn } = require('child_process');
 const multer = require('multer');
 const { compilePrompt } = require('./promptCompiler');
-const { generate } = require('./aiClient');
+const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
 const app = express();
 const PORT = 6969;
@@ -29,6 +29,12 @@ if (process.env.NODE_ENV === 'production') {
   });
   app.get('/test', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'test.html'));
+  });
+  app.get('/teach', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'teach.html'));
+  });
+  app.get('/unit', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'unit.html'));
   });
 }
 
@@ -665,6 +671,57 @@ app.post('/api/test/compile-and-generate', async (req, res) => {
   } catch (err) {
     console.error('test/compile-and-generate error:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── TEACH ENDPOINTS ──────────────────────────────────────────────────────────────
+app.post('/api/teach', async (req, res) => {
+  const { domain, unitIds, messages } = req.body;
+
+  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+    return res.status(400).json({ error: 'domain and unitIds[] required' });
+  if (!Array.isArray(messages) || messages.length === 0)
+    return res.status(400).json({ error: 'messages[] required' });
+  if (messages[messages.length - 1]?.role !== 'user')
+    return res.status(400).json({ error: 'last message must have role "user"' });
+
+  try {
+    const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
+    const systemPrompt = compilePrompt(template, { domain, unitIds });
+    const reply = await chat(systemPrompt, messages);
+    res.json({ role: 'assistant', reply });
+  } catch (err) {
+    console.error('teach error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/teach/stream', async (req, res) => {
+  const { domain, unitIds, messages } = req.body;
+
+  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+    return res.status(400).json({ error: 'domain and unitIds[] required' });
+  if (!Array.isArray(messages) || messages.length === 0)
+    return res.status(400).json({ error: 'messages[] required' });
+  if (messages[messages.length - 1]?.role !== 'user')
+    return res.status(400).json({ error: 'last message must have role "user"' });
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  try {
+    const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
+    const systemPrompt = compilePrompt(template, { domain, unitIds });
+    for await (const chunk of chatStream(systemPrompt, messages)) {
+      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+    }
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (err) {
+    console.error('teach/stream error:', err);
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.end();
   }
 });
 
