@@ -3,34 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Courses</title>
+  <title>XP Study</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-<header id="study-menu">
-  <h1>📚 COURSES</h1>
-  <div class="controls">
-    <button id="create-course" class="btn primary">+ CREATE COURSE</button>
+<nav id="nav-bar">
+  <h1>XP STUDY</h1>
+  <div class="nav-links">
+    <button id="create-course" class="nav-btn">+ NEW COURSE</button>
   </div>
-</header>
+</nav>
 
-<main id="content-area">
-  <section id="courses-container">
-    <div class="injection-grid" id="courses-grid">
-      <div class="placeholder">Loading courses…</div>
-    </div>
-  </section>
-</main>
+<div id="content-area">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.5rem">
+    <h2 style="font-size:1.15rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:var(--text)">My Courses</h2>
+    <span id="course-count" style="font-size:0.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:2px"></span>
+  </div>
+
+  <div class="injection-grid" id="courses-grid">
+    <div class="placeholder">Loading courses…</div>
+  </div>
+</div>
 
 <dialog id="create-modal">
   <div class="modal-header">
-    <h2>📚 New Course</h2>
-    <button class="btn close" id="close-create">✖</button>
+    <h2>New Course</h2>
+    <button class="btn" id="close-create" style="padding:0.3rem 0.7rem">✖</button>
   </div>
   <form id="create-form">
-    <label for="course-name" style="display:block;font-weight:700;margin-bottom:0.5rem;text-transform:uppercase;font-size:0.85rem">Course Name</label>
-    <input type="text" id="course-name" required maxlength="80" placeholder="e.g. Calculus" style="width:100%;padding:0.6rem;font-size:1rem;font-family:inherit">
+    <label for="course-name" style="display:block;font-weight:700;margin-bottom:0.5rem;text-transform:uppercase;font-size:0.8rem;letter-spacing:1px">Course Name</label>
+    <input type="text" id="course-name" required maxlength="80" placeholder="e.g. Calculus" style="width:100%;padding:0.6rem;font-size:1rem;font-family:inherit;border:2px solid var(--border);background:var(--bg);outline:none;box-shadow:var(--shadow-sm)">
+    <p style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem">A domain slug will be auto-generated from the name.</p>
     <div style="margin-top:1.2rem;display:flex;gap:0.8rem;justify-content:flex-end">
       <button type="button" class="btn" id="cancel-create">CANCEL</button>
       <button type="submit" class="btn primary">CREATE</button>
@@ -40,6 +46,6 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="homepage.js?v=1"></script>
+<script src="homepage.js?v=2"></script>
 </body>
 </html>
