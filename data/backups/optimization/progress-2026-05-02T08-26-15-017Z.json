@@ -88,14 +88,6 @@
                   "xpGain": 0,
                   "notes": "No answers provided; unable to assess understanding of propositional logic, truth-functional connectives, or inference patterns.",
                   "sessionId": "moo2un5j0e5n"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 4,
-                  "bm": -0.27,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of propositional logic and inference patterns.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             },
@@ -165,14 +157,6 @@
                   "xpGain": 0,
                   "notes": "Failed to demonstrate understanding of quantifier syntax, nested operators, and negation rules",
                   "sessionId": "moo08q633qtp"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 6,
-                  "bm": 0,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of quantifier syntax, negation rules, and natural language translation.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             }

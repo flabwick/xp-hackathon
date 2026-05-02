@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "bt": [
+      "Foundations of Artificial Intelligence",
+      "Vibe Coding: Principles & Mindset",
+      "Prompt Engineering for Code Generation",
+      "AI-Assisted Development Workflows",
+      "Debugging, Refactoring & Testing with AI",
+      "Tooling Ecosystem (Copilot, Cursor, ChatGPT, Claude)",
+      "Ethics, Security & Responsible Vibe Coding",
+      "Capstone Projects & Real‑World Integration"
+    ],
+    "cl": [
+      "What is AI? History, narrow vs general AI",
+      "Machine learning basics (supervised, unsupervised, reinforcement)",
+      "Large language models (LLMs): transformers, training, inference",
+      "Vibe coding definition & philosophy (flow, intuition, rapid iteration)",
+      "Cognitive load reduction & creative state maintenance",
+      "When to use AI assistance vs manual coding",
+      "Prompt anatomy: system, user, assistant messages",
+      "Zero‑shot, few‑shot, chain‑of‑thought prompting",
+      "Context window management & token economy",
+      "Code generation strategies: step‑by‑step, test‑driven, self‑healing",
+      "Integrating AI into IDE (VS Code, JetBrains plugins)",
+      "Version control with AI‑generated code (review, merge, attribution)",
+      "AI‑assisted debugging: error interpretation, stack trace analysis",
+      "Automated test generation & property‑based testing",
+      "Refactoring suggestions & technical debt reduction",
+      "GitHub Copilot: features, configuration, best practices",
+      "Cursor IDE: AI native editor, composer, chat",
+      "ChatGPT / Claude API usage for coding tasks",
+      "Local models (Ollama, Llama.cpp) for privacy",
+      "Prompt injection, data leakage & safe handling of secrets",
+      "Code plagiarism, licensing & AI output ownership",
+      "Bias in AI‑generated code & mitigations",
+      "Building a vibe coding project from scratch",
+      "Team collaboration and AI‑assisted pair programming"
+    ]
+  },
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {"id": 0, "n": "What is AI? History & Core Definitions", "t": "f", "nt": "Covers origins (Dartmouth 1956), narrow vs general vs super AI, symbolic AI vs machine learning, modern resurgence; excludes deep technical details of neural networks.", "l": []},
+            {"id": 1, "n": "Machine Learning Basics: Supervised, Unsupervised, Reinforcement", "t": "f", "nt": "Covers training, features, labels, classification vs regression, clustering, reward signals; excludes mathematical derivations (gradient descent, backprop).", "l": [[0, "h"]]}
+          ]
+        },
+        {
+          "cl": 1,
+          "units": [
+            {"id": 2, "n": "Large Language Models (LLMs): Transformers & Training", "t": "f", "nt": "Covers attention mechanism, pre‑training and fine‑tuning, autoregressive generation; excludes architecture hyperparameters and scaling laws.", "l": [[1, "h"]]},
+            {"id": 3, "n": "Inference: Tokens, Temperature, Top‑p, Logits", "t": "f", "nt": "Covers tokenization, sampling strategies, controlling randomness, repetition penalties; excludes beam search variants.", "l": [[2, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 2,
+          "units": [
+            {"id": 4, "n": "Vibe Coding Definition & Philosophy", "t": "f", "nt": "Covers flow state, intuitive coding, rapid prototyping, reducing friction, embracing AI as co‑pilot; excludes project management methodologies.", "l": []},
+            {"id": 5, "n": "Cognitive Load Reduction & Creative State Maintenance", "t": "f", "nt": "Covers strategies to stay in flow, avoiding context switching, using AI for boilerplate and scaffolding; excludes psychological research depth.", "l": [[4, "h"]]}
+          ]
+        },
+        {
+          "cl": 3,
+          "units": [
+            {"id": 6, "n": "When to Use AI vs Manual Coding", "t": "f", "nt": "Covers trade‑offs: speed vs learning, debugging complexity, security‑sensitive code, legacy systems; excludes decision matrices.", "l": [[5, "h"]]},
+            {"id": 7, "n": "Setting Up the Vibe Coding Environment", "t": "f", "nt": "Covers IDE choice (Cursor, VS Code), notification blocking, ambient music, keyboard‑centric workflow; excludes hardware recommendations.", "l": [[6, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 4,
+          "units": [
+            {"id": 8, "n": "Prompt Anatomy: System, User, Assistant Messages", "t": "f", "nt": "Covers structuring conversation, role prompting, instructions vs examples; excludes API implementation details.", "l": []},
+            {"id": 9, "n": "Zero‑shot, Few‑shot & Chain‑of‑Thought Prompting", "t": "f", "nt": "Covers providing examples, reasoning steps, intermediate outputs; excludes advanced techniques like tree‑of‑thoughts.", "l": [[8, "h"]]}
+          ]
+        },
+        {
+          "cl": 5,
+          "units": [
+            {"id": 10, "n": "Context Window Management & Token Economy", "t": "f", "nt": "Covers token counting, truncation strategies, relevant context selection, multi‑turn summarization; excludes fine‑tuning context extension.", "l": [[9, "h"]]},
+            {"id": 11, "n": "Iterative Refinement: From Rough to Polished Code", "t": "f", "nt": "Covers asking for corrections, pointing out mistakes, regenerating with changed temperature; excludes formal verification.", "l": [[10, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 6,
+          "units": [
+            {"id": 12, "n": "Code Generation Strategies: Step‑by‑Step, Test‑Driven, Self‑Healing", "t": "f", "nt": "Covers incremental generation, writing tests first, using error feedback to fix code; excludes full TDD theory.", "l": [[11, "h"]]},
+            {"id": 13, "n": "Integrating AI into IDE (VS Code, JetBrains)", "t": "f", "nt": "Covers plugins, inline suggestions, chat panels, keyboard shortcuts; excludes IDE internals.", "l": [[12, "h"]]}
+          ]
+        },
+        {
+          "cl": 7,
+          "units": [
+            {"id": 14, "n": "Version Control with AI‑Generated Code", "t": "f", "nt": "Covers commit messages generated by AI, reviewing AI diffs, attributing contributions, avoiding merge conflicts; excludes Git internals.", "l": [[13, "h"]]},
+            {"id": 15, "n": "Documentation & Comments Generation", "t": "f", "nt": "Covers prompting for docstrings, README generation, inline comments, API documentation; excludes Sphinx/JSDoc specifics.", "l": [[14, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 8,
+          "units": [
+            {"id": 16, "n": "AI‑Assisted Debugging: Error Interpretation & Stack Trace Analysis", "t": "f", "nt": "Covers pasting errors to LLM, reading stack traces, asking for likely causes; excludes binary analysis.", "l": [[15, "h"]]},
+            {"id": 17, "n": "Automated Test Generation & Property‑Based Testing", "t": "f", "nt": "Covers generating unit tests, edge cases, fuzzing with AI; excludes formal verification.", "l": [[16, "h"]]}
+          ]
+        },
+        {
+          "cl": 9,
+          "units": [
+            {"id": 18, "n": "Refactoring Suggestions & Technical Debt Reduction", "t": "f", "nt": "Covers asking AI to simplify, extract functions, rename variables, detect code smells; excludes full static analysis tools.", "l": [[17, "h"]]},
+            {"id": 19, "n": "Using AI to Explain Legacy or Obfuscated Code", "t": "f", "nt": "Covers feeding foreign code to AI, requesting plain‑English explanations, identifying patterns; excludes reverse engineering.", "l": [[18, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 5,
+      "clusters": [
+        {
+          "cl": 10,
+          "units": [
+            {"id": 20, "n": "GitHub Copilot: Features, Configuration, Best Practices", "t": "f", "nt": "Covers completions, Copilot Chat, code references, privacy modes; excludes enterprise administration.", "l": [[19, "h"]]},
+            {"id": 21, "n": "Cursor IDE: AI Native Editor, Composer, Chat", "t": "f", "nt": "Covers Cursor’s tab, AI model switching, context rules, composer multi‑file edits; excludes fork differences vs VS Code.", "l": [[20, "h"]]}
+          ]
+        },
+        {
+          "cl": 11,
+          "units": [
+            {"id": 22, "n": "ChatGPT / Claude API Usage for Coding Tasks", "t": "f", "nt": "Covers API keys, cost tracking, function calling, message threading; excludes advanced agentic workflows.", "l": [[21, "h"]]},
+            {"id": 23, "n": "Local Models (Ollama, Llama.cpp) for Privacy", "t": "f", "nt": "Covers running open‑weight models offline, hardware requirements, integration with IDE; excludes model quantization math.", "l": [[22, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 6,
+      "clusters": [
+        {
+          "cl": 12,
+          "units": [
+            {"id": 24, "n": "Prompt Injection, Data Leakage & Safe Handling of Secrets", "t": "f", "nt": "Covers risk of exposing API keys, internal code, user data; mitigation via environment variables, output filtering; excludes advanced adversarial ML.", "l": [[23, "h"]]},
+            {"id": 25, "n": "Code Plagiarism, Licensing & AI Output Ownership", "t": "f", "nt": "Covers copyright status of generated code, open‑source license compatibility, attribution requirements; excludes legal advice.", "l": [[24, "h"]]}
+          ]
+        },
+        {
+          "cl": 13,
+          "units": [
+            {"id": 26, "n": "Bias in AI‑Generated Code & Mitigations", "t": "f", "nt": "Covers stereotyped variable names, under‑representation, fairness in automation; review strategies; excludes algorithmic fairness metrics.", "l": [[25, "h"]]},
+            {"id": 27, "n": "Environmental Impact & Sustainable Vibe Coding", "t": "f", "nt": "Covers energy costs of large models, efficient prompting, using local smaller models; excludes carbon footprint models.", "l": [[26, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 7,
+      "clusters": [
+        {
+          "cl": 14,
+          "units": [
+            {"id": 28, "n": "Building a Full‑Stack Vibe Coding Project (Scaffolding to Deploy)", "t": "f", "nt": "Covers using AI to generate boilerplate, iteratively add features, debug, and deploy; end‑to‑end demonstration; excludes large‑scale architecture.", "l": [[27, "h"]]}
+          ]
+        },
+        {
+          "cl": 15,
+          "units": [
+            {"id": 29, "n": "Team Collaboration & AI‑Assisted Pair Programming", "t": "f", "nt": "Covers sharing prompts, curating AI outputs, code review with AI, synchronous vs asynchronous; excludes organizational change management.", "l": [[28, "h"]]},
+            {"id": 30, "n": "Reflection & Next Steps: Evolving with AI Tooling", "t": "f", "nt": "Covers keeping up with new models, building personal prompt libraries, contributing to open‑source AI coding tools; excludes career advice.", "l": [[29, "h"]]}
+          ]
+        }
+      ]
+    }
+  ]
+}

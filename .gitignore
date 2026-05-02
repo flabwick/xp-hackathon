@@ -138,3 +138,6 @@ data/*.json
 # Temporary files
 tmp/
 temp/
+
+# Tesseract OCR training data (large binary, downloaded at runtime)
+*.traineddata

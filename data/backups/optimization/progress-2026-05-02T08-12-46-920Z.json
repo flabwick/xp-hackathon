@@ -72,30 +72,6 @@
                   "xpGain": 0,
                   "notes": "Failed to demonstrate understanding of propositional logic and truth tables",
                   "sessionId": "moo08q633qtp"
-                },
-                {
-                  "timestamp": "2026-05-02T08:12:46.922Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No relevant answers provided for any questions, indicating no understanding of propositional logic.",
-                  "sessionId": "moo2dknesxg9"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:03.319Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided; unable to assess understanding of propositional logic, truth-functional connectives, or inference patterns.",
-                  "sessionId": "moo2un5j0e5n"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 4,
-                  "bm": -0.27,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of propositional logic and inference patterns.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             },
@@ -165,14 +141,6 @@
                   "xpGain": 0,
                   "notes": "Failed to demonstrate understanding of quantifier syntax, nested operators, and negation rules",
                   "sessionId": "moo08q633qtp"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 6,
-                  "bm": 0,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of quantifier syntax, negation rules, and natural language translation.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             }
@@ -430,16 +398,7 @@
           "units": [
             {
               "id": 21,
-              "logs": [
-                {
-                  "timestamp": "2026-05-02T08:25:27.414Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided, indicating no recall of basic concepts.",
-                  "sessionId": "moo2tvg6w00p"
-                }
-              ]
+              "logs": []
             },
             {
               "id": 22,

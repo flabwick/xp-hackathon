@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "bt": [
+      "Foundations of Artificial Intelligence",
+      "Vibe Coding: Principles & Mindset",
+      "Prompt Engineering for Code Generation",
+      "AI-Assisted Development Workflows",
+      "Debugging, Refactoring & Testing with AI",
+      "Tooling Ecosystem (Copilot, Cursor, ChatGPT, Claude)",
+      "Ethics, Security & Responsible Vibe Coding",
+      "Capstone Projects & Real‑World Integration"
+    ],
+    "cl": [
+      "What is AI? History, narrow vs general AI",
+      "Machine learning basics (supervised, unsupervised, reinforcement)",
+      "Large language models (LLMs): transformers, training, inference",
+      "Vibe coding definition & philosophy (flow, intuition, rapid iteration)",
+      "Cognitive load reduction & creative state maintenance",
+      "When to use AI assistance vs manual coding",
+      "Prompt anatomy: system, user, assistant messages",
+      "Zero‑shot, few‑shot, chain‑of‑thought prompting",
+      "Context window management & token economy",
+      "Code generation strategies: step‑by‑step, test‑driven, self‑healing",
+      "Integrating AI into IDE (VS Code, JetBrains plugins)",
+      "Version control with AI‑generated code (review, merge, attribution)",
+      "AI‑assisted debugging: error interpretation, stack trace analysis",
+      "Automated test generation & property‑based testing",
+      "Refactoring suggestions & technical debt reduction",
+      "GitHub Copilot: features, configuration, best practices",
+      "Cursor IDE: AI native editor, composer, chat",
+      "ChatGPT / Claude API usage for coding tasks",
+      "Local models (Ollama, Llama.cpp) for privacy",
+      "Prompt injection, data leakage & safe handling of secrets",
+      "Code plagiarism, licensing & AI output ownership",
+      "Bias in AI‑generated code & mitigations",
+      "Building a vibe coding project from scratch",
+      "Team collaboration and AI‑assisted pair programming"
+    ]
+  },
+  "deadlines": {}
+}

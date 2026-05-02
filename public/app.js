@@ -2,14 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── STATE ──────────────────────────────────────────────────────────────────────
   const state = {
     domain: null,
-    units: [],
-    treeRoots: [],
+    units: [], // Flat list with ID, name, links, etc.
+    treeRoots: [], // For DOM rendering
     xpData: {},
-    deadlines: {},
-    progress: {},
+    deadlines: {}, // Deadline data
+    progress: {}, // Progress logs keyed by unitId
     selectedUnits: new Set(),
     mode: 'select',
-    promptMode: 'test'
+    promptMode: 'test',
+    lastXPResult: null
   };
 
   // ─── TOAST ──────────────────────────────────────────────────────────────────────
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── DOM REFS ───────────────────────────────────────────────────────────────────
   const el = {
+    domainSelect: document.getElementById('domain-select'),
     treeContainer: document.getElementById('tree-container'),
     priorityList: document.getElementById('priority-list'),
     priorityControls: document.getElementById('priority-controls'),
@@ -34,35 +36,32 @@ document.addEventListener('DOMContentLoaded', () => {
     xpInput: document.getElementById('xp-input'),
     modal: document.getElementById('xp-modal'),
     modalStats: document.getElementById('modal-stats'),
-    addContextBtn: document.getElementById('add-context'),
-    pdfFileInput: document.getElementById('pdf-file-input'),
-    addContextModal: document.getElementById('add-context-modal'),
-    acChoose: document.getElementById('ac-choose'),
-    acProgress: document.getElementById('ac-progress'),
-    acResult: document.getElementById('ac-result'),
     modeToggle: document.getElementById('mode-toggle'),
     modePriority: document.getElementById('mode-priority')
   };
 
   // ─── INIT ───────────────────────────────────────────────────────────────────────
-  const courseId = new URLSearchParams(window.location.search).get('course');
-  if (!courseId) { window.location = '/'; return; }
-  fetch('/api/courses').then(r => r.json()).then(({ courses }) => {
-    const course = (courses || []).find(c => c.id === courseId);
-    if (!course) { window.location = '/'; return; }
-    if (course.chaptersDir) {
-      el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
-      el.addContextBtn.style.color = 'var(--success)';
-    }
-    loadDomain(course.domain);
+  fetch('/api/domains').then(r => r.json()).then(domains => {
+    domains.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d; opt.textContent = d;
+      el.domainSelect.appendChild(opt);
+    });
+    if(domains.length) loadDomain(window.__domain && domains.includes(window.__domain) ? window.__domain : domains[0]);
   });
 
-  // ─── DOMAIN LOADER ──────────────────────────────────────────────────────────────
+  // Load XP — domain is resolved per-request, init with empty
+  state.xpData = {};
+
   async function loadDomain(domain) {
     state.domain = domain;
+    el.domainSelect.value = domain;
+    const badge = document.getElementById('domain-badge');
+    if (badge) badge.textContent = domain || '—';
     el.treeContainer.innerHTML = '<div class="placeholder">Loading...</div>';
     el.priorityList.innerHTML = '<div class="placeholder">Loading...</div>';
 
+    // Load units, deadlines, progress, and XP
     const [unitsRes, deadlinesRes, progressRes, xpRes] = await Promise.all([
       fetch(`/api/units/${domain}`),
       fetch(`/api/deadlines/${domain}`),
@@ -84,142 +83,142 @@ document.addEventListener('DOMContentLoaded', () => {
     if (xpRes.ok) {
       state.xpData = await xpRes.json();
     }
-
+    
     parseTree(data);
     renderTree();
     updatePriority();
   }
 
+  el.domainSelect.addEventListener('change', e => loadDomain(e.target.value));
+
   // ─── TREE PARSER ────────────────────────────────────────────────────────────────
   function parseTree(data) {
     state.units = [];
     state.treeRoots = [];
+    let idCounter = 0;
 
-    const dependents = {};
+    // Build reverse graph for dependencies & dependents
+    const dependents = {}; // unitId -> count of units that depend on it
 
     data.tree.forEach(btNode => {
-      const btName = data.meta.bt[btNode.bt];
+      const btIdx = btNode.bt;
+      const btName = data.meta.bt[btIdx];
+      
       state.treeRoots.push({ type: 'bt', name: btName, children: [] });
-      const btEl = state.treeRoots[state.treeRoots.length - 1];
+      const btNodeElement = state.treeRoots[state.treeRoots.length-1];
 
       btNode.clusters.forEach(clNode => {
-        const clName = data.meta.cl[clNode.cl];
-        btEl.children.push({ type: 'cl', name: clName, children: [] });
-        const clEl = btEl.children[btEl.children.length - 1];
+        const clIdx = clNode.cl;
+        const clName = data.meta.cl[clIdx];
+        
+        btNodeElement.children.push({ type: 'cl', name: clName, children: [] });
+        const clNodeElement = btNodeElement.children[btNodeElement.children.length-1];
 
         clNode.units.forEach(u => {
           const unit = {
-            id: u.id,
+            id: u.id !== undefined ? u.id : idCounter++,
             name: u.n,
-            bt: btName,
-            cl: clName,
+            bt: btName, cl: clName,
             isFoundation: u.t === 'f',
             links: u.l || [],
-            incoming: 0
+            incoming: 0 // hard/soft pre-reqs
           };
-
+          
           state.units.push(unit);
-          clEl.children.push(unit);
+          clNodeElement.children.push(unit);
 
-          unit.links.forEach(([target]) => {
-            if (!dependents[target]) dependents[target] = 0;
+          // Track dependencies
+          unit.links.forEach(([target, type]) => {
+            if(type === 'h' || type === 's') unit.incoming++;
+            if(!dependents[target]) dependents[target] = 0;
             dependents[target]++;
           });
         });
       });
     });
 
+    // Attach dependents count
     state.units.forEach(u => {
       u.dependents = dependents[u.id] || 0;
     });
   }
 
   // ─── RENDER TREE ────────────────────────────────────────────────────────────────
-  const BAND_COLORS = {
-    I: 'var(--band-i)',
-    II: 'var(--band-ii)',
-    III: 'var(--band-iii)',
-    IV: 'var(--band-iv)',
-    V: 'var(--band-v)'
-  };
-
   function renderTree() {
     el.treeContainer.innerHTML = '';
     const ul = document.createElement('ul');
     ul.className = 'unit-tree';
 
-    const createNode = (item) => {
+    const createNode = (item, parentType = null, parentName = null) => {
       const li = document.createElement('li');
-
-      if (item.type === 'bt' || item.type === 'cl') {
+      
+      if(item.type === 'bt' || item.type === 'cl') {
         const det = document.createElement('details');
         det.open = true;
-        det.className = item.type === 'bt' ? 'branch-details' : 'cluster-details';
-
+        
+        // Create summary with scores and select all functionality
         const sum = document.createElement('summary');
-        const averages = calculateClusterAverages(item.children);
-
+        const averages = calculateClusterAverages(item.type, item.name, item.children);
+        
         sum.innerHTML = `
           <div class="cluster-header">
             <span class="cluster-name">${item.name}</span>
             <div class="cluster-scores">
-              <span class="score-badge">Avg ${Math.round(averages.avgXP)} XP</span>
+              <span class="score-badge xp">XP: ${(averages.avgXP * 100).toFixed(1)}</span>
+              <span class="score-badge urgency">Urgency: ${(averages.avgUrgency * 100).toFixed(1)}</span>
             </div>
             <div class="cluster-actions">
-              <button class="btn-small" data-type="${item.type}" data-name="${item.name}" data-action="select">All</button>
-              <button class="btn-small" data-type="${item.type}" data-name="${item.name}" data-action="deselect">None</button>
+              <button class="btn-small select-all" data-type="${item.type}" data-name="${item.name}" data-action="select">Select All</button>
+              <button class="btn-small select-none" data-type="${item.type}" data-name="${item.name}" data-action="deselect">Deselect All</button>
             </div>
           </div>
         `;
-
-        sum.querySelectorAll('.btn-small').forEach(btn => {
-          btn.addEventListener('click', e => {
+        
+        // Add event listeners for select all buttons
+        sum.querySelectorAll('.select-all, .select-none').forEach(btn => {
+          btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            selectAllInGroup(item.type, item.name, btn.dataset.action === 'select');
+            const action = btn.dataset.action === 'select';
+            selectAllInGroup(item.type, item.name, action);
           });
         });
-
+        
         det.appendChild(sum);
         const childUl = document.createElement('ul');
         childUl.className = 'unit-tree';
-        item.children.forEach(ch => childUl.appendChild(createNode(ch)));
+        item.children.forEach(ch => childUl.appendChild(createNode(ch, item.type, item.name)));
         det.appendChild(childUl);
         li.appendChild(det);
-
       } else {
-        // Unit row
+        // UNIT
         const xpInfo = getXPScore(item.id);
         const urgencyInfo = getUrgencyScore(item);
-
+        
         const div = document.createElement('div');
-        div.className = `unit-row${item.isFoundation ? ' foundation' : ''}`;
-        div.style.borderLeftColor = BAND_COLORS[xpInfo.band] || BAND_COLORS.I;
-
-        const urgencyClass = urgencyInfo.score >= 0.8 ? 'urgency-critical'
-          : urgencyInfo.score >= 0.6 ? 'urgency-high'
-          : urgencyInfo.score >= 0.3 ? 'urgency-medium'
-          : '';
-
-        const urgencyBadge = urgencyClass
-          ? `<span class="score-badge ${urgencyClass}">${urgencyInfo.display}</span>`
-          : '';
-
+        div.className = `unit-row ${item.isFoundation ? 'foundation' : ''}`;
+        
+        // Determine urgency class for styling
+        let urgencyClass = 'urgency-low';
+        if (urgencyInfo.score >= 0.8) urgencyClass = 'urgency-critical';
+        else if (urgencyInfo.score >= 0.6) urgencyClass = 'urgency-high';
+        else if (urgencyInfo.score >= 0.3) urgencyClass = 'urgency-medium';
+        
         div.innerHTML = `
           <input type="checkbox" id="u-${item.id}" ${state.selectedUnits.has(item.id) ? 'checked' : ''}>
-          <a href="${ROUTES.UNIT}?domain=${state.domain}&id=${item.id}" class="unit-name-link" title="${item.bt} › ${item.cl}">${item.name}</a>
+          <label for="u-${item.id}" class="unit-name">${item.name}</label>
           <div class="unit-scores">
-            <span class="score-badge band-${xpInfo.band}">${xpInfo.band}</span>
+            <span class="score-badge xp-band">${xpInfo.band}</span>
             <span class="score-badge xp">${xpInfo.xp} XP</span>
-            ${urgencyBadge}
+            <span class="score-badge urgency ${urgencyClass}">${urgencyInfo.display}</span>
+            ${state.progress[item.id]?.length ? `<span class="score-badge progress">${state.progress[item.id].length} log${state.progress[item.id].length > 1 ? 's' : ''}</span>` : ''}
           </div>
-          <a href="${ROUTES.UNIT}?domain=${state.domain}&id=${item.id}" class="unit-arrow">→</a>
+          <span class="unit-meta">${item.bt} > ${item.cl}</span>
         `;
-
+        
         div.querySelector('input').addEventListener('change', e => {
-          if (e.target.checked) state.selectedUnits.add(item.id);
-          else state.selectedUnits.delete(item.id);
+          e.target.checked ? state.selectedUnits.add(item.id) : state.selectedUnits.delete(item.id);
         });
-
+        
         li.appendChild(div);
       }
       return li;
@@ -229,62 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
     el.treeContainer.appendChild(ul);
   }
 
-  // ─── SCORING HELPERS ────────────────────────────────────────────────────────────
-  function getXPScore(unitId) {
-    const xp = state.xpData[unitId];
-    if (!xp) return { band: 'I', xp: 0, score: 0 };
-    return { band: xp.currentBand, xp: xp.cumulativeXP, score: xp.cumulativeXP / 100 };
-  }
-
-  function getUrgencyScore(unit) {
-    const deadlineInfo = state.deadlines.deadlines?.[unit.id];
-    if (!deadlineInfo?.deadline) return { score: 0, days: Infinity, display: 'No deadline' };
-
-    const daysUntilDeadline = (new Date(deadlineInfo.deadline) - Date.now()) / (1000 * 60 * 60 * 24);
-    let urgencyScore = 0;
-    let display = '';
-
-    if (daysUntilDeadline < 0) { urgencyScore = 1.0; display = 'Overdue'; }
-    else if (daysUntilDeadline <= 7) { urgencyScore = 0.9; display = `${Math.floor(daysUntilDeadline)}d`; }
-    else if (daysUntilDeadline <= 14) { urgencyScore = 0.7; display = `${Math.floor(daysUntilDeadline)}d`; }
-    else if (daysUntilDeadline <= 30) { urgencyScore = 0.5; display = `${Math.floor(daysUntilDeadline)}d`; }
-    else { urgencyScore = 0.1; display = `${Math.floor(daysUntilDeadline)}d`; }
-
-    urgencyScore *= (deadlineInfo.priority || 1.0);
-    return { score: urgencyScore, days: daysUntilDeadline, display };
-  }
-
-  function calculateClusterAverages(children) {
-    const units = children.filter(c => !c.type);
-    if (!units.length) return { avgXP: 0 };
-    const avgXP = units.reduce((sum, u) => sum + getXPScore(u.id).xp, 0) / units.length;
-    return { avgXP };
-  }
-
-  function selectAllInGroup(groupType, groupName, select) {
-    if (groupType === 'bt') {
-      const btNode = state.treeRoots.find(r => r.name === groupName);
-      if (!btNode) return;
-      btNode.children.forEach(cl => cl.children.forEach(u => {
-        select ? state.selectedUnits.add(u.id) : state.selectedUnits.delete(u.id);
-        const cb = document.getElementById(`u-${u.id}`);
-        if (cb) cb.checked = select;
-      }));
-    } else {
-      state.treeRoots.forEach(bt => {
-        const clNode = bt.children.find(cl => cl.name === groupName);
-        if (!clNode) return;
-        clNode.children.forEach(u => {
-          select ? state.selectedUnits.add(u.id) : state.selectedUnits.delete(u.id);
-          const cb = document.getElementById(`u-${u.id}`);
-          if (cb) cb.checked = select;
-        });
-      });
-    }
-    renderTree();
-  }
-
-  // ─── PRIORITY ───────────────────────────────────────────────────────────────────
+  // ─── PRIORITY CALC ──────────────────────────────────────────────────────────────
+  // Returns top N priority units with full scoring data
   function getTopPriorityUnits(count) {
     if (!state.units.length) return [];
 
@@ -292,48 +237,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const N = pool.length;
     const maxDep = Math.max(...pool.map(u => u.dependents), 1);
     const maxLinks = Math.max(...pool.map(u => u.links.length), 1);
-    const now = Date.now();
 
-    const withUrgency = pool.map(u => {
-      const info = state.deadlines.deadlines?.[u.id];
+    const now = new Date();
+    const unitsWithDeadlines = pool.map(u => {
+      const deadlineInfo = state.deadlines.deadlines?.[u.id];
+
       let urgencyScore = 0;
       let daysUntilDeadline = Infinity;
 
-      if (info?.deadline) {
-        daysUntilDeadline = (new Date(info.deadline) - now) / (1000 * 60 * 60 * 24);
+      if (deadlineInfo?.deadline) {
+        const deadlineDate = new Date(deadlineInfo.deadline);
+        daysUntilDeadline = (deadlineDate - now) / (1000 * 60 * 60 * 24);
+
         if (daysUntilDeadline < 0) urgencyScore = 1.0;
         else if (daysUntilDeadline <= 7) urgencyScore = 0.9;
         else if (daysUntilDeadline <= 14) urgencyScore = 0.7;
         else if (daysUntilDeadline <= 30) urgencyScore = 0.5;
         else urgencyScore = 0.1;
-        urgencyScore *= (info.priority || 1.0);
+
+        urgencyScore *= (deadlineInfo.priority || 1.0);
       }
 
       return { ...u, urgencyScore, daysUntilDeadline };
     });
 
-    const sortedByUrgency = [...withUrgency].sort((a, b) => b.urgencyScore - a.urgencyScore);
+    const sortedByUrgency = [...unitsWithDeadlines].sort((a, b) => b.urgencyScore - a.urgencyScore);
     const urgencyMap = new Map(sortedByUrgency.map((u, i) => [u.id, i + 1]));
 
-    const scored = withUrgency.map(u => {
+    const scored = unitsWithDeadlines.map(u => {
       const rank = urgencyMap.get(u.id);
-      const U = Math.max(0, (N - rank) / Math.max(1, N - 1));
+      const U = (rank <= N) ? Math.max(0, (N - rank) / Math.max(1, N - 1)) : 0;
       const B = u.dependents / maxDep;
       const L = u.links.length / maxLinks;
 
       let R = 1.0;
-      const hardReqs = u.links.filter(([, t]) => t === 'h').map(([id]) => id);
+      const hardReqs = u.links.filter(([t, type]) => type === 'h').map(t => t[0]);
       if (hardReqs.length > 0) {
-        const allStable = hardReqs.every(rid => (state.xpData[rid]?.currentBand || 'I') !== 'I');
+        const allStable = hardReqs.every(rid => {
+          const xp = state.xpData[rid];
+          const band = xp ? xp.currentBand : 'I';
+          return band !== 'I';
+        });
         if (!allStable) R = 0.3;
       } else {
-        const softReqs = u.links.filter(([, t]) => t === 's').map(([id]) => id);
-        if (softReqs.length > 0 && !softReqs.every(rid => (state.xpData[rid]?.currentBand || 'I') !== 'I')) {
-          R = 0.7;
+        const softReqs = u.links.filter(([t, type]) => type === 's').map(t => t[0]);
+        if (softReqs.length > 0) {
+          const allSoftStable = softReqs.every(rid => {
+            const xp = state.xpData[rid];
+            return xp && xp.currentBand !== 'I';
+          });
+          if (!allSoftStable) R = 0.7;
         }
       }
 
-      return { id: u.id, score: (0.6 * U + 0.25 * B + 0.15 * L) * R, unit: u };
+      return { id: u.id, score: (0.6 * U + 0.25 * B + 0.15 * L) * R, unit: u, daysUntilDeadline: u.daysUntilDeadline };
     });
 
     scored.sort((a, b) => b.score - a.score);
@@ -341,46 +298,52 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updatePriority() {
-    if (state.mode !== 'priority' || !state.units.length) return;
+    if(state.mode !== 'priority' || state.units.length === 0) return;
 
     const count = parseInt(el.priorityCount.value);
     const topItems = getTopPriorityUnits(count);
 
+    // Render top N
     el.priorityList.innerHTML = '<h3>Top Priority Units</h3>';
-
     topItems.forEach((item, i) => {
       const div = document.createElement('div');
       div.className = 'priority-item';
-
-      const urgInfo = getUrgencyScore(item.unit);
-      let deadlineHTML = '';
-      if (urgInfo.days !== Infinity) {
-        const cls = urgInfo.days < 0 ? 'overdue' : urgInfo.days <= 7 ? 'urgent' : urgInfo.days <= 30 ? 'soon' : 'distant';
-        const label = urgInfo.days < 0 ? 'Overdue' : `${Math.floor(urgInfo.days)} days`;
-        deadlineHTML = `<div class="deadline-info"><span class="deadline ${cls}">${label}</span></div>`;
+      
+      // Format deadline display
+      let deadlineDisplay = '';
+      if (item.unit.daysUntilDeadline !== Infinity) {
+        if (item.unit.daysUntilDeadline < 0) {
+          deadlineDisplay = `<span class="deadline overdue">OVERDUE</span>`;
+        } else if (item.unit.daysUntilDeadline <= 7) {
+          deadlineDisplay = `<span class="deadline urgent">${Math.floor(item.unit.daysUntilDeadline)} days</span>`;
+        } else if (item.unit.daysUntilDeadline <= 30) {
+          deadlineDisplay = `<span class="deadline soon">${Math.floor(item.unit.daysUntilDeadline)} days</span>`;
+        } else {
+          deadlineDisplay = `<span class="deadline distant">${Math.floor(item.unit.daysUntilDeadline)} days</span>`;
+        }
+      } else {
+        deadlineDisplay = `<span class="deadline none">No deadline</span>`;
       }
-
+      
       div.innerHTML = `
-        <div class="rank-badge">${i + 1}</div>
+        <div class="rank-badge">${i+1}</div>
         <div class="priority-info">
           <div><strong>${item.unit.name}</strong></div>
-          <div class="unit-meta">${item.unit.bt} › ${item.unit.cl}</div>
-          ${deadlineHTML}
+          <div class="unit-meta">${item.unit.bt} > ${item.unit.cl}</div>
+          <div class="deadline-info">${deadlineDisplay}</div>
         </div>
         <div class="priority-score">${item.score.toFixed(3)}</div>
       `;
-
       div.addEventListener('click', () => {
         state.selectedUnits.add(item.id);
         renderTree();
       });
-
       el.priorityList.appendChild(div);
     });
   }
 
-  // ─── MODE CONTROLS ──────────────────────────────────────────────────────────────
-  el.modeToggle.addEventListener('click', () => {
+  // ─── CONTROLS ───────────────────────────────────────────────────────────────────
+  document.getElementById('mode-toggle').addEventListener('click', () => {
     state.mode = 'select';
     el.modeToggle.classList.add('active');
     el.modePriority.classList.remove('active');
@@ -389,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.priorityList.classList.add('hidden');
   });
 
-  el.modePriority.addEventListener('click', () => {
+  document.getElementById('mode-priority').addEventListener('click', () => {
     state.mode = 'priority';
     el.modePriority.classList.add('active');
     el.modeToggle.classList.remove('active');
@@ -404,10 +367,175 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePriority();
   });
 
-  el.promptMode.addEventListener('change', e => { state.promptMode = e.target.value; });
+  el.promptMode.addEventListener('change', e => state.promptMode = e.target.value);
 
-  // ─── COPY PROMPT ────────────────────────────────────────────────────────────────
-  document.getElementById('copy-prompt').addEventListener('click', async () => {
+  // ─── PROMPT COPY ────────────────────────────────────────────────────────────────// Helper functions for XP and urgency calculations
+  function getXPScore(unitId) {
+    const xp = state.xpData[unitId];
+    if (!xp) return { band: 'I', xp: 0, score: 0 };
+    return {
+      band: xp.currentBand,
+      xp: xp.cumulativeXP,
+      score: xp.cumulativeXP / 100 // Normalize to 0-1 scale
+    };
+  }
+
+  function getUrgencyScore(unit) {
+    const deadlineInfo = state.deadlines.deadlines?.[unit.id];
+    
+    if (!deadlineInfo?.deadline) return { score: 0, days: Infinity, display: 'No deadline' };
+    
+    const now = new Date();
+    const deadlineDate = new Date(deadlineInfo.deadline);
+    const daysUntilDeadline = (deadlineDate - now) / (1000 * 60 * 60 * 24);
+    
+    let urgencyScore = 0;
+    let display = '';
+    
+    if (daysUntilDeadline < 0) {
+      urgencyScore = 1.0;
+      display = 'OVERDUE';
+    } else if (daysUntilDeadline <= 7) {
+      urgencyScore = 0.9;
+      display = `${Math.floor(daysUntilDeadline)} days`;
+    } else if (daysUntilDeadline <= 14) {
+      urgencyScore = 0.7;
+      display = `${Math.floor(daysUntilDeadline)} days`;
+    } else if (daysUntilDeadline <= 30) {
+      urgencyScore = 0.5;
+      display = `${Math.floor(daysUntilDeadline)} days`;
+    } else {
+      urgencyScore = 0.1;
+      display = `${Math.floor(daysUntilDeadline)} days`;
+    }
+    
+    urgencyScore *= (deadlineInfo.priority || 1.0);
+    
+    return { score: urgencyScore, days: daysUntilDeadline, display };
+  }
+
+  function calculateClusterAverages(clusterType, parentName, children) {
+    const units = children.filter(child => !child.type); // Only actual units
+    if (units.length === 0) return { avgXP: 0, avgUrgency: 0 };
+    
+    const xpScores = units.map(u => getXPScore(u.id).score);
+    const urgencyScores = units.map(u => getUrgencyScore(u).score);
+    
+    const avgXP = xpScores.reduce((a, b) => a + b, 0) / xpScores.length;
+    const avgUrgency = urgencyScores.reduce((a, b) => a + b, 0) / urgencyScores.length;
+    
+    return { avgXP, avgUrgency };
+  }
+
+  function selectAllInGroup(groupType, groupName, select) {
+    if (groupType === 'bt') {
+      const btNode = state.treeRoots.find(root => root.name === groupName);
+      if (btNode) {
+        const allUnitIds = [];
+        btNode.children.forEach(cl => {
+          cl.children.forEach(unit => {
+            if (select) {
+              state.selectedUnits.add(unit.id);
+            } else {
+              state.selectedUnits.delete(unit.id);
+            }
+            allUnitIds.push(unit.id);
+          });
+        });
+        // Update checkboxes
+        allUnitIds.forEach(id => {
+          const checkbox = document.getElementById(`u-${id}`);
+          if (checkbox) checkbox.checked = select;
+        });
+      }
+    } else if (groupType === 'cl') {
+      state.treeRoots.forEach(bt => {
+        const clNode = bt.children.find(cl => cl.name === groupName);
+        if (clNode) {
+          const allUnitIds = [];
+          clNode.children.forEach(unit => {
+            if (select) {
+              state.selectedUnits.add(unit.id);
+            } else {
+              state.selectedUnits.delete(unit.id);
+            }
+            allUnitIds.push(unit.id);
+          });
+          // Update checkboxes
+          allUnitIds.forEach(id => {
+            const checkbox = document.getElementById(`u-${id}`);
+            if (checkbox) checkbox.checked = select;
+          });
+        }
+      });
+    }
+    renderTree();
+  }
+
+  // ─── TEST NAVIGATION ────────────────────────────────────────────────────────────
+  window.goToTest = function() {
+    let ids;
+    if (state.mode === 'priority') {
+      const count = parseInt(el.priorityCount?.value || '5');
+      const top = getTopPriorityUnits(count);
+      if (!top.length) return alert('No units available for priority mode.');
+      ids = top.map(u => u.id);
+    } else {
+      if (state.selectedUnits.size === 0) return alert('Select at least one unit first.');
+      ids = Array.from(state.selectedUnits);
+    }
+    if (!state.domain) return alert('Select a domain first.');
+    window.location.href = `/test?domain=${encodeURIComponent(state.domain)}&units=${ids.join(',')}`;
+  };
+
+  document.getElementById('process-xp')?.addEventListener('click', async () => {
+    const raw = document.getElementById('xp-input').value.trim();
+    if (!raw) return alert('Paste an XP injection JSON first.');
+
+    let injections;
+    try {
+      injections = JSON.parse(raw);
+    } catch(e) {
+      return alert('Invalid JSON: ' + e.message);
+    }
+    if (!Array.isArray(injections)) injections = [injections];
+
+    const unitIds = injections.map(inj => inj.unitId).filter(id => id !== undefined);
+    if (unitIds.length === 0) return alert('No unitId found in injection.');
+
+    const xpRes = await fetch('/api/xp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ injections, domain: state.domain })
+    });
+    const xpData = await xpRes.json();
+
+    if (!xpData.success) {
+      return alert('XP processing failed: ' + JSON.stringify(xpData));
+    }
+
+    if (state.domain) {
+      const progressRes = await fetch(`/api/progress/${state.domain}`);
+      if (progressRes.ok) {
+        const progressData = await progressRes.json();
+        state.progress = {};
+        progressData.tree.forEach(bt => bt.clusters.forEach(cl => cl.units.forEach(u => {
+          state.progress[u.id] = u.logs || [];
+        })));
+      }
+    }
+    const xpStateRes = await fetch(`/api/xp?domain=${state.domain}`);
+    if (xpStateRes.ok) state.xpData = await xpStateRes.json();
+    renderTree();
+
+    showXPModal(xpData.results);
+    state.lastXPResult = xpData.results;
+
+    document.getElementById('xp-input').value = '';
+  });
+
+  // COPY PROMPT BUTTON (Study/Test mode)
+  document.getElementById('copy-prompt')?.addEventListener('click', async () => {
     let unitIds;
 
     if (state.mode === 'priority') {
@@ -416,7 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!topUnits.length) return alert('No units available.');
       unitIds = topUnits.map(s => s.id);
     } else {
-      if (!state.selectedUnits.size) return alert('Select at least one unit.');
+      if (state.selectedUnits.size === 0) return alert('Select at least one unit.');
       unitIds = Array.from(state.selectedUnits);
     }
 
@@ -424,15 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch(`/api/prompt/${state.promptMode}/compile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain: state.domain, unitIds })
+        body: JSON.stringify({
+          domain: state.domain,
+          unitIds
+        })
       });
-      const compiled = await res.text();
-      await navigator.clipboard.writeText(compiled);
-      showToast('Prompt copied');
-    } catch (e) {
-      console.error(e);
-      alert('Failed to compile prompt: ' + e.message);
-    }
+      const compiledPrompt = await res.text();
+      navigator.clipboard.writeText(compiledPrompt).then(() => showToast('✓ Prompt copied!'));
+    } catch(e) { console.error(e); alert('Failed to compile prompt: ' + e.message); }
   });
 
   // TEST BUTTON — store params, navigate to /test which runs the API call
@@ -759,17 +886,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.getElementById('close-modal').addEventListener('click', () => el.modal.close());
+  document.getElementById('close-modal')?.addEventListener('click', () => el.modal?.close());
 
-  // SHOW XP HISTORY button
-  document.getElementById('show-xp-history').addEventListener('click', () => {
+  document.getElementById('show-xp-history')?.addEventListener('click', () => {
     showHistoryModal();
-    // Activate history tab
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('.tab-btn[data-tab="history"]').classList.add('active');
-    document.getElementById('tab-history').classList.add('active');
-    el.modal.showModal();
+    document.querySelector('.tab-btn[data-tab="history"]')?.classList.add('active');
+    document.getElementById('tab-history')?.classList.add('active');
+    el.modal?.showModal();
   });
 
   // Tab switching in modal
@@ -784,8 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // CLEAR ALL HISTORY
-  document.getElementById('clear-all-history').addEventListener('click', async () => {
+  document.getElementById('clear-all-history')?.addEventListener('click', async () => {
     if (!confirm('Clear all XP history? This will reset all XP to 0 and remove all progress logs.')) return;
 
     try {
@@ -804,11 +928,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch(e) {
       alert('Clear error: ' + e.message);
-}
+    }
   });
 
-  // ─── TEACHING INJECTION — JSON paste & compile ─────────────────────────────────
-  document.getElementById('copy-teaching').addEventListener('click', async () => {
+  document.getElementById('copy-teaching')?.addEventListener('click', async () => {
     const textarea = document.getElementById('teaching-input');
     const raw = textarea.value.trim();
     if (!raw) return alert('Paste a teaching injection JSON first.');
@@ -866,72 +989,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       console.error('Teaching compile error:', e);
       alert('Error compiling teaching prompt: ' + e.message);
-    }
-  });
-
-  // ─── ADD CONTEXT ─────────────────────────────────────────────────────────────────
-  function showAcState(s) {
-    el.acChoose.hidden = s !== 'choose';
-    el.acProgress.hidden = s !== 'progress';
-    el.acResult.hidden = s !== 'result';
-  }
-
-  el.addContextBtn.addEventListener('click', () => {
-    showAcState('choose');
-    el.addContextModal.showModal();
-  });
-
-  document.getElementById('close-add-context').addEventListener('click', () => {
-    el.addContextModal.close();
-  });
-
-  document.getElementById('ac-try-again').addEventListener('click', () => {
-    showAcState('choose');
-  });
-
-  document.getElementById('ac-pdf-splitter').addEventListener('click', () => {
-    el.pdfFileInput.click();
-  });
-
-  el.pdfFileInput.addEventListener('change', async () => {
-    const file = el.pdfFileInput.files[0];
-    if (!file) return;
-    document.getElementById('ac-progress-text').textContent = `⏳ Extracting chapters from ${file.name}…`;
-    showAcState('progress');
-
-    const formData = new FormData();
-    formData.append('pdf', file);
-
-    try {
-      const res = await fetch(`/api/courses/${courseId}/upload-textbook`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.details || data.error || `Server error ${res.status}`);
-
-      const resultEl = document.getElementById('ac-result-content');
-      const msg = document.createElement('p');
-      msg.style.cssText = 'margin:0;font-weight:600';
-      msg.style.color = 'var(--success)';
-      msg.textContent = `✓ Loaded ${data.chapterCount} chapter${data.chapterCount !== 1 ? 's' : ''}`;
-      resultEl.innerHTML = '';
-      resultEl.appendChild(msg);
-      showAcState('result');
-
-      el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
-      el.addContextBtn.style.color = 'var(--success)';
-      showToast(`✓ ${data.chapterCount} chapters loaded`);
-    } catch (e) {
-      const resultEl = document.getElementById('ac-result-content');
-      const pre = document.createElement('pre');
-      pre.textContent = e.message;
-      pre.style.cssText = 'color:var(--danger);border:2px solid var(--danger);padding:0.8rem;margin:0;overflow:auto;font-size:0.8rem;max-height:200px;white-space:pre-wrap';
-      resultEl.innerHTML = '';
-      resultEl.appendChild(pre);
-      showAcState('result');
-    } finally {
-      el.pdfFileInput.value = '';
     }
   });
 });

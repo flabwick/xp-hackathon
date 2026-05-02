@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "bt": [
+      "Foundations & Arithmetic",
+      "Linear Equations & Inequalities",
+      "Polynomials & Factoring",
+      "Quadratic Equations & Functions",
+      "Rational & Radical Expressions",
+      "Functions & Graphing",
+      "Systems of Equations",
+      "Exponents & Exponential Functions",
+      "Applications & Word Problems"
+    ],
+    "cl": [
+      "Number systems, operations, order of operations",
+      "Variables, expressions, evaluating",
+      "Properties of equality, solving linear equations",
+      "Linear inequalities, interval notation",
+      "Polynomial basics: degree, operations",
+      "Factoring: GCF, grouping, trinomials, special forms",
+      "Quadratic equations: factoring, square root, formula, completing square",
+      "Quadratic graphs: vertex, intercepts, applications",
+      "Rational expressions: domain, simplification, operations, equations",
+      "Radicals: simplification, operations, rational exponents, equations",
+      "Function concepts: definition, domain/range, notation",
+      "Graphing lines: slope-intercept, point-slope, parallel/perpendicular",
+      "Systems of linear equations: graphing, substitution, elimination",
+      "Systems applications: mixture, distance, break-even",
+      "Exponent rules: product, quotient, power, zero/negative",
+      "Exponential functions: growth/decay, graphing, compound interest",
+      "Word problems: translation, consecutive integers, percent, geometry"
+    ]
+  },
+  "deadlines": {}
+}

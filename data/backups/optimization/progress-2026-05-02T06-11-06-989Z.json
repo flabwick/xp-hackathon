@@ -32,70 +32,6 @@
                   "xpGain": 30,
                   "notes": "Correctly identified p ∧ q for intersection. Understood contrapositive preserves truth value but confused inverse with contrapositive. Showed intuitive grasp of material implication but lacked formal precision in logical transformations.",
                   "sessionId": "mo13q1tig9p1"
-                },
-                {
-                  "timestamp": "2026-05-02T06:11:06.992Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "The student did not demonstrate any understanding of propositional logic concepts.",
-                  "sessionId": "mony13zkmzza"
-                },
-                {
-                  "timestamp": "2026-05-02T06:28:30.248Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No understanding of propositional logic and inference patterns.",
-                  "sessionId": "monyngyws0zm"
-                },
-                {
-                  "timestamp": "2026-05-02T07:04:41.990Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No comprehension or application of propositional logic concepts demonstrated.",
-                  "sessionId": "monzy0p2inux"
-                },
-                {
-                  "timestamp": "2026-05-02T07:11:28.408Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "The student did not demonstrate any understanding or skills related to Propositional Logic, Truth-Functional Connectives, and Inference Patterns.",
-                  "sessionId": "moo06qag8zib"
-                },
-                {
-                  "timestamp": "2026-05-02T07:13:01.563Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "Failed to demonstrate understanding of propositional logic and truth tables",
-                  "sessionId": "moo08q633qtp"
-                },
-                {
-                  "timestamp": "2026-05-02T08:12:46.922Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No relevant answers provided for any questions, indicating no understanding of propositional logic.",
-                  "sessionId": "moo2dknesxg9"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:03.319Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided; unable to assess understanding of propositional logic, truth-functional connectives, or inference patterns.",
-                  "sessionId": "moo2un5j0e5n"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 4,
-                  "bm": -0.27,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of propositional logic and inference patterns.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             },
@@ -141,38 +77,6 @@
                   "xpGain": 19,
                   "notes": "Correctly derived formal negation syntax ($\\exists x \\forall y (P \\land \\neg Q)$). However, truth evaluation was contradictory (claimed both original and negation true). Failed to utilize vacuous truth strategy (choosing $y > x$ makes antecedent false). Shows fragility in semantic evaluation of nested quantifiers, specifically the scope of \\forall y.",
                   "sessionId": "mo8epa0fento"
-                },
-                {
-                  "timestamp": "2026-05-02T06:11:06.992Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "The student did not demonstrate any understanding of quantifier syntax, nested operators, and negation rules.",
-                  "sessionId": "mony13zkmzza"
-                },
-                {
-                  "timestamp": "2026-05-02T06:28:30.248Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No understanding of quantifier syntax, negation rules, and natural language translation.",
-                  "sessionId": "monyngyws0zm"
-                },
-                {
-                  "timestamp": "2026-05-02T07:13:01.563Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "Failed to demonstrate understanding of quantifier syntax, nested operators, and negation rules",
-                  "sessionId": "moo08q633qtp"
-                },
-                {
-                  "timestamp": "2026-05-02T08:26:15.019Z",
-                  "dv": 6,
-                  "bm": 0,
-                  "xpGain": 0,
-                  "notes": "Did not demonstrate understanding of quantifier syntax, negation rules, and natural language translation.",
-                  "sessionId": "moo2uw6jien2"
                 }
               ]
             }
@@ -430,16 +334,7 @@
           "units": [
             {
               "id": 21,
-              "logs": [
-                {
-                  "timestamp": "2026-05-02T08:25:27.414Z",
-                  "dv": 0,
-                  "bm": -0.5,
-                  "xpGain": 0,
-                  "notes": "No answers provided, indicating no recall of basic concepts.",
-                  "sessionId": "moo2tvg6w00p"
-                }
-              ]
+              "logs": []
             },
             {
               "id": 22,

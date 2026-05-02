@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "bt": [
+      "Foundations & Arithmetic",
+      "Linear Equations & Inequalities",
+      "Polynomials & Factoring",
+      "Quadratic Equations & Functions",
+      "Rational & Radical Expressions",
+      "Functions & Graphing",
+      "Systems of Equations",
+      "Exponents & Exponential Functions",
+      "Applications & Word Problems"
+    ],
+    "cl": [
+      "Number systems, operations, order of operations",
+      "Variables, expressions, evaluating",
+      "Properties of equality, solving linear equations",
+      "Linear inequalities, interval notation",
+      "Polynomial basics: degree, operations",
+      "Factoring: GCF, grouping, trinomials, special forms",
+      "Quadratic equations: factoring, square root, formula, completing square",
+      "Quadratic graphs: vertex, intercepts, applications",
+      "Rational expressions: domain, simplification, operations, equations",
+      "Radicals: simplification, operations, rational exponents, equations",
+      "Function concepts: definition, domain/range, notation",
+      "Graphing lines: slope-intercept, point-slope, parallel/perpendicular",
+      "Systems of linear equations: graphing, substitution, elimination",
+      "Systems applications: mixture, distance, break-even",
+      "Exponent rules: product, quotient, power, zero/negative",
+      "Exponential functions: growth/decay, graphing, compound interest",
+      "Word problems: translation, consecutive integers, percent, geometry"
+    ]
+  },
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {"id": 0, "n": "Number Systems (Natural, Integer, Rational, Real)", "t": "f", "nt": "Covers classification of numbers, properties of each set, real number line; excludes complex numbers, modular arithmetic, and p-adic numbers.", "l": []},
+            {"id": 1, "n": "Order of Operations (PEMDAS) & Absolute Value", "t": "f", "nt": "Covers precedence rules, parentheses, exponents, multiplication/division, addition/subtraction, absolute value definition and evaluation; excludes advanced grouping symbols like fraction bars in complex expressions.", "l": [[0, "h"]]},
+            {"id": 2, "n": "Properties of Operations (Commutative, Associative, Distributive)", "t": "f", "nt": "Covers identity, inverse, commutative, associative, distributive properties with examples; excludes field axioms proofs and abstract algebra.", "l": [[1, "h"]]}
+          ]
+        },
+        {
+          "cl": 1,
+          "units": [
+            {"id": 3, "n": "Variables, Constants & Algebraic Expressions", "t": "f", "nt": "Covers variable definition, constant vs coefficient, term, expression structure, and translation from phrases; excludes logical quantifiers and functional notation.", "l": [[0, "h"]]},
+            {"id": 4, "n": "Evaluating Expressions by Substitution", "t": "f", "nt": "Covers replacing variables with numbers, order of operations application, handling absolute values and exponents; excludes expression simplification and multi-step equation solving.", "l": [[3, "h"], [2, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 2,
+          "units": [
+            {"id": 5, "n": "One‑Step & Two‑Step Linear Equations", "t": "f", "nt": "Covers inverse operations, addition/subtraction/multiplication/division steps, checking solutions; excludes equations with variables on both sides.", "l": [[4, "h"]]},
+            {"id": 6, "n": "Equations with Variables on Both Sides", "t": "f", "nt": "Covers collecting variable terms, dealing with negative coefficients, special cases (identity, contradiction); excludes literal equations.", "l": [[5, "h"]]},
+            {"id": 7, "n": "Literal Equations & Formulas", "t": "f", "nt": "Covers solving for a specified variable in terms of others, rearranging geometric and scientific formulas; excludes systems of equations.", "l": [[6, "h"]]}
+          ]
+        },
+        {
+          "cl": 3,
+          "units": [
+            {"id": 8, "n": "Solving Linear Inequalities & Sign Flipping", "t": "f", "nt": "Covers inequality symbols, multiplying/dividing by negative numbers, solution sets; excludes compound inequalities.", "l": [[5, "h"]]},
+            {"id": 9, "n": "Compound Inequalities (AND / OR)", "t": "f", "nt": "Covers 'and' (intersection) and 'or' (union), writing as single statement, solving both parts; excludes absolute value inequalities.", "l": [[8, "h"]]},
+            {"id": 10, "n": "Interval Notation & Number Line Graphs", "t": "f", "nt": "Covers open/closed intervals, union/intersection symbols, graphing on number line; excludes extended real numbers and topology.", "l": [[9, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 4,
+          "units": [
+            {"id": 11, "n": "Polynomial Degree, Leading Coefficient & Standard Form", "t": "f", "nt": "Covers monomial, binomial, trinomial, degree identification, ordering terms; excludes multivariate degree and formal power series.", "l": [[3, "h"]]},
+            {"id": 12, "n": "Adding & Subtracting Polynomials", "t": "f", "nt": "Covers combining like terms, horizontal/vertical alignment, distributing subtraction; excludes multiplication.", "l": [[11, "h"]]},
+            {"id": 13, "n": "Multiplying Polynomials (FOIL & Box Method)", "t": "f", "nt": "Covers distributive property, FOIL for binomials, box method for larger products; excludes polynomial division and binomial theorem.", "l": [[12, "h"]]}
+          ]
+        },
+        {
+          "cl": 5,
+          "units": [
+            {"id": 14, "n": "Greatest Common Factor (GCF) Factoring", "t": "f", "nt": "Covers identifying GCF of coefficients and variables, factoring out GCF; excludes grouping and trinomials.", "l": [[13, "h"]]},
+            {"id": 15, "n": "Factoring Trinomials (a=1 and a≠1)", "t": "f", "nt": "Covers finding factor pairs, trial-and-error, AC method; excludes special cases like perfect squares.", "l": [[14, "h"]]},
+            {"id": 16, "n": "Difference of Squares & Perfect Square Trinomials", "t": "f", "nt": "Covers a²−b² factorization, recognizing perfect squares, (a±b)² expansion; excludes sum of cubes.", "l": [[15, "h"]]},
+            {"id": 17, "n": "Factoring by Grouping", "t": "f", "nt": "Covers grouping four terms into pairs, factoring common binomials; excludes higher-degree grouping strategies.", "l": [[16, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 6,
+          "units": [
+            {"id": 18, "n": "Zero Product Property & Factoring Method", "t": "f", "nt": "Covers setting factored form equal to zero, solving each factor; requires factoring skills.", "l": [[17, "h"]]},
+            {"id": 19, "n": "Square Root Method (ax² = c)", "t": "f", "nt": "Covers isolating x², taking ± square root, handling radical simplification; excludes completing the square.", "l": [[18, "h"]]},
+            {"id": 20, "n": "Quadratic Formula & Discriminant", "t": "f", "nt": "Covers formula derivation (optional), discriminant analysis, real/complex roots distinction; excludes complex number arithmetic.", "l": [[19, "h"]]},
+            {"id": 21, "n": "Completing the Square", "t": "f", "nt": "Covers forming perfect square trinomial, vertex form conversion, solving quadratics; excludes applications to conics.", "l": [[20, "h"]]}
+          ]
+        },
+        {
+          "cl": 7,
+          "units": [
+            {"id": 22, "n": "Vertex, Axis of Symmetry & Intercepts", "t": "f", "nt": "Covers vertex formula h=−b/(2a), axis, y-intercept, x-intercepts via factoring/quadratic formula; excludes vertex form translation.", "l": [[21, "h"]]},
+            {"id": 23, "n": "Graphing Parabolas", "t": "f", "nt": "Covers plotting vertex, axis, intercepts, direction of opening, symmetry; excludes transformations and shifts.", "l": [[22, "h"]]},
+            {"id": 24, "n": "Quadratic Applications (Projectile Motion, Area)", "t": "f", "nt": "Covers height function h(t) = -16t²+v₀ t+h₀, maximum height, time of flight; optimization of rectangular areas.", "l": [[23, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 8,
+          "units": [
+            {"id": 25, "n": "Rational Expressions: Domain & Simplification", "t": "f", "nt": "Covers restrictions (denominator ≠0), canceling common factors; excludes operations and complex fractions.", "l": [[17, "h"]]},
+            {"id": 26, "n": "Multiplying & Dividing Rational Expressions", "t": "f", "nt": "Covers factor, cancel, multiply/divide by reciprocal; excludes addition/subtraction.", "l": [[25, "h"]]},
+            {"id": 27, "n": "Adding & Subtracting Rational Expressions", "t": "f", "nt": "Covers finding LCD, rewriting numerators, combining; excludes mixed numbers with variables.", "l": [[26, "h"]]},
+            {"id": 28, "n": "Solving Rational Equations", "t": "f", "nt": "Covers multiplying by LCD, checking for extraneous solutions; excludes equations with parameters.", "l": [[27, "h"]]}
+          ]
+        },
+        {
+          "cl": 9,
+          "units": [
+            {"id": 29, "n": "Simplifying Radicals (Square Roots)", "t": "f", "nt": "Covers prime factorization, pulling out square factors, simplifying numeric and variable radicals; excludes cube roots and higher indices.", "l": [[4, "h"]]},
+            {"id": 30, "n": "Operations with Radicals (Add, Multiply, Rationalize)", "t": "f", "nt": "Covers combining like radicals, product property, rationalizing monomial denominators; excludes conjugates for binomials.", "l": [[29, "h"]]},
+            {"id": 31, "n": "Rational Exponents", "t": "f", "nt": "Covers converting between √ and ( )^(1/2), exponent rules with fractional exponents; excludes irrational exponents.", "l": [[30, "h"]]},
+            {"id": 32, "n": "Solving Radical Equations", "t": "f", "nt": "Covers isolating radical, squaring both sides, checking extraneous solutions; excludes equations with multiple radicals.", "l": [[31, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 5,
+      "clusters": [
+        {
+          "cl": 10,
+          "units": [
+            {"id": 33, "n": "Function Definition & Vertical Line Test", "t": "f", "nt": "Covers relation vs function, mapping diagrams, vertical line test for graphs; excludes piecewise and parametric functions.", "l": [[4, "h"]]},
+            {"id": 34, "n": "Domain & Range of Functions", "t": "f", "nt": "Covers domain restrictions (denominator, even roots), range from graph or reasoning; excludes codomain and image concepts.", "l": [[33, "h"]]},
+            {"id": 35, "n": "Function Notation & Evaluation", "t": "f", "nt": "Covers f(x) interpretation, evaluating at numeric values and expressions, difference quotient preview; excludes composition and inverse functions.", "l": [[34, "h"]]},
+            {"id": 36, "n": "Linear Functions & Slope", "t": "f", "nt": "Covers slope formula, rate of change, interpreting slope and intercepts; excludes parallel/perpendicular conditions.", "l": [[35, "h"]]}
+          ]
+        },
+        {
+          "cl": 11,
+          "units": [
+            {"id": 37, "n": "Slope‑Intercept Form (y = mx + b)", "t": "f", "nt": "Covers graphing using slope and y‑intercept, writing equation from graph; excludes point‑slope form.", "l": [[36, "h"]]},
+            {"id": 38, "n": "Point‑Slope Form & Writing Equations", "t": "f", "nt": "Covers y−y₁ = m(x−x₁), converting to slope‑intercept, using two points; excludes parallel/perpendicular lines.", "l": [[37, "h"]]},
+            {"id": 39, "n": "Horizontal & Vertical Lines", "t": "f", "nt": "Covers equations y = c, x = c, slope zero/undefined; excludes lines with no slope concept.", "l": [[38, "h"]]},
+            {"id": 40, "n": "Parallel & Perpendicular Lines", "t": "f", "nt": "Covers equal slopes for parallel, negative reciprocal slopes for perpendicular; excludes analytic geometry proofs.", "l": [[39, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 6,
+      "clusters": [
+        {
+          "cl": 12,
+          "units": [
+            {"id": 41, "n": "Graphing Method for Systems", "t": "f", "nt": "Covers plotting two lines, identifying intersection point; limitations with non‑integer solutions.", "l": [[37, "h"]]},
+            {"id": 42, "n": "Substitution Method", "t": "f", "nt": "Covers solving one variable, substituting, back‑solving; includes special cases (parallel/coincident).", "l": [[41, "h"], [6, "h"]]},
+            {"id": 43, "n": "Elimination Method (Addition/Subtraction)", "t": "f", "nt": "Covers multiplying equations, eliminating a variable, solving; includes fractional coefficients.", "l": [[42, "h"]]},
+            {"id": 44, "n": "Systems with No Solution or Infinite Solutions", "t": "f", "nt": "Covers inconsistent (parallel lines) and dependent (same line) cases, recognizing from equations; excludes linear algebra rank conditions.", "l": [[43, "h"]]}
+          ]
+        },
+        {
+          "cl": 13,
+          "units": [
+            {"id": 45, "n": "Mixture & Distance Problems", "t": "f", "nt": "Covers setting up tables, rate×time=distance, value×quantity=total; solving 2×2 systems.", "l": [[44, "h"]]},
+            {"id": 46, "n": "Break‑Even & Supply‑Demand", "t": "f", "nt": "Covers cost/revenue profit equilibria, linear supply and demand, market equilibrium point; excludes non‑linear models.", "l": [[45, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 7,
+      "clusters": [
+        {
+          "cl": 14,
+          "units": [
+            {"id": 47, "n": "Product, Quotient & Power Rules (Integer Exponents)", "t": "f", "nt": "Covers aᵐ·aⁿ = aᵐ⁺ⁿ, aᵐ/aⁿ = aᵐ⁻ⁿ, (aᵐ)ⁿ = aᵐⁿ; excludes fractional exponents.", "l": [[4, "h"]]},
+            {"id": 48, "n": "Zero & Negative Exponents", "t": "f", "nt": "Covers a⁰ = 1 (a≠0), a⁻ⁿ = 1/aⁿ, simplifying expressions with negative exponents; excludes rational exponents.", "l": [[47, "h"]]},
+            {"id": 49, "n": "Scientific Notation", "t": "f", "nt": "Covers converting between decimal and a×10ᵏ, operations (multiply/divide) using exponent rules; excludes significant figures and engineering notation.", "l": [[48, "h"]]}
+          ]
+        },
+        {
+          "cl": 15,
+          "units": [
+            {"id": 50, "n": "Exponential Growth & Decay", "t": "f", "nt": "Covers form y = a·bˣ, growth factor >1, decay factor <1; applications to population, half‑life; excludes continuous compounding e.", "l": [[48, "h"]]},
+            {"id": 51, "n": "Graphing Exponential Functions", "t": "f", "nt": "Covers y‑intercept, horizontal asymptote (y=0), monotonic behavior, transformations (shifts); excludes natural exponential.", "l": [[50, "h"]]},
+            {"id": 52, "n": "Simple & Compound Interest", "t": "f", "nt": "Covers I = Prt, A = P(1+rt), compound A = P(1+r/n)ⁿᵗ; excludes continuous compounding.", "l": [[50, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 8,
+      "clusters": [
+        {
+          "cl": 16,
+          "units": [
+            {"id": 53, "n": "Translating Phrases to Expressions & Equations", "t": "f", "nt": "Covers key words for operations, inequalities, equals; converting sentences to algebra; excludes complex multi‑step translations.", "l": [[3, "h"]]},
+            {"id": 54, "n": "Consecutive Integer, Age & Number Problems", "t": "f", "nt": "Covers defining variables, setting up linear equations, solving; integer patterns (n, n+1), age relationships.", "l": [[53, "h"], [6, "h"]]},
+            {"id": 55, "n": "Percent, Ratio & Proportion Problems", "t": "f", "nt": "Covers percent equation, percent change, ratios, cross‑multiplication; unit conversions; excludes mixing with quadratics.", "l": [[54, "h"]]},
+            {"id": 56, "n": "Geometry Word Problems (Perimeter, Area)", "t": "f", "nt": "Covers rectangle perimeter and area, triangle perimeter, circle circumference/area; using formulas to set up equations; excludes volume and Pythagorean theorem problems.", "l": [[55, "h"]]}
+          ]
+        }
+      ]
+    }
+  ]
+}

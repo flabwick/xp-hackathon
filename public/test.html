@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test — AI Response</title>
+  <title>Test Mode</title>
 
   <!-- KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-    onload="onKatexReady()"></script>
+    onload="window._katexReady = true; if(window._pendingMathRender) window._pendingMathRender()"></script>
+
+  <!-- QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,393 +46,576 @@
       align-items: center;
       gap: 16px;
       flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
-
-    header h1 {
-      font-size: 1.35rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -0.02em;
-    }
-
+    header h1 { font-size: 1.35rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; }
     .header-badge {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      background: #000;
-      color: #fde047;
-      padding: 2px 8px;
-      letter-spacing: 0.08em;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      background: #000; color: #fde047; padding: 2px 8px; letter-spacing: 0.08em;
     }
-
-    .header-btns {
-      margin-left: auto;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
+    .header-btns { margin-left: auto; display: flex; gap: 10px; align-items: center; }
     .btn {
-      font-family: var(--font-sans);
-      font-weight: 700;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border: 2px solid #000;
-      padding: 6px 16px;
-      cursor: pointer;
-      box-shadow: var(--shadow-brutal-sm);
-      background: #fff;
-      text-decoration: none;
-      color: #000;
-      display: inline-block;
+      font-family: var(--font-sans); font-weight: 700; font-size: 0.8rem;
+      text-transform: uppercase; letter-spacing: 0.05em; border: 2px solid #000;
+      padding: 6px 16px; cursor: pointer; box-shadow: var(--shadow-brutal-sm);
+      background: #fff; text-decoration: none; color: #000; display: inline-block;
     }
+    .btn:active { transform: translate(2px, 2px); box-shadow: none; }
+    .btn-yellow { background: #fde047; }
+    .btn-green  { background: #4ade80; }
+    .btn-purple { background: #c084fc; }
+    .btn-red    { background: #f87171; }
 
-    .btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: none;
-    }
+    /* ─── MAIN ───────────────────────────────── */
+    main { flex: 1; padding: 32px 40px; max-width: 900px; width: 100%; margin: 0 auto; }
 
-    .btn-back { background: #fff; }
-    .btn-back:hover { background: #f0f0f0; }
-
-    /* ─── MAIN CONTENT ───────────────────────── */
-    main {
-      flex: 1;
-      padding: 32px 40px;
-      max-width: 860px;
-      width: 100%;
-      margin: 0 auto;
-    }
+    /* ─── PHASES ─────────────────────────────── */
+    .phase { display: none; }
+    .phase.active { display: block; }
 
     /* ─── SECTION LABEL ─────────────────────── */
     .section-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #666;
-      margin-bottom: 12px;
-    }
-
-    /* ─── RESPONSE WRAPPER ───────────────────── */
-    .response-block {
-      border: 2px solid #000;
-      box-shadow: var(--shadow-brutal-lg);
-      margin-bottom: 32px;
-    }
-
-    .response-header {
-      background: #000;
-      color: #fde047;
-      padding: 10px 18px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-family: var(--font-mono);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .response-header .dot {
-      width: 8px;
-      height: 8px;
-      background: #4ade80;
-      border: 1.5px solid #fff;
-      display: inline-block;
-    }
-
-    .response-meta {
-      background: #f5f5f5;
-      border-bottom: 2px solid #000;
-      padding: 8px 18px;
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      color: #444;
-      display: flex;
-      gap: 20px;
-    }
-
-    /* ─── QUESTION LIST ──────────────────────── */
-    .question-list {
-      padding: 0;
-    }
-
-    .question-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      border-bottom: 2px solid #000;
-    }
-
-    .question-card:last-child {
-      border-bottom: none;
-    }
-
-    .q-num {
-      flex-shrink: 0;
-      width: 52px;
-      background: #fde047;
-      border-right: 2px solid #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      font-weight: 900;
-      font-family: var(--font-mono);
-      padding: 20px 0;
-      align-self: stretch;
-    }
-
-    .q-body {
-      flex: 1;
-      padding: 18px 22px;
-      font-size: 1rem;
-      line-height: 1.65;
-      color: #111;
-    }
-
-    .q-body .katex-display {
-      margin: 0.6rem 0;
-      overflow-x: auto;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: #666; margin-bottom: 12px;
     }
 
     /* ─── STATS BAR ──────────────────────────── */
     .stats-bar {
-      border: 2px solid #000;
-      box-shadow: var(--shadow-brutal-sm);
-      display: flex;
-      overflow: hidden;
-      margin-bottom: 24px;
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-sm);
+      display: flex; overflow: hidden; margin-bottom: 24px;
     }
-
-    .stat-cell {
-      flex: 1;
-      padding: 12px 16px;
-      border-right: 2px solid #000;
-    }
-
+    .stat-cell { flex: 1; padding: 12px 16px; border-right: 2px solid #000; }
     .stat-cell:last-child { border-right: none; }
+    .stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #666; margin-bottom: 2px; }
+    .stat-value { font-size: 1.4rem; font-weight: 900; font-family: var(--font-mono); }
 
-    .stat-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #666;
-      margin-bottom: 2px;
+    /* ─── RESPONSE BLOCK (questions) ─────────── */
+    .response-block { border: 2px solid #000; box-shadow: var(--shadow-brutal-lg); margin-bottom: 32px; }
+    .response-header {
+      background: #000; color: #fde047; padding: 10px 18px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: var(--font-mono);
+      display: flex; align-items: center; gap: 12px;
     }
+    .response-header .dot { width: 8px; height: 8px; background: #4ade80; border: 1.5px solid #fff; display: inline-block; }
+    .response-meta {
+      background: #f5f5f5; border-bottom: 2px solid #000; padding: 8px 18px;
+      font-size: 0.72rem; font-family: var(--font-mono); color: #444; display: flex; gap: 20px;
+    }
+    .question-list { padding: 0; }
+    .question-card { display: flex; align-items: flex-start; gap: 0; border-bottom: 2px solid #000; }
+    .question-card:last-child { border-bottom: none; }
+    .q-num {
+      flex-shrink: 0; width: 52px; background: #fde047; border-right: 2px solid #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; font-family: var(--font-mono);
+      padding: 20px 0; align-self: stretch;
+    }
+    .q-body { flex: 1; padding: 18px 22px; font-size: 1rem; line-height: 1.65; color: #111; }
+    .q-body .katex-display { margin: 0.6rem 0; overflow-x: auto; }
 
-    .stat-value {
-      font-size: 1.4rem;
-      font-weight: 900;
-      font-family: var(--font-mono);
+    /* ─── ANSWERS BLOCK ──────────────────────── */
+    .answers-block { border: 2px solid #000; box-shadow: var(--shadow-brutal-lg); margin-bottom: 32px; }
+    .answers-header {
+      background: #000; color: #fde047; padding: 10px 18px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: var(--font-mono);
+      display: flex; align-items: center; gap: 12px;
     }
+    .answer-row { display: flex; align-items: flex-start; border-bottom: 2px solid #000; }
+    .answer-row:last-child { border-bottom: none; }
+    .a-num {
+      flex-shrink: 0; width: 52px; background: #e0f2fe; border-right: 2px solid #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; font-family: var(--font-mono);
+      padding: 20px 0; align-self: stretch;
+    }
+    .a-body { flex: 1; padding: 14px 18px; }
+    .a-body textarea {
+      width: 100%; min-height: 90px; padding: 10px 12px;
+      font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.6;
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-sm);
+      resize: vertical; background: #fff; color: #111;
+      outline: none;
+    }
+    .a-body textarea:focus { background: #fffff0; box-shadow: var(--shadow-brutal); }
+    .a-body textarea.ocr-filled { background: #f0fdf4; border-color: #16a34a; }
 
-    /* ─── LOADING BLOCK ──────────────────────── */
-    .loading-wrap {
-      border: 2px solid #000;
-      box-shadow: var(--shadow-brutal-lg);
-      margin-bottom: 32px;
-      overflow: hidden;
+    /* ─── CAMERA BTN ─────────────────────────── */
+    .camera-btn-wrap { margin-left: auto; }
+    .btn-camera {
+      font-family: var(--font-mono); font-weight: 700; font-size: 0.7rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 2px solid #000; padding: 5px 12px; cursor: pointer;
+      box-shadow: var(--shadow-brutal-sm); background: #818cf8; color: #fff;
     }
+    .btn-camera:active { transform: translate(2px, 2px); box-shadow: none; }
 
-    .loading-header {
-      background: #000;
-      color: #fde047;
-      padding: 14px 20px;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* ─── SUBMIT BAR ─────────────────────────── */
+    .submit-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 32px; }
+    .btn-submit {
+      font-family: var(--font-sans); font-weight: 900; font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border: 2px solid #000; padding: 14px 36px; cursor: pointer;
+      box-shadow: var(--shadow-brutal); background: #4ade80; color: #000;
     }
+    .btn-submit:hover { background: #22c55e; }
+    .btn-submit:active { transform: translate(4px, 4px); box-shadow: none; }
+    .btn-submit:disabled { background: #d1d5db; cursor: not-allowed; }
+    .submit-hint { font-size: 0.72rem; font-family: var(--font-mono); color: #888; }
 
-    .loading-body {
-      padding: 40px 32px 36px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 28px;
+    /* ─── LOADING SPINNER ────────────────────── */
+    .loading-block {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-lg); padding: 48px 32px;
+      text-align: center; margin-bottom: 32px;
     }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid #000; border-top-color: #fde047;
+      border-radius: 0; animation: spin 0.8s linear infinite; margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .loading-sub { font-size: 0.78rem; font-family: var(--font-mono); color: #555; }
 
-    .loading-label {
-      font-size: 1.5rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: -0.02em;
+    /* ─── ERROR STATE ─────────────────────────── */
+    .error-block {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-lg);
+      background: #fca5a5; padding: 24px 28px; margin-bottom: 24px;
     }
+    .error-block h3 { font-weight: 900; text-transform: uppercase; margin-bottom: 8px; }
+    .error-block p { font-family: var(--font-mono); font-size: 0.82rem; }
 
-    .loading-sub {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    /* ─── RESULTS ─────────────────────────────── */
+    .result-card {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal); margin-bottom: 16px; overflow: hidden;
     }
+    .result-header { display: flex; align-items: stretch; gap: 0; border-bottom: 2px solid #000; }
+    .result-num {
+      flex-shrink: 0; width: 52px; background: #f5f5f5; border-right: 2px solid #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; font-family: var(--font-mono); padding: 14px 0;
+    }
+    .result-state {
+      padding: 10px 18px; font-weight: 900; font-size: 0.85rem;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 10px; flex: 1;
+    }
+    .state-mastered { background: #c084fc; }
+    .state-pass     { background: #4ade80; }
+    .state-partial  { background: #fde047; }
+    .state-incorrect{ background: #f87171; }
+    .result-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .result-section-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 4px; }
+    .result-feedback { font-size: 0.9rem; line-height: 1.55; }
+    .result-example {
+      font-size: 0.85rem; line-height: 1.55; font-family: var(--font-mono);
+      background: #f5f5f5; border: 2px solid #000; padding: 10px 14px;
+    }
+    .result-answer { font-size: 0.85rem; line-height: 1.55; color: #333; font-style: italic; }
 
-    /* Striped animated bar */
-    .progress-track {
-      width: 100%;
-      height: 28px;
-      border: 2px solid #000;
-      background: #f5f5f5;
-      overflow: hidden;
-      position: relative;
+    details.example-toggle summary {
+      cursor: pointer; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: #666;
+      list-style: none; user-select: none;
     }
+    details.example-toggle summary::before { content: '▶ '; }
+    details.example-toggle[open] summary::before { content: '▼ '; }
 
-    .progress-fill {
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        -45deg,
-        #fde047 0px,
-        #fde047 16px,
-        #000 16px,
-        #000 20px
-      );
-      background-size: 28px 28px;
-      animation: march 0.6s linear infinite;
-      transform-origin: left;
+    /* ─── TEACH BTN ─────────────────────────── */
+    .btn-teach {
+      font-family: var(--font-sans); font-weight: 900; font-size: 0.9rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border: 2px solid #000; padding: 14px 28px; cursor: pointer;
+      box-shadow: var(--shadow-brutal); background: #818cf8; color: #fff;
     }
+    .btn-teach:hover { background: #6366f1; }
+    .btn-teach:active { transform: translate(4px,4px); box-shadow: none; }
 
-    @keyframes march {
-      from { background-position: 0 0; }
-      to   { background-position: 28px 0; }
+    /* ─── XP SUMMARY ─────────────────────────── */
+    .xp-total-row {
+      background: #fde047; border-bottom: 2px solid #000;
+      padding: 16px 20px; display: flex; align-items: center; gap: 16px;
     }
+    .xp-total-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; }
+    .xp-total-value { font-family: var(--font-mono); font-weight: 900; font-size: 2rem; color: #16a34a; }
+    .xp-summary-block {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-lg);
+      margin-bottom: 32px; overflow: hidden;
+    }
+    .xp-summary-header {
+      background: #000; color: #fde047; padding: 10px 18px;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: var(--font-mono);
+    }
+    .xp-row {
+      display: flex; align-items: flex-start; flex-direction: column;
+      padding: 14px 20px; border-bottom: 2px solid #000; gap: 8px;
+    }
+    .xp-row:last-child { border-bottom: none; }
+    .xp-row-top { display: flex; align-items: center; width: 100%; gap: 12px; }
+    .xp-unit-name { flex: 1; font-weight: 700; font-size: 0.9rem; }
+    .xp-delta { font-family: var(--font-mono); font-weight: 900; font-size: 1.1rem; color: #16a34a; }
+    .xp-band-change { font-family: var(--font-mono); font-size: 0.75rem; color: #555; }
+    .band-up { color: #c026d3; font-weight: 700; }
+    .xp-bar-wrap { width: 100%; }
+    .xp-bar-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 4px; font-family: var(--font-mono); display: flex; justify-content: space-between; }
+    .xp-bar-track { height: 10px; background: #e5e7eb; border: 2px solid #000; position: relative; overflow: hidden; }
+    .xp-bar-fill { height: 100%; background: #4ade80; width: 0%; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
+    .xp-bar-fill.band-shifted { background: #c084fc; }
 
-    /* ─── ERROR BLOCK ────────────────────────── */
-    .error-wrap {
-      border: 2px solid #000;
-      box-shadow: var(--shadow-brutal-lg);
-      margin-bottom: 32px;
-      overflow: hidden;
+    /* ─── QR MODAL ───────────────────────────── */
+    dialog#qr-modal {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-lg); padding: 0;
+      max-width: 400px; width: 100%;
     }
+    dialog#qr-modal::backdrop { background: rgba(0,0,0,0.5); }
+    .modal-header {
+      background: #000; color: #fde047; padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; font-family: var(--font-mono);
+    }
+    .modal-body { padding: 24px 20px; }
+    .qr-wrap {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; margin-bottom: 16px; background: #fff;
+    }
+    .qr-hint {
+      font-size: 0.78rem; font-family: var(--font-mono); color: #555;
+      text-align: center; margin-bottom: 16px; line-height: 1.5;
+    }
+    .qr-status {
+      border: 2px solid #000; padding: 10px 14px;
+      font-size: 0.75rem; font-family: var(--font-mono);
+      display: flex; align-items: center; gap: 10px;
+      text-transform: uppercase; font-weight: 700; margin-bottom: 12px;
+    }
+    .qr-status-dot { width: 8px; height: 8px; border: 1.5px solid #000; flex-shrink: 0; }
+    .qr-status-dot.waiting  { background: #fde047; animation: blink 1.2s infinite; }
+    .qr-status-dot.processing { background: #818cf8; animation: blink 0.6s infinite; }
+    .qr-status-dot.complete { background: #4ade80; }
+    .qr-status-dot.error    { background: #f87171; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .error-header {
-      background: #000;
-      color: #f87171;
-      padding: 14px 20px;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    .btn-close-modal {
+      font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem;
+      text-transform: uppercase; border: 2px solid #fde047; padding: 4px 10px;
+      cursor: pointer; background: #000; color: #fde047;
     }
+    .btn-close-modal:active { opacity: 0.7; }
 
-    .error-body {
-      padding: 24px 28px;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #000;
-      border-top: 2px solid #000;
-      background: #fef2f2;
+    /* ─── NO SESSION ─────────────────────────── */
+    .no-session-block {
+      border: 2px solid #000; box-shadow: var(--shadow-brutal-lg);
+      padding: 48px 32px; text-align: center;
     }
+    .no-session-block h2 { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; }
+    .no-session-block p { font-family: var(--font-mono); font-size: 0.82rem; color: #555; margin-bottom: 20px; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Test Mode</h1>
-    <span class="header-badge">AI Response</span>
+    <span class="header-badge" id="header-badge">Loading</span>
     <div class="header-btns">
-      <a href="/" class="btn btn-back">← Back</a>
+      <a href="/" class="btn">← Back</a>
+      <button class="btn btn-red" id="btn-reset" style="display:none" onclick="resetSession()">Reset</button>
     </div>
   </header>
 
   <main>
-
-    <div class="section-label">Response</div>
-
-    <div class="stats-bar">
-      <div class="stat-cell">
-        <div class="stat-label">Questions</div>
-        <div class="stat-value" id="stat-count">—</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">Mode</div>
-        <div class="stat-value" style="font-size:1rem;padding-top:4px">Test</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">Status</div>
-        <div class="stat-value" style="font-size:1rem;padding-top:4px" id="stat-status">—</div>
+    <!-- PHASE: NO SESSION -->
+    <div class="phase active" id="phase-no-session">
+      <div class="no-session-block">
+        <h2>No Test Session</h2>
+        <p>Select a domain and units from the home page, then click TEST.</p>
+        <a href="/" class="btn btn-yellow" style="display:inline-block">← Go Home</a>
       </div>
     </div>
 
-    <!-- Loading state -->
-    <div id="loading-block" class="loading-wrap" style="display:none">
-      <div class="loading-header">
-        <span style="width:8px;height:8px;background:#fde047;border:1.5px solid #fde047;display:inline-block"></span>
-        Generating Test
+    <!-- PHASE: LOADING -->
+    <div class="phase" id="phase-loading">
+      <div class="loading-block">
+        <div class="spinner"></div>
+        <div class="loading-title" id="loading-title">Generating Questions</div>
+        <div class="loading-sub" id="loading-sub">Asking AI to write your exam...</div>
       </div>
-      <div class="loading-body">
-        <div class="loading-label">Building your questions…</div>
-        <div class="progress-track" style="width:100%">
-          <div class="progress-fill"></div>
+    </div>
+
+    <!-- PHASE: ERROR -->
+    <div class="phase" id="phase-error">
+      <div class="error-block">
+        <h3>Something went wrong</h3>
+        <p id="error-msg"></p>
+      </div>
+      <a href="/" class="btn">← Go Home</a>
+    </div>
+
+    <!-- PHASE: ANSWERING -->
+    <div class="phase" id="phase-answering">
+      <div class="section-label">Response</div>
+
+      <div class="stats-bar">
+        <div class="stat-cell">
+          <div class="stat-label">Questions</div>
+          <div class="stat-value" id="stat-count">—</div>
         </div>
-        <div class="loading-sub">Groq &mdash; llama-3.3-70b-versatile</div>
+        <div class="stat-cell">
+          <div class="stat-label">Domain</div>
+          <div class="stat-value" id="stat-domain" style="font-size:0.9rem;padding-top:6px">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="stat-status" style="font-size:0.9rem;padding-top:6px;color:#16a34a">Ready</div>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div class="response-block">
+        <div class="response-header">
+          <span class="dot"></span>
+          AI Response
+          <span style="margin-left:auto;font-weight:400;opacity:0.7" id="response-timestamp"></span>
+        </div>
+        <div class="response-meta" id="response-meta"></div>
+        <div class="question-list" id="question-list"></div>
+      </div>
+
+      <!-- Answers -->
+      <div class="section-label">Your Answers</div>
+      <div class="answers-block">
+        <div class="answers-header">
+          <span>✏ Write Your Answers</span>
+          <div class="camera-btn-wrap">
+            <button class="btn-camera" id="camera-open-btn" onclick="openQRModal()">📷 Camera Upload</button>
+          </div>
+        </div>
+        <div id="answer-list"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-bar">
+        <button class="btn-submit" id="submit-btn" onclick="submitAnswers()">Submit Answers →</button>
+        <button class="btn-teach" onclick="openTeachMode(false)">Explain with AI →</button>
+        <span class="submit-hint">Answers are auto-saved. Submit when done.</span>
       </div>
     </div>
 
-    <!-- Error state -->
-    <div id="error-block" class="error-wrap" style="display:none">
-      <div class="error-header">!! Error</div>
-      <div class="error-body" id="error-msg"></div>
-    </div>
-
-    <!-- Results -->
-    <div class="response-block" id="results-block" style="display:none">
-      <div class="response-header">
-        <span class="dot"></span>
-        AI Response
-        <span style="margin-left:auto;font-weight:400;opacity:0.7" id="response-timestamp"></span>
+    <!-- PHASE: SUBMITTING -->
+    <div class="phase" id="phase-submitting">
+      <div class="loading-block">
+        <div class="spinner"></div>
+        <div class="loading-title">Marking Your Answers</div>
+        <div class="loading-sub">AI is reviewing your responses...</div>
       </div>
-      <div class="response-meta" id="response-meta"></div>
-      <div class="question-list" id="question-list"></div>
     </div>
 
+    <!-- PHASE: RESULTS -->
+    <div class="phase" id="phase-results">
+      <div class="section-label">Results</div>
+
+      <div class="stats-bar" id="results-stats-bar">
+        <div class="stat-cell">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="res-total">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Passed</div>
+          <div class="stat-value" id="res-pass" style="color:#16a34a">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Partial</div>
+          <div class="stat-value" id="res-partial" style="color:#ca8a04">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Incorrect</div>
+          <div class="stat-value" id="res-incorrect" style="color:#dc2626">—</div>
+        </div>
+      </div>
+
+      <div id="xp-summary-block"></div>
+      <div id="result-list"></div>
+
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+        <a href="/" class="btn btn-yellow">← Home</a>
+        <button class="btn btn-green" onclick="retakeTest()">Retake Test</button>
+        <button class="btn-teach" onclick="openTeachMode(true)">Explain with AI →</button>
+      </div>
+    </div>
   </main>
 
+  <!-- QR MODAL -->
+  <dialog id="qr-modal">
+    <div class="modal-header">
+      <span>📷 Camera Upload</span>
+      <button class="btn-close-modal" onclick="closeQRModal()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="qr-wrap">
+        <div id="qr-canvas"></div>
+      </div>
+      <div class="qr-hint">
+        Scan with your phone camera to open the upload page.<br>
+        Take photos of your written answers (one per question).
+      </div>
+      <div class="qr-status">
+        <div class="qr-status-dot waiting" id="qr-status-dot"></div>
+        <span id="qr-status-text">Waiting for upload...</span>
+      </div>
+      <div class="qr-hint" id="qr-url-display" style="word-break:break-all;font-size:0.7rem;color:#999;margin-bottom:0"></div>
+    </div>
+  </dialog>
+
   <script>
-    let questions = null;
-    let katexReady = false;
+    // ─── STATE ───────────────────────────────────────────────────────────────────
+    let domain = null;
+    let unitIds = [];
+    let questions = [];
+    let qrToken = null;
+    let qrPollInterval = null;
+    let cacheKey = null;
 
-    function setStatus(text, color) {
-      const el = document.getElementById('stat-status');
-      if (el) { el.textContent = text; if (color) el.style.color = color; }
+    const params = new URLSearchParams(window.location.search);
+    const paramDomain = params.get('domain');
+    const paramUnits = params.get('units');
+
+    // ─── PHASE CONTROL ───────────────────────────────────────────────────────────
+    function showPhase(id) {
+      document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
     }
 
-    function showError(msg) {
-      console.error('[test]', msg);
-      document.getElementById('loading-block').style.display = 'none';
-      document.getElementById('error-msg').textContent = msg;
-      document.getElementById('error-block').style.display = '';
-      setStatus('Error', '#b91c1c');
+    function setBadge(text, bg = '#000', fg = '#fde047') {
+      const b = document.getElementById('header-badge');
+      b.textContent = text;
+      b.style.background = bg;
+      b.style.color = fg;
     }
 
-    function renderQuestions() {
-      if (!questions || !katexReady) return;
+    // ─── INIT ────────────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Priority: sessionStorage (set by master's app.js) → URL params → localStorage
+      const sessionRaw = sessionStorage.getItem('testParams');
+      if (sessionRaw) {
+        try {
+          const p = JSON.parse(sessionRaw);
+          domain = p.domain;
+          unitIds = Array.isArray(p.unitIds) ? p.unitIds : [];
+          sessionStorage.removeItem('testParams');
+        } catch (_) {}
+      } else if (paramDomain && paramUnits) {
+        domain = paramDomain;
+        unitIds = paramUnits.split(',').map(Number).filter(n => !isNaN(n));
+        localStorage.setItem('test_domain', domain);
+        localStorage.setItem('test_unitIds', paramUnits);
+      } else {
+        domain = localStorage.getItem('test_domain');
+        const stored = localStorage.getItem('test_unitIds');
+        unitIds = stored ? stored.split(',').map(Number).filter(n => !isNaN(n)) : [];
+      }
 
-      const list = document.getElementById('question-list');
-      const responseMeta = document.getElementById('response-meta');
-      const responseTimestamp = document.getElementById('response-timestamp');
+      if (!domain || unitIds.length === 0) {
+        setBadge('No Session');
+        showPhase('phase-no-session');
+        return;
+      }
 
-      responseTimestamp.textContent = new Date().toLocaleTimeString();
-      responseMeta.innerHTML = `<span>questions: ${questions.length}</span><span>provider: groq</span><span>type: structured_json</span>`;
+      document.getElementById('btn-reset').style.display = '';
+      cacheKey = `test_session_${domain}_${[...unitIds].sort().join('_')}`;
 
-      list.innerHTML = questions.map(q => `
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw) {
+        try {
+          const cached = JSON.parse(cachedRaw);
+          if (cached.questions && cached.questions.length > 0) {
+            questions = cached.questions;
+            renderAnsweringPhase();
+            return;
+          }
+        } catch (_) {}
+      }
+
+      fetchQuestions();
+    });
+
+    // ─── FETCH QUESTIONS ─────────────────────────────────────────────────────────
+    async function fetchQuestions() {
+      setBadge('Generating');
+      showPhase('phase-loading');
+
+      try {
+        const res = await fetch('/api/test/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, unitIds })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'Generation failed');
+
+        questions = data.questions;
+        localStorage.setItem(cacheKey, JSON.stringify({ questions, generatedAt: Date.now() }));
+        renderAnsweringPhase();
+      } catch (err) {
+        setBadge('Error', '#ef4444', '#fff');
+        document.getElementById('error-msg').textContent = err.message;
+        showPhase('phase-error');
+      }
+    }
+
+    // ─── RENDER ANSWERING PHASE ───────────────────────────────────────────────────
+    function renderAnsweringPhase() {
+      setBadge('AI Response', '#000', '#fde047');
+      document.getElementById('stat-count').textContent = questions.length;
+      document.getElementById('stat-domain').textContent = domain;
+      document.getElementById('response-timestamp').textContent = new Date().toLocaleTimeString();
+      document.getElementById('response-meta').innerHTML =
+        `<span>questions: ${questions.length}</span><span>type: structured_json</span><span>domain: ${domain}</span>`;
+
+      // Questions
+      const qList = document.getElementById('question-list');
+      qList.innerHTML = questions.map(q => `
         <div class="question-card">
           <div class="q-num">${q.id}</div>
           <div class="q-body" id="q-body-${q.id}">${q.question}</div>
         </div>
       `).join('');
 
+      // Answers
+      const aList = document.getElementById('answer-list');
+      aList.innerHTML = questions.map(q => `
+        <div class="answer-row">
+          <div class="a-num">${q.id}</div>
+          <div class="a-body">
+            <textarea
+              id="ans-${q.id}"
+              placeholder="Write your answer for question ${q.id} here..."
+              oninput="saveAnswer(${q.id}, this.value)"
+            ></textarea>
+          </div>
+        </div>
+      `).join('');
+
+      // Restore cached answers
+      questions.forEach(q => {
+        const saved = localStorage.getItem(`${cacheKey}_ans_${q.id}`);
+        if (saved) {
+          const ta = document.getElementById(`ans-${q.id}`);
+          if (ta) ta.value = saved;
+        }
+      });
+
+      showPhase('phase-answering');
+
+      // Render math in questions
+      window._pendingMathRender = renderMath;
+      if (window._katexReady) renderMath();
+    }
+
+    function renderMath() {
       questions.forEach(q => {
         const el = document.getElementById(`q-body-${q.id}`);
         if (el) {
@@ -444,66 +630,346 @@
           });
         }
       });
-
-      document.getElementById('loading-block').style.display = 'none';
-      document.getElementById('results-block').style.display = '';
-      document.getElementById('stat-count').textContent = questions.length;
-      setStatus('Ready', '#16a34a');
     }
 
-    function onKatexReady() {
-      katexReady = true;
-      renderQuestions();
+    // ─── CACHE ANSWERS ────────────────────────────────────────────────────────────
+    function saveAnswer(qId, value) {
+      localStorage.setItem(`${cacheKey}_ans_${qId}`, value);
     }
 
-    async function fetchQuestions(domain, unitIds) {
-      console.log('[test] fetching', { domain, unitIds });
-      const res = await fetch('/api/test/compile-and-generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain, unitIds })
+    // ─── SUBMIT ANSWERS ───────────────────────────────────────────────────────────
+    async function submitAnswers() {
+      const answers = questions.map(q => ({
+        id: q.id,
+        answer: (document.getElementById(`ans-${q.id}`)?.value || '').trim() || '(no answer)'
+      }));
+
+      setBadge('Marking');
+      showPhase('phase-submitting');
+
+      try {
+        const res = await fetch('/api/test/mark', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, unitIds, questions, answers })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'Marking failed');
+        window._lastMarkResults = data;
+        renderResults(data, answers);
+      } catch (err) {
+        setBadge('Error', '#ef4444', '#fff');
+        document.getElementById('error-msg').textContent = err.message;
+        showPhase('phase-error');
+      }
+    }
+
+    // ─── RENDER RESULTS ───────────────────────────────────────────────────────────
+    function renderResults(data, answers) {
+      setBadge('Results', '#4ade80', '#000');
+
+      const { results, xpResult } = data;
+      const answerMap = Object.fromEntries(answers.map(a => [a.id, a.answer]));
+
+      const total = results.length;
+      const passed = results.filter(r => r.state === 'Mastered' || r.state === 'Pass').length;
+      const partial = results.filter(r => r.state === 'Partial').length;
+      const incorrect = results.filter(r => r.state === 'Incorrect').length;
+
+      document.getElementById('res-total').textContent = total;
+      document.getElementById('res-pass').textContent = passed;
+      document.getElementById('res-partial').textContent = partial;
+      document.getElementById('res-incorrect').textContent = incorrect;
+
+      // XP Summary
+      const xpBlock = document.getElementById('xp-summary-block');
+      if (xpResult && xpResult.results && xpResult.results.length > 0) {
+        const totalXP = xpResult.results.reduce((sum, x) => sum + x.delta, 0);
+        const xpRows = xpResult.results.map(x => `
+          <div class="xp-row">
+            <div class="xp-row-top">
+              <div class="xp-unit-name">Unit ${x.unitId}</div>
+              <div class="xp-delta">+${x.delta} XP</div>
+              <div class="xp-band-change">
+                ${x.bandShifted
+                  ? `<span class="band-up">Band ${x.oldBand} → ${x.newBand} ↑</span>`
+                  : `Band ${x.newBand}`
+                }
+              </div>
+            </div>
+            <div class="xp-bar-wrap">
+              <div class="xp-bar-label">
+                <span>Band ${x.newBand}</span>
+                <span>${bandRangeText(x.newBand, x.newCum)}</span>
+              </div>
+              <div class="xp-bar-track">
+                <div class="xp-bar-fill ${x.bandShifted ? 'band-shifted' : ''}"
+                     id="xp-bar-${x.unitId}" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        xpBlock.innerHTML = `
+          <div class="xp-summary-block">
+            <div class="xp-summary-header">⚡ XP Gained — Session ${xpResult.sessionId}</div>
+            <div class="xp-total-row">
+              <div class="xp-total-label">Total XP This Session</div>
+              <div class="xp-total-value">+${totalXP}</div>
+            </div>
+            ${xpRows}
+          </div>
+        `;
+        // Animate bars after DOM paint
+        requestAnimationFrame(() => {
+          xpResult.results.forEach(x => {
+            const bar = document.getElementById(`xp-bar-${x.unitId}`);
+            if (bar) requestAnimationFrame(() => {
+              bar.style.width = xpBarFill(x.newCum, x.newBand) + '%';
+            });
+          });
+        });
+      } else {
+        xpBlock.innerHTML = '';
+      }
+
+      // Result cards
+      const stateClass = { Mastered: 'state-mastered', Pass: 'state-pass', Partial: 'state-partial', Incorrect: 'state-incorrect' };
+      const stateEmoji = { Mastered: '⭐', Pass: '✓', Partial: '~', Incorrect: '✗' };
+
+      const qMap = Object.fromEntries(questions.map(q => [q.id, q.question]));
+
+      const resultCards = results.map(r => `
+        <div class="result-card">
+          <div class="result-header">
+            <div class="result-num">${r.id}</div>
+            <div class="result-state ${stateClass[r.state] || ''}">
+              <span>${stateEmoji[r.state] || ''}</span>
+              <span>${r.state}</span>
+            </div>
+          </div>
+          <div class="result-body">
+            <div>
+              <div class="result-section-label">Question</div>
+              <div class="result-feedback" id="rq-body-${r.id}">${qMap[r.id] || ''}</div>
+            </div>
+            <div>
+              <div class="result-section-label">Your Answer</div>
+              <div class="result-answer">${escapeHtml(answerMap[r.id] || '(no answer)')}</div>
+            </div>
+            <div>
+              <div class="result-section-label">Feedback</div>
+              <div class="result-feedback">${escapeHtml(r.feedback)}</div>
+            </div>
+            ${r.exampleAnswer ? `
+            <details class="example-toggle">
+              <summary>Show Example Answer</summary>
+              <div class="result-example" style="margin-top:8px">${escapeHtml(r.exampleAnswer)}</div>
+            </details>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('result-list').innerHTML = resultCards;
+      showPhase('phase-results');
+
+      // Render math in question text inside results
+      results.forEach(r => {
+        const el = document.getElementById(`rq-body-${r.id}`);
+        if (el && window._katexReady) {
+          renderMathInElement(el, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            throwOnError: false
+          });
+        }
       });
-      console.log('[test] response status:', res.status);
-      if (!res.ok) {
-        let errMsg = `HTTP ${res.status}`;
-        try { errMsg = (await res.json()).error || errMsg; } catch (_) {}
-        throw new Error(errMsg);
-      }
-      const data = await res.json();
-      console.log('[test] received', data);
-      return data.questions;
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const raw = sessionStorage.getItem('testParams');
-      console.log('[test] testParams:', raw);
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-      if (!raw) { showError('No test params found. Go back and select units first.'); return; }
+    // ─── XP HELPERS ──────────────────────────────────────────────────────────────
+    const BAND_THRESHOLDS = [0, 150, 600, 1500, 2400];
+    const BAND_NAMES = ['I', 'II', 'III', 'IV', 'V'];
 
-      let params;
+    function xpBarFill(newCum, newBand) {
+      const idx = BAND_NAMES.indexOf(newBand);
+      if (idx < 0) return 0;
+      if (idx >= BAND_NAMES.length - 1) return 100;
+      const bandStart = BAND_THRESHOLDS[idx];
+      const bandEnd = BAND_THRESHOLDS[idx + 1];
+      const range = bandEnd - bandStart;
+      const within = Math.max(0, Math.min(newCum - bandStart, range));
+      return Math.round((within / range) * 100);
+    }
+
+    function bandRangeText(band, newCum) {
+      const idx = BAND_NAMES.indexOf(band);
+      if (idx < 0) return '';
+      if (idx >= BAND_NAMES.length - 1) return `${newCum} XP (Maxed)`;
+      const bandStart = BAND_THRESHOLDS[idx];
+      const bandEnd = BAND_THRESHOLDS[idx + 1];
+      return `${newCum - bandStart} / ${bandEnd - bandStart} XP`;
+    }
+
+    // ─── TEACH MODE ───────────────────────────────────────────────────────────────
+    function openTeachMode(withResults) {
+      const answers = questions.map(q => ({
+        id: q.id,
+        answer: (document.getElementById(`ans-${q.id}`)?.value || '').trim() || '(no answer)'
+      }));
+      const ctx = { domain, unitIds, questions, answers };
+      if (withResults && window._lastMarkResults) {
+        ctx.results = window._lastMarkResults.results;
+        ctx.xpResult = window._lastMarkResults.xpResult;
+      }
+      sessionStorage.setItem('teachContext', JSON.stringify(ctx));
+      window.location.href = '/teach';
+    }
+
+    // ─── QR MODAL ─────────────────────────────────────────────────────────────────
+    async function openQRModal() {
+      const modal = document.getElementById('qr-modal');
+
+      // Create server session
       try {
-        params = JSON.parse(raw);
-        sessionStorage.removeItem('testParams');
-      } catch (e) {
-        showError('Failed to parse test params: ' + e.message);
+        const res = await fetch('/api/answers/session', { method: 'POST' });
+        const data = await res.json();
+        qrToken = data.token;
+      } catch (err) {
+        alert('Could not create upload session: ' + err.message);
         return;
       }
 
-      if (!params.domain || !Array.isArray(params.unitIds) || !params.unitIds.length) {
-        showError('Invalid params — missing domain or unitIds.');
-        return;
-      }
-
-      setStatus('Generating…', '#d97706');
-      document.getElementById('loading-block').style.display = '';
-
+      // Use local IP so the phone can reach the server on the same network
+      let base = window.location.origin;
       try {
-        questions = await fetchQuestions(params.domain, params.unitIds);
-        renderQuestions();
-      } catch (e) {
-        showError(e.message);
+        const info = await fetch('/api/server-info').then(r => r.json());
+        base = `http://${info.ip}:${info.port}`;
+      } catch (_) {}
+
+      const uploadUrl = `${base}/mobile-upload?token=${qrToken}&q=${questions.length}`;
+      document.getElementById('qr-url-display').textContent = uploadUrl;
+
+      // Generate QR using qrcodejs (renders into a div, not canvas)
+      const container = document.getElementById('qr-canvas');
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: uploadUrl,
+        width: 220,
+        height: 220,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      setQRStatus('waiting', 'Waiting for upload...');
+      modal.showModal();
+      startQRPolling();
+    }
+
+    function closeQRModal() {
+      document.getElementById('qr-modal').close();
+      stopQRPolling();
+    }
+
+    function setQRStatus(type, text) {
+      const dot = document.getElementById('qr-status-dot');
+      dot.className = 'qr-status-dot ' + type;
+      document.getElementById('qr-status-text').textContent = text;
+    }
+
+    function startQRPolling() {
+      stopQRPolling();
+      qrPollInterval = setInterval(pollQRSession, 2000);
+    }
+
+    function stopQRPolling() {
+      if (qrPollInterval) { clearInterval(qrPollInterval); qrPollInterval = null; }
+    }
+
+    async function pollQRSession() {
+      if (!qrToken) return;
+      try {
+        const res = await fetch(`/api/answers/session/${qrToken}`);
+        if (!res.ok) return;
+        const session = await res.json();
+
+        if (session.status === 'processing') {
+          setQRStatus('processing', 'Processing images with OCR...');
+        } else if (session.status === 'complete') {
+          setQRStatus('complete', `Done! ${session.ocrResults.length} image(s) processed.`);
+          stopQRPolling();
+          applyOCRResults(session.ocrResults);
+          setTimeout(closeQRModal, 1500);
+        } else if (session.status === 'error') {
+          setQRStatus('error', 'OCR failed: ' + (session.error || 'unknown error'));
+          stopQRPolling();
+        }
+      } catch (_) {}
+    }
+
+    function applyOCRResults(ocrResults) {
+      const patterns = [
+        /^[Qq]\.?\s*(\d+)/,
+        /^[Aa]nswer\s+(\d+)/i,
+        /^(\d+)\s*[.):\-]/,
+      ];
+
+      ocrResults.forEach((result, i) => {
+        const text = result.text || '';
+        let targetQId = null;
+
+        // Try to detect which question number the image is answering
+        for (const pat of patterns) {
+          const m = text.trim().match(pat);
+          if (m) {
+            const num = parseInt(m[1], 10);
+            const q = questions.find(q => q.id === num);
+            if (q) { targetQId = num; break; }
+          }
+        }
+
+        // Fall back to positional order
+        if (targetQId === null) targetQId = questions[i]?.id;
+        if (targetQId === undefined || targetQId === null) return;
+
+        const ta = document.getElementById(`ans-${targetQId}`);
+        if (!ta) return;
+        const existing = ta.value.trim();
+        ta.value = existing ? `${existing}\n\n[OCR]\n${text}` : text;
+        ta.classList.add('ocr-filled');
+        saveAnswer(targetQId, ta.value);
+      });
+    }
+
+    // ─── RESET ────────────────────────────────────────────────────────────────────
+    function resetSession() {
+      if (!confirm('Clear cached questions and answers and start fresh?')) return;
+      if (cacheKey) {
+        localStorage.removeItem(cacheKey);
+        questions.forEach(q => localStorage.removeItem(`${cacheKey}_ans_${q.id}`));
       }
-    });
+      location.reload();
+    }
+
+    function retakeTest() {
+      if (cacheKey) {
+        localStorage.removeItem(cacheKey);
+        questions.forEach(q => localStorage.removeItem(`${cacheKey}_ans_${q.id}`));
+      }
+      questions = [];
+      fetchQuestions();
+    }
   </script>
 
 </body>
