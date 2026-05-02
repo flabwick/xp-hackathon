@@ -2,6 +2,8 @@ const express = require('express');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { spawn } = require('child_process');
+const multer = require('multer');
 const { compilePrompt } = require('./promptCompiler');
 const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
@@ -45,6 +47,29 @@ const DEADLINES_DIR = path.join(__dirname, 'data/deadlines');
 const PROGRESS_DIR = path.join(__dirname, 'data/progress');
 const BACKUPS_BASE_DIR = path.join(__dirname, 'data/backups');
 const PROMPTS_DIR = path.join(__dirname, 'prompts');
+const COURSES_PATH = path.join(__dirname, 'data/courses.json');
+const COURSES_DATA_DIR = path.join(__dirname, 'data/courses');
+const CHAPTER_SPLITTER_SCRIPT = path.join(__dirname, 'scripts/Seperate_By_Chapter_Final.py');
+
+// ─── COURSE HELPERS ──────────────────────────────────────────────────────────────
+const readCourses  = () => readJSON(COURSES_PATH);
+const writeCourses = (d) => writeJSON(COURSES_PATH, d);
+
+function findCourseById(id) {
+  const data = readCourses();
+  const idx  = data.courses.findIndex(c => c.id === id);
+  if (idx === -1) return null;
+  return { data, course: data.courses[idx], idx };
+}
+
+const upload = multer({
+  storage: multer.diskStorage({ destination: os.tmpdir() }),
+  limits: { fileSize: 200 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/pdf') return cb(null, true);
+    cb(new Error('Only PDF uploads are accepted'));
+  }
+});
 
 // ─── PROGRESS HELPERS ────────────────────────────────────────────────────────────
 const progressPath = (domain) => path.join(PROGRESS_DIR, `${domain}.json`);
@@ -149,6 +174,51 @@ function calculateXPFromProgress(progressData) {
 }
 
 // ─── ROUTES ──────────────────────────────────────────────────────────────────────
+
+// ─── COURSES ─────────────────────────────────────────────────────────────────────
+app.get('/api/courses', (_req, res) => {
+  try {
+    if (!fs.existsSync(COURSES_PATH)) return res.json({ courses: [] });
+    res.json(readCourses());
+  } catch (e) { res.status(500).json({ error: 'Failed to read courses' }); }
+});
+
+app.post('/api/courses/:courseId/upload-textbook', (req, res) => {
+  upload.single('pdf')(req, res, (uploadErr) => {
+    if (uploadErr) return res.status(400).json({ error: 'Upload rejected', details: uploadErr.message });
+    if (!req.file)  return res.status(400).json({ error: 'No PDF file provided' });
+
+    const found = findCourseById(req.params.courseId);
+    if (!found) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    const { data, idx, course } = found;
+    const absChaptersDir = path.join(COURSES_DATA_DIR, course.id, 'chapters');
+    fs.mkdirSync(absChaptersDir, { recursive: true });
+    const relChaptersDir = path.relative(__dirname, absChaptersDir);
+
+    let stdoutBuf = '', stderrBuf = '';
+    const proc = spawn('python3', [CHAPTER_SPLITTER_SCRIPT, req.file.path, '--output-dir', absChaptersDir]);
+    proc.stdout.on('data', d => { stdoutBuf += d.toString(); });
+    proc.stderr.on('data', d => { stderrBuf += d.toString(); });
+    proc.on('error', (err) => {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      res.status(500).json({ error: 'Failed to launch python3 — is it installed?', details: err.message });
+    });
+    proc.on('close', (code) => {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+      if (code === 0) {
+        const chapterCount = fs.readdirSync(absChaptersDir).filter(f => f.endsWith('.txt')).length;
+        data.courses[idx].chaptersDir = relChaptersDir;
+        writeCourses(data);
+        return res.json({ success: true, chaptersDir: relChaptersDir, chapterCount });
+      }
+      const details = (stdoutBuf + stderrBuf).trim().slice(-4000);
+      res.status(500).json({ error: 'Chapter extraction failed', details });
+    });
+  });
+});
 
 app.get('/api/domains', (req, res) => {
   try {

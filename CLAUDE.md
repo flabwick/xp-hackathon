@@ -41,6 +41,17 @@ The Express server runs as a long-lived process on Railway with no architecture 
 
 All UI must follow **neobrutalism**: bold black borders, flat solid colors, hard drop shadows (no blur), raw sans-serif typography, and high contrast. No gradients, rounded corners, or soft shadows.
 
+## Python tooling
+
+`scripts/Seperate_By_Chapter_Final.py` — splits a PDF into per-chapter `.txt` files. Used by `POST /api/courses/:courseId/upload-textbook`.
+
+One-time setup:
+```bash
+pip install -r requirements.txt   # pypdf, pdfplumber
+```
+
+`python3` must be on PATH for the Node server to invoke it.
+
 ## Architecture
 
 This is a Node.js/Express backend for an adaptive learning system that tracks student mastery through XP progression across mathematical units. There is no frontend beyond a static mapping page.
@@ -88,6 +99,8 @@ data/
 | GET | `/api/xp` | Computed XP state |
 | POST | `/api/xp` | Inject XP session (bulk) |
 | DELETE | `/api/xp/:sessionId` | Undo session |
+| GET | `/api/courses` | List courses (id, name, domain, chaptersDir) |
+| POST | `/api/courses/:courseId/upload-textbook` | Upload PDF → run splitter → populate `data/courses/<id>/chapters/` |
 
 ### Utility Scripts
 

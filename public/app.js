@@ -37,8 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
     modal: document.getElementById('xp-modal'),
     modalStats: document.getElementById('modal-stats'),
     modeToggle: document.getElementById('mode-toggle'),
-    modePriority: document.getElementById('mode-priority')
+    modePriority: document.getElementById('mode-priority'),
+    addContextBtn:    document.getElementById('add-context'),
+    pdfFileInput:     document.getElementById('pdf-file-input'),
+    addContextModal:  document.getElementById('add-context-modal'),
+    acChoose:         document.getElementById('ac-choose'),
+    acProgress:       document.getElementById('ac-progress'),
+    acResult:         document.getElementById('ac-result')
   };
+
+  let activeCourseId = null;
 
   // ─── INIT ───────────────────────────────────────────────────────────────────────
   fetch('/api/domains').then(r => r.json()).then(domains => {
@@ -55,6 +63,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── DOMAIN LOADER ──────────────────────────────────────────────────────────────
   async function loadDomain(domain) {
+    try {
+      const { courses = [] } = await fetch('/api/courses').then(r => r.json()).catch(() => ({}));
+      const course = courses.find(c => c.domain === domain);
+      activeCourseId = course?.id || null;
+      if (course?.chaptersDir && el.addContextBtn) {
+        el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
+        el.addContextBtn.style.color = 'var(--success)';
+      } else if (el.addContextBtn) {
+        el.addContextBtn.textContent = '📚 ADD CONTEXT';
+        el.addContextBtn.style.color = '';
+      }
+    } catch (_) { activeCourseId = null; }
+
     state.domain = domain;
     el.domainSelect.value = domain;
     el.treeContainer.innerHTML = '<div class="placeholder">Loading...</div>';
@@ -998,4 +1019,60 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Error compiling teaching prompt: ' + e.message);
     }
   });
+
+  // ─── ADD CONTEXT ─────────────────────────────────────────────────────────────────
+  if (el.addContextBtn) {
+    function showAcState(s) {
+      el.acChoose.hidden   = s !== 'choose';
+      el.acProgress.hidden = s !== 'progress';
+      el.acResult.hidden   = s !== 'result';
+    }
+
+    el.addContextBtn.addEventListener('click', () => {
+      if (!activeCourseId) { alert('No course is associated with this domain.'); return; }
+      showAcState('choose');
+      el.addContextModal.showModal();
+    });
+
+    document.getElementById('close-add-context').addEventListener('click', () => el.addContextModal.close());
+    document.getElementById('ac-try-again').addEventListener('click', () => showAcState('choose'));
+    document.getElementById('ac-pdf-splitter').addEventListener('click', () => el.pdfFileInput.click());
+
+    el.pdfFileInput.addEventListener('change', async () => {
+      const file = el.pdfFileInput.files[0];
+      if (!file || !activeCourseId) return;
+      document.getElementById('ac-progress-text').textContent = `⏳ Extracting chapters from ${file.name}…`;
+      showAcState('progress');
+
+      const fd = new FormData();
+      fd.append('pdf', file);
+      try {
+        const res  = await fetch(`/api/courses/${activeCourseId}/upload-textbook`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.details || data.error || `Server error ${res.status}`);
+
+        const resultEl = document.getElementById('ac-result-content');
+        resultEl.innerHTML = '';
+        const msg = document.createElement('p');
+        msg.style.cssText = 'margin:0;font-weight:600;color:var(--success)';
+        msg.textContent = `✓ Loaded ${data.chapterCount} chapter${data.chapterCount !== 1 ? 's' : ''}`;
+        resultEl.appendChild(msg);
+        showAcState('result');
+
+        el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
+        el.addContextBtn.style.color = 'var(--success)';
+        showToast(`✓ ${data.chapterCount} chapters loaded`);
+      } catch (e) {
+        const resultEl = document.getElementById('ac-result-content');
+        resultEl.innerHTML = '';
+        const pre = document.createElement('pre');
+        pre.textContent = e.message;
+        pre.style.cssText = 'color:var(--danger);border:2px solid var(--danger);padding:0.8rem;margin:0;overflow:auto;font-size:0.8rem;max-height:200px;white-space:pre-wrap';
+        resultEl.appendChild(pre);
+        showAcState('result');
+      } finally {
+        el.pdfFileInput.value = '';
+      }
+    });
+  }
 });

@@ -38,6 +38,8 @@
     </div>
 
     <button id="test-btn" class="btn primary">▶ TEST</button>
+    <button id="add-context" class="btn">📚 ADD CONTEXT</button>
+    <input id="pdf-file-input" type="file" accept="application/pdf" hidden>
   </div>
 </header>
 
@@ -102,6 +104,29 @@
         <button id="clear-all-history" class="btn-undo" style="font-size:0.75rem">🗑 CLEAR ALL</button>
       </div>
       <div id="modal-history"></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="add-context-modal">
+  <div class="modal-header">
+    <h2>📚 Add Context</h2>
+    <button class="btn close" id="close-add-context">✖</button>
+  </div>
+  <div style="padding:1.2rem">
+    <div id="ac-choose">
+      <p style="margin:0 0 1rem;font-weight:600">Choose upload method:</p>
+      <div style="display:flex;gap:0.8rem">
+        <button id="ac-pdf-splitter" class="btn primary">📄 PDF SPLITTER</button>
+        <button class="btn" disabled title="Coming soon">✍️ MANUAL UPLOAD</button>
+      </div>
+    </div>
+    <div id="ac-progress" hidden>
+      <p id="ac-progress-text" style="margin:0;font-weight:600"></p>
+    </div>
+    <div id="ac-result" hidden>
+      <div id="ac-result-content"></div>
+      <button class="btn" id="ac-try-again" style="margin-top:1rem">← TRY AGAIN</button>
     </div>
   </div>
 </dialog>
