@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ─── DOM REFS ───────────────────────────────────────────────────────────────────
   const el = {
-    domainSelect: document.getElementById('domain-select'),
     treeContainer: document.getElementById('tree-container'),
     priorityList: document.getElementById('priority-list'),
     priorityControls: document.getElementById('priority-controls'),
@@ -41,13 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ─── INIT ───────────────────────────────────────────────────────────────────────
-  fetch('/api/domains').then(r => r.json()).then(domains => {
-    domains.forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d; opt.textContent = d;
-      el.domainSelect.appendChild(opt);
-    });
-    if(domains.length) loadDomain(domains[0]);
+  const courseId = new URLSearchParams(window.location.search).get('course');
+  if (!courseId) { window.location = '/'; return; }
+  fetch('/api/courses').then(r => r.json()).then(({ courses }) => {
+    const course = (courses || []).find(c => c.id === courseId);
+    if (!course) { window.location = '/'; return; }
+    loadDomain(course.domain);
   });
 
   // Load XP — domain is resolved per-request, init with empty
@@ -56,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ─── DOMAIN LOADER ──────────────────────────────────────────────────────────────
   async function loadDomain(domain) {
     state.domain = domain;
-    el.domainSelect.value = domain;
     el.treeContainer.innerHTML = '<div class="placeholder">Loading...</div>';
     el.priorityList.innerHTML = '<div class="placeholder">Loading...</div>';
 
@@ -87,8 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTree();
     updatePriority();
   }
-
-  el.domainSelect.addEventListener('change', e => loadDomain(e.target.value));
 
   // ─── TREE PARSER ────────────────────────────────────────────────────────────────
   function parseTree(data) {
