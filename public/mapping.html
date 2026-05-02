@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unit Mapping</title>
+  <link rel="stylesheet" href="mapping.css">
+</head>
+<body>
+
+<header id="mapping-header">
+  <h1>🗺️ UNIT MAPPING</h1>
+  <div class="controls">
+    <div class="input-group">
+      <label for="domain-select">Domain:</label>
+      <select id="domain-select">
+        <option value="">-- Select Domain --</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label for="unit-id-input">Unit ID:</label>
+      <input type="number" id="unit-id-input" min="0" placeholder="Enter unit ID">
+    </div>
+
+    <button id="show-mapping" class="btn primary">🔍 SHOW MAPPING</button>
+  </div>
+
+  <div class="view-toggles">
+    <button id="view-birdseye" class="btn toggle active" data-view="birdseye">🌐 Bird's Eye View</button>
+    <button id="view-proximity" class="btn toggle" data-view="proximity">🎯 Proximity View</button>
+  </div>
+</header>
+
+<main id="mapping-container">
+  <div id="loading-msg" class="placeholder">Select a domain and unit ID to visualize.</div>
+
+  <!-- BIRDSEYE VIEW -->
+  <div id="birdseye-view" class="view-panel hidden">
+    <div id="domain-overview" class="overview-panel">
+      <h2 id="domain-title"></h2>
+      <div id="bt-clusters"></div>
+    </div>
+  </div>
+
+  <!-- PROXIMITY VIEW -->
+  <div id="proximity-view" class="view-panel hidden">
+    <div id="unit-focus" class="focus-panel">
+      <h2 id="focused-unit-name"></h2>
+      <div id="unit-xp-info"></div>
+    </div>
+
+    <div id="proximity-map">
+      <div id="prereqs-section" class="proximity-zone">
+        <h3>⬅️ Prerequisites</h3>
+        <div id="prereqs-list"></div>
+      </div>
+
+      <div id="center-unit" class="proximity-zone">
+        <h3>📍 Focused Unit</h3>
+        <div id="center-unit-display"></div>
+      </div>
+
+      <div id="dependents-section" class="proximity-zone">
+        <h3>➡️ Dependents (What comes after)</h3>
+        <div id="dependents-list"></div>
+      </div>
+    </div>
+
+    <div id="context-cluster" class="context-panel">
+      <h3 id="cluster-name"></h3>
+      <div id="cluster-units"></div>
+    </div>
+
+    <div id="faded-units" class="faded-panel">
+      <h3>🌫️ Distant Units</h3>
+      <div id="faded-units-list"></div>
+    </div>
+  </div>
+</main>
+
+<script src="mapping.js"></script>
+</body>
+</html>
