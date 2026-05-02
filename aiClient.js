@@ -6,7 +6,7 @@ const ADAPTERS = {
   openai: './aiAdapters/openai',
 };
 
-const provider = process.env.AI_PROVIDER || 'gemini';
+const provider = process.env.AI_PROVIDER || 'groq';
 
 if (!ADAPTERS[provider]) {
   throw new Error(`Unknown AI provider: "${provider}". Valid options: ${Object.keys(ADAPTERS).join(', ')}`);

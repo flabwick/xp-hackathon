@@ -12,7 +12,7 @@
     onload="window._katexReady = true; if(window._pendingMathRender) window._pendingMathRender()"></script>
 
   <!-- QR Code -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -432,7 +432,7 @@
     </div>
     <div class="modal-body">
       <div class="qr-wrap">
-        <canvas id="qr-canvas"></canvas>
+        <div id="qr-canvas"></div>
       </div>
       <div class="qr-hint">
         Scan with your phone camera to open the upload page.<br>
@@ -752,14 +752,27 @@
         return;
       }
 
-      const uploadUrl = `${window.location.origin}/mobile-upload?token=${qrToken}&q=${questions.length}`;
+      // Use local IP so the phone can reach the server on the same network
+      let base = window.location.origin;
+      try {
+        const info = await fetch('/api/server-info').then(r => r.json());
+        base = `http://${info.ip}:${info.port}`;
+      } catch (_) {}
+
+      const uploadUrl = `${base}/mobile-upload?token=${qrToken}&q=${questions.length}`;
       document.getElementById('qr-url-display').textContent = uploadUrl;
 
-      // Generate QR
-      const canvas = document.getElementById('qr-canvas');
-      try {
-        await QRCode.toCanvas(canvas, uploadUrl, { width: 220, margin: 1 });
-      } catch (_) {}
+      // Generate QR using qrcodejs (renders into a div, not canvas)
+      const container = document.getElementById('qr-canvas');
+      container.innerHTML = '';
+      new QRCode(container, {
+        text: uploadUrl,
+        width: 220,
+        height: 220,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
 
       setQRStatus('waiting', 'Waiting for upload...');
       modal.showModal();

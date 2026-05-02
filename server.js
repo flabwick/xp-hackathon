@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { compilePrompt } = require('./promptCompiler');
 const { generate } = require('./aiClient');
@@ -7,8 +8,21 @@ const answersRouter = require('./answers/router');
 const app = express();
 const PORT = 6969;
 
+function getLocalIP() {
+  for (const ifaces of Object.values(os.networkInterfaces())) {
+    for (const iface of ifaces) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+    }
+  }
+  return 'localhost';
+}
+
 app.use(express.json({ limit: '10mb' }));
 app.use('/api/answers', answersRouter);
+
+app.get('/api/server-info', (req, res) => {
+  res.json({ ip: getLocalIP(), port: PORT });
+});
 
 // In production, serve the Vite build output
 if (process.env.NODE_ENV === 'production') {
