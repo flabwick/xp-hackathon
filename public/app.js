@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // COPY PROMPT BUTTON (Study/Test mode)
-  document.getElementById('copy-prompt').addEventListener('click', async () => {
+  document.getElementById('copy-prompt')?.addEventListener('click', async () => {
     let unitIds;
 
     if (state.mode === 'priority') {
@@ -563,6 +563,26 @@ document.addEventListener('DOMContentLoaded', () => {
       const compiledPrompt = await res.text();
       navigator.clipboard.writeText(compiledPrompt).then(() => showToast('✓ Prompt copied!'));
     } catch(e) { console.error(e); alert('Failed to compile prompt: ' + e.message); }
+  });
+
+  // TEST BUTTON — store params, navigate to /test which runs the API call
+  document.getElementById('test-btn').addEventListener('click', () => {
+    if (!state.domain) return showToast('Select a domain first.');
+
+    let unitIds;
+    if (state.mode === 'priority') {
+      const count = parseInt(el.priorityCount.value);
+      const topUnits = getTopPriorityUnits(count);
+      if (!topUnits.length) return showToast('No units available.');
+      unitIds = topUnits.map(s => s.id);
+    } else {
+      if (state.selectedUnits.size === 0) return showToast('Select at least one unit.');
+      unitIds = Array.from(state.selectedUnits);
+    }
+
+    console.log('[TEST] Navigating to /test with', { domain: state.domain, unitIds });
+    sessionStorage.setItem('testParams', JSON.stringify({ domain: state.domain, unitIds }));
+    window.location.href = '/test';
   });
 
   // XP INJECTION API CALL

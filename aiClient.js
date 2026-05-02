@@ -12,6 +12,6 @@ if (!ADAPTERS[provider]) {
   throw new Error(`Unknown AI provider: "${provider}". Valid options: ${Object.keys(ADAPTERS).join(', ')}`);
 }
 
-const { generate } = require(ADAPTERS[provider]);
+const { generate, chat, chatStream } = require(ADAPTERS[provider]);
 
-module.exports = { generate };
+module.exports = { generate, chat, chatStream };

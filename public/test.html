@@ -474,8 +474,16 @@
 
     // ─── INIT ────────────────────────────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      // Prefer URL params; fall back to localStorage
-      if (paramDomain && paramUnits) {
+      // Priority: sessionStorage (set by master's app.js) → URL params → localStorage
+      const sessionRaw = sessionStorage.getItem('testParams');
+      if (sessionRaw) {
+        try {
+          const p = JSON.parse(sessionRaw);
+          domain = p.domain;
+          unitIds = Array.isArray(p.unitIds) ? p.unitIds : [];
+          sessionStorage.removeItem('testParams');
+        } catch (_) {}
+      } else if (paramDomain && paramUnits) {
         domain = paramDomain;
         unitIds = paramUnits.split(',').map(Number).filter(n => !isNaN(n));
         localStorage.setItem('test_domain', domain);
