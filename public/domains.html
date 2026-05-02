@@ -183,6 +183,19 @@
     .empty-block p { font-family: var(--font-mono); font-size: 0.82rem; color: #666; }
 
     /* Domain color accents */
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: #fde047;
+      font-size: 0.85rem;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
+      opacity: 0.7;
+    }
+    .delete-btn:hover { opacity: 1; color: #fff; }
+
     .accent-0 { border-top: 4px solid #c084fc; }
     .accent-1 { border-top: 4px solid #818cf8; }
     .accent-2 { border-top: 4px solid #4ade80; }
@@ -245,7 +258,10 @@
 
         grid.innerHTML = details.map(d => `
           <a class="domain-card ${d.accent}" href="/unit/${encodeURIComponent(d.name)}">
-            <div class="card-top">Domain</div>
+            <div class="card-top" style="display:flex;justify-content:space-between;align-items:center">
+              <span>Domain</span>
+              <button class="delete-btn" data-domain="${escapeHtml(d.name)}" title="Delete domain">✕</button>
+            </div>
             <div class="card-body">
               <div class="card-name">${escapeHtml(d.name)}</div>
               <div class="card-meta">
@@ -256,6 +272,22 @@
             </div>
           </a>
         `).join('');
+
+        grid.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const domain = btn.dataset.domain;
+            if (!confirm(`Delete "${domain}"? This cannot be undone.`)) return;
+            try {
+              const r = await fetch(`/api/domains/${encodeURIComponent(domain)}`, { method: 'DELETE' });
+              if (!r.ok) throw new Error((await r.json()).error);
+              loadDomains();
+            } catch (err) {
+              alert('Delete failed: ' + err.message);
+            }
+          });
+        });
 
       } catch (err) {
         grid.innerHTML = `

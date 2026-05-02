@@ -157,6 +157,19 @@ app.get('/api/domains', (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Failed to list domains' }); }
 });
 
+app.delete('/api/domains/:domain', (req, res) => {
+  const domain = req.params.domain.replace(/[^a-zA-Z0-9_-]/g, '');
+  const targets = [
+    path.join(UNITS_DIR, `${domain}.json`),
+    path.join(PROGRESS_DIR, `${domain}.json`),
+    path.join(PROGRESS_DIR, `${domain}-history.json`),
+    path.join(DEADLINES_DIR, `${domain}.json`),
+  ];
+  if (!fs.existsSync(targets[0])) return res.status(404).json({ error: 'Domain not found' });
+  targets.forEach(p => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {} });
+  res.json({ success: true });
+});
+
 app.get('/api/units/:domain', (req, res) => {
   const p = path.join(UNITS_DIR, `${req.params.domain}.json`);
   if (!fs.existsSync(p)) return res.status(404).json({ error: 'Domain not found' });
