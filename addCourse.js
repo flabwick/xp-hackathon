@@ -14,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { PDFParse } = require('pdf-parse');
 const { OpenAI } = require('openai');
+const { resolveKey } = require('./byok');
 
 const DATA_DIR      = path.join(__dirname, 'data');
 const UNITS_DIR     = path.join(DATA_DIR, 'units');
@@ -73,12 +74,9 @@ ${pdfText}`;
  * @returns {Promise<object>} the parsed { meta, tree } object
  */
 async function extractUnitsFromPDF(pdfBuffer, courseName, apiKey) {
-  const resolvedKey = apiKey || process.env.OPENAI_API_KEY;
-  if (!resolvedKey) {
-    const err = new Error('Missing OpenAI API key. Provide one via the modal, or set OPENAI_API_KEY in the environment.');
-    err.status = 401;
-    throw err;
-  }
+  // Same BYOK contract as the AI adapters: user-supplied wins; env fallback
+  // only available in local dev (NODE_ENV !== 'production' && no RAILWAY_ENVIRONMENT).
+  const resolvedKey = resolveKey(apiKey, 'OPENAI_API_KEY', 'OpenAI');
 
   // 1. PDF → text (pdf-parse@2 API: stateful PDFParse class, must call destroy)
   let text = '';

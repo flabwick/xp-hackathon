@@ -1,15 +1,10 @@
 const { OpenAI } = require('openai');
+const { resolveKey } = require('../byok');
 
 const DEFAULT_MODEL = 'gpt-4o-mini';
 
 function resolveApiKey(options) {
-  const key = (options && options.apiKey) || process.env.OPENAI_API_KEY;
-  if (!key) {
-    const err = new Error('Missing OpenAI API key. Set OPENAI_API_KEY in the environment, or supply one via the in-app "API Key" button (sent as the X-OpenAI-Api-Key header).');
-    err.status = 401;
-    throw err;
-  }
-  return key;
+  return resolveKey(options && options.apiKey, 'OPENAI_API_KEY', 'OpenAI');
 }
 
 async function generate(prompt, options = {}) {

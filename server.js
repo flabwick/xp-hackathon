@@ -7,6 +7,7 @@ const { compilePrompt } = require('./promptCompiler');
 const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
 const { addCourseFromPDF } = require('./addCourse');
+const { isProduction, envKeyAvailableToUI } = require('./byok');
 const answersRouter = require('./answers/router');
 const pageRouter = require('./routes');
 
@@ -36,13 +37,15 @@ app.get('/api/server-info', (req, res) => {
 });
 
 // Tells the UI whether the server has API keys baked in via env vars.
-// If hasGroqKey === false, the UI will require the user to bring their own.
+// In production these are forced to false (BYOK enforced) regardless of
+// what's set in the deploy environment — so the UI always pops the modal.
 app.get('/api/config', (req, res) => {
   res.json({
     appName: 'StudyXP',
     provider: process.env.AI_PROVIDER || 'groq',
-    hasGroqKey:   !!process.env.GROQ_API_KEY,
-    hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+    production: isProduction(),
+    hasGroqKey:   envKeyAvailableToUI('GROQ_API_KEY'),
+    hasOpenAIKey: envKeyAvailableToUI('OPENAI_API_KEY'),
   });
 });
 
@@ -530,8 +533,15 @@ async function generateJSONWithRetry(prompt, options, validate) {
       validate(parsed);
       return parsed;
     } catch (e) {
+      // Auth / missing-key errors are not transient — surface them immediately
+      // with the original status code instead of wrapping in a retry message.
+      if (e.status === 401) throw e;
       lastError = e.message;
-      if (attempt === 1) throw new Error(`AI response invalid after retry: ${lastError}`);
+      if (attempt === 1) {
+        const wrapped = new Error(`AI response invalid after retry: ${lastError}`);
+        wrapped.status = e.status;
+        throw wrapped;
+      }
     }
   }
 }

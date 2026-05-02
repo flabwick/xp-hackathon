@@ -34,8 +34,13 @@ async function testPromptCompile(domain, unitIds, options = {}) {
       return parsed;
     } catch (e) {
       console.error(`[testPromptCompile] attempt ${attempt + 1} failed:`, e.message);
+      if (e.status === 401) throw e;
       lastError = e.message;
-      if (attempt === 1) throw new Error(`AI response invalid after retry: ${lastError}`);
+      if (attempt === 1) {
+        const wrapped = new Error(`AI response invalid after retry: ${lastError}`);
+        wrapped.status = e.status;
+        throw wrapped;
+      }
     }
   }
 }

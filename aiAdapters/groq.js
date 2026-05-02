@@ -1,16 +1,14 @@
 const Groq = require('groq-sdk');
+const { resolveKey } = require('../byok');
 
 const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 
-/** Resolve the API key: per-request override > env. Throws if neither is set. */
+/**
+ * Per-request user key wins. In production the env-var fallback is disabled
+ * (BYOK enforced); in local dev GROQ_API_KEY in .env is honoured.
+ */
 function resolveApiKey(options) {
-  const key = (options && options.apiKey) || process.env.GROQ_API_KEY;
-  if (!key) {
-    const err = new Error('Missing Groq API key. Set GROQ_API_KEY in the environment, or supply one via the in-app "API Key" button (sent as the X-Groq-Api-Key header).');
-    err.status = 401;
-    throw err;
-  }
-  return key;
+  return resolveKey(options && options.apiKey, 'GROQ_API_KEY', 'Groq');
 }
 
 async function generate(prompt, options = {}) {
