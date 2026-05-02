@@ -1,15 +1,34 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const multer = require('multer');
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+
 const { compilePrompt } = require('./promptCompiler');
 const { generate, chat, chatStream } = require('./aiClient');
 const { testPromptCompile } = require('./testPromptCompile');
 const { addCourseFromPDF } = require('./addCourse');
 const { isProduction, envKeyAvailableToUI } = require('./byok');
 const answersRouter = require('./answers/router');
-const pageRouter = require('./routes');
+const { UserPaths, DATA_DIR } = require('./userPaths');
+
+const { UserRepository } = require('./auth/UserRepository');
+const { VerificationService } = require('./auth/VerificationService');
+const { EmailService } = require('./auth/EmailService');
+const { AuthService } = require('./auth/AuthService');
+const { buildAuthRouter } = require('./auth/routes');
+const { buildRequireAuth } = require('./auth/middleware');
+const { buildPageRouter } = require('./routes');
+
+// ─── BOOTSTRAP AUTH SUBSYSTEM ─────────────────────────────────────────────────
+// UserRepository has zero auth-config dependency, so it boots before the
+// JWT_SECRET precondition check (used by ensureDevAccount).
+const userRepo = new UserRepository(path.join(DATA_DIR, 'users.json'));
+const verificationService = new VerificationService(path.join(DATA_DIR, 'verifications.json'));
+const emailService = new EmailService(process.env);
 
 // In-memory PDF uploads, capped to keep memory and OpenAI prompt budget sane.
 const pdfUpload = multer({
@@ -17,7 +36,6 @@ const pdfUpload = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
 });
 const app = express();
-// Honour Railway/host-injected PORT; fall back to 6969 for local dev.
 const PORT = parseInt(process.env.PORT, 10) || 6969;
 
 function getLocalIP() {
@@ -30,58 +48,66 @@ function getLocalIP() {
 }
 
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
 app.use('/api/answers', answersRouter);
 
-app.get('/api/server-info', (req, res) => {
-  res.json({ ip: getLocalIP(), port: PORT });
-});
+// Build auth-dependent middleware/routers (requires JWT_SECRET; deferred until startup check passes).
+let authService, requireAuthApi, requireAuthPage;
 
-// Tells the UI whether the server has API keys baked in via env vars.
-// In production these are forced to false (BYOK enforced) regardless of
-// what's set in the deploy environment — so the UI always pops the modal.
-app.get('/api/config', (req, res) => {
-  res.json({
-    appName: 'StudyXP',
-    provider: process.env.AI_PROVIDER || 'groq',
-    production: isProduction(),
-    hasGroqKey:   envKeyAvailableToUI('GROQ_API_KEY'),
-    hasOpenAIKey: envKeyAvailableToUI('OPENAI_API_KEY'),
+function wireAuthDependentRoutes() {
+  authService = new AuthService({
+    userRepository: userRepo,
+    verificationService,
+    emailService,
+    jwtSecret: process.env.JWT_SECRET,
   });
-});
+  requireAuthApi = buildRequireAuth(authService, { apiMode: true });
+  requireAuthPage = buildRequireAuth(authService, { apiMode: false });
 
-// Page routes (must come before express.static so / serves domains.html, not index.html)
-app.use(pageRouter);
+  app.use('/api/auth', buildAuthRouter(authService));
 
-// Static assets (CSS, JS, images).
-// Serve `public/` always — that's where the actual UI lives. If a Vite build
-// happens to populate `dist/`, those files take priority. This makes the app
-// deployable to PaaS hosts (Railway, Render, …) with zero build step required.
-const distDir = path.join(__dirname, 'dist');
-if (fs.existsSync(distDir)) app.use(express.static(distDir));
-app.use(express.static(path.join(__dirname, 'public')));
+  // Public endpoints (no user data) — keep accessible without auth.
+  app.get('/api/server-info', (req, res) => {
+    res.json({ ip: getLocalIP(), port: PORT });
+  });
+  app.get('/api/config', (req, res) => {
+    res.json({
+      appName: 'StudyXP',
+      provider: process.env.AI_PROVIDER || 'groq',
+      production: isProduction(),
+      hasGroqKey:   envKeyAvailableToUI('GROQ_API_KEY'),
+      hasOpenAIKey: envKeyAvailableToUI('OPENAI_API_KEY'),
+    });
+  });
+
+  // Page routes (must come before express.static so / serves auth/domains, not index.html)
+  app.use(buildPageRouter(authService, requireAuthPage));
+
+  // Static assets.
+  const distDir = path.join(__dirname, 'dist');
+  if (fs.existsSync(distDir)) app.use(express.static(distDir));
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  // ─── Per-user data routes (all gated by requireAuthApi) ─────────────────────
+  installDataRoutes();
+}
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const writeJSON = (p, d) => fs.writeFileSync(p, JSON.stringify(d, null, 2), 'utf8');
-
-const UNITS_DIR = path.join(__dirname, 'data/units');
-const DEADLINES_DIR = path.join(__dirname, 'data/deadlines');
-const PROGRESS_DIR = path.join(__dirname, 'data/progress');
-const BACKUPS_BASE_DIR = path.join(__dirname, 'data/backups');
 const PROMPTS_DIR = path.join(__dirname, 'prompts');
 
-// ─── PROGRESS HELPERS ────────────────────────────────────────────────────────────
-const progressPath = (domain) => path.join(PROGRESS_DIR, `${domain}.json`);
-const historyPath = (domain) => path.join(PROGRESS_DIR, `${domain}-history.json`);
+const userPaths = (req) => new UserPaths(req.user.id);
 
-const backupProgress = (domain) => {
+// ─── PROGRESS HELPERS ────────────────────────────────────────────────────────────
+const backupProgress = (paths, domain) => {
   try {
-    const domainBackupDir = path.join(BACKUPS_BASE_DIR, domain);
+    const domainBackupDir = paths.backupsDir(domain);
     if (!fs.existsSync(domainBackupDir)) fs.mkdirSync(domainBackupDir, { recursive: true });
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const pPath = progressPath(domain);
-    const hPath = historyPath(domain);
+    const pPath = paths.progressFile(domain);
+    const hPath = paths.historyFile(domain);
 
     if (fs.existsSync(pPath)) {
       fs.copyFileSync(pPath, path.join(domainBackupDir, `progress-${timestamp}.json`));
@@ -115,7 +141,6 @@ const BANDS = [
 ];
 
 const getBandInfo = (cum) => {
-  // Band I: 0-149, II: 150-599, III: 600-1499, IV: 1500-2399, V: 2400+
   if (cum >= 2400) return BANDS.find(b => b.lv === 'V');
   if (cum >= 1500) return BANDS.find(b => b.lv === 'IV');
   if (cum >= 600) return BANDS.find(b => b.lv === 'III');
@@ -123,10 +148,8 @@ const getBandInfo = (cum) => {
   return BANDS.find(b => b.lv === 'I');
 };
 
-// Calculate XP for all units in a progress file
 function calculateXPFromProgress(progressData) {
   const result = {};
-
   if (!progressData || !progressData.tree) return result;
 
   for (const bt of progressData.tree) {
@@ -135,15 +158,11 @@ function calculateXPFromProgress(progressData) {
         const logs = u.logs || [];
         let cumulativeXP = 0;
         const progressLogs = [];
-
-        // Walk through logs sequentially to calculate band progression
         for (const log of logs) {
           if (log.xpGain !== undefined && log.dv !== undefined && log.bm !== undefined) {
             cumulativeXP += log.xpGain;
             progressLogs.push(log);
           } else if (log.dv !== undefined && log.bm !== undefined) {
-            // Old format log entry with session data
-            // Recalculate XP from dv and bm
             const bandInfo = getBandInfo(cumulativeXP);
             const perfRatio = log.dv / bandInfo.expDV;
             const bm = Math.min(2.0, Math.max(-0.5, 2 * perfRatio - 0.8));
@@ -159,7 +178,6 @@ function calculateXPFromProgress(progressData) {
             });
           }
         }
-
         result[u.id] = {
           cumulativeXP,
           currentBand: getBandInfo(cumulativeXP).lv,
@@ -168,160 +186,15 @@ function calculateXPFromProgress(progressData) {
       }
     }
   }
-
   return result;
 }
 
-// ─── ROUTES ──────────────────────────────────────────────────────────────────────
-
-app.get('/api/domains', (req, res) => {
-  try {
-    const files = fs.readdirSync(UNITS_DIR).filter(f => f.endsWith('.json'));
-    res.json(files.map(f => f.replace('.json', '')));
-  } catch (e) { res.status(500).json({ error: 'Failed to list domains' }); }
-});
-
-// Add a course from an uploaded PDF. Multipart form: field "pdf" (file) +
-// field "courseName" (string). OpenAI key comes from header X-OpenAI-Api-Key
-// (BYOK) or process.env.OPENAI_API_KEY.
-app.post('/api/add-course', pdfUpload.single('pdf'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'PDF file required (form field "pdf").' });
-    if (req.file.mimetype !== 'application/pdf' && !req.file.originalname.toLowerCase().endsWith('.pdf')) {
-      return res.status(400).json({ error: 'Uploaded file must be a PDF.' });
-    }
-    const courseName = (req.body.courseName || '').trim();
-    if (!courseName) return res.status(400).json({ error: 'courseName required.' });
-
-    const apiKey = req.headers['x-openai-api-key'] || undefined;
-    const result = await addCourseFromPDF(req.file.buffer, courseName, apiKey);
-
-    res.json({
-      success: true,
-      domain: result.slug,
-      courseName,
-      unitCount: result.unitCount,
-      pdfPages: result.pdfPages,
-      pdfChars: result.pdfChars,
-    });
-  } catch (err) {
-    console.error('add-course error:', err);
-    res.status(err.status || 500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/domains/:domain', (req, res) => {
-  const domain = req.params.domain.replace(/[^a-zA-Z0-9_-]/g, '');
-  const targets = [
-    path.join(UNITS_DIR, `${domain}.json`),
-    path.join(PROGRESS_DIR, `${domain}.json`),
-    path.join(PROGRESS_DIR, `${domain}-history.json`),
-    path.join(DEADLINES_DIR, `${domain}.json`),
-  ];
-  if (!fs.existsSync(targets[0])) return res.status(404).json({ error: 'Domain not found' });
-  targets.forEach(p => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {} });
-  res.json({ success: true });
-});
-
-app.get('/api/units/:domain', (req, res) => {
-  const p = path.join(UNITS_DIR, `${req.params.domain}.json`);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Domain not found' });
-  const data = readJSON(p);
-
-  if (!data.meta || !data.tree || !Array.isArray(data.meta.bt) || !Array.isArray(data.meta.cl)) {
-    return res.status(400).json({ error: 'Invalid unit format - missing meta.bt or meta.cl arrays' });
-  }
-
-  res.json(data);
-});
-
-app.get('/api/deadlines/:domain', (req, res) => {
-  const p = path.join(DEADLINES_DIR, `${req.params.domain}.json`);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Deadline file not found' });
-  const data = readJSON(p);
-  res.json(data);
-});
-
-app.get('/api/progress/:domain', (req, res) => {
-  const p = progressPath(req.params.domain);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Progress file not found' });
-  const data = readJSON(p);
-  res.json(data);
-});
-
-app.post('/api/progress/:domain', (req, res) => {
-  const domain = req.params.domain;
-  const p = progressPath(domain);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Progress file not found' });
-
-  const { unitId, notes } = req.body;
-  if (unitId === undefined) return res.status(400).json({ error: 'unitId required' });
-  if (!notes || typeof notes !== 'string') return res.status(400).json({ error: 'notes string required' });
-
-  backupProgress(domain);
-  const data = readJSON(p);
-  const unit = findUnitInProgress(data, unitId);
-  if (!unit) return res.status(404).json({ error: `Unit ${unitId} not found in progress` });
-
-  const entry = { timestamp: new Date().toISOString(), notes };
-  unit.logs.push(entry);
-  writeJSON(p, data);
-  res.json({ success: true, unitId, entry });
-});
-
-// COMPILE PROMPT (resolves all placeholders)
-app.post('/api/prompt/:type/compile', (req, res) => {
-  const type = req.params.type.replace(/[^a-zA-Z0-9_-]/g, '');
-  const p = path.join(PROMPTS_DIR, `${type}.md`);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Prompt not found' });
-
-  try {
-    const template = fs.readFileSync(p, 'utf8');
-    const { domain, unitIds, entries } = req.body;
-    const compiled = compilePrompt(template, { domain, unitIds, entries });
-    res.type('text/markdown').send(compiled);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to compile prompt', details: e.message });
-  }
-});
-
-app.get('/api/prompt/:type', (req, res) => {
-  const type = req.params.type.replace(/[^a-zA-Z0-9_-]/g, '');
-  const p = path.join(PROMPTS_DIR, `${type}.md`);
-  if (!fs.existsSync(p)) return res.status(404).json({ error: 'Prompt not found' });
-  res.type('text/markdown').send(fs.readFileSync(p, 'utf8'));
-});
-
-// ─── XP ENDPOINTS (domain-based, calculated from progress) ───────────────────────
-
-app.get('/api/xp', (req, res) => {
-  // Accept optional domain query param
-  const domain = req.query.domain;
-  let xpState = {};
-  let history = [];
-
-  if (domain) {
-    const pPath = progressPath(domain);
-    if (fs.existsSync(pPath)) {
-      xpState = calculateXPFromProgress(readJSON(pPath));
-    }
-    const hPath = historyPath(domain);
-    if (fs.existsSync(hPath)) {
-      history = readJSON(hPath);
-    }
-  }
-
-  xpState._history = history;
-  res.json(xpState);
-});
-
-// ─── XP INJECTION HELPER ─────────────────────────────────────────────────────────
-
-function processXPInjections(domain, injArray) {
-  const pPath = progressPath(domain);
+// ─── XP INJECTION HELPER (per-user) ─────────────────────────────────────────────
+function processXPInjections(paths, domain, injArray) {
+  const pPath = paths.progressFile(domain);
   if (!fs.existsSync(pPath)) throw Object.assign(new Error('Progress file not found'), { status: 404 });
 
-  backupProgress(domain);
+  backupProgress(paths, domain);
   const progressData = readJSON(pPath);
   const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const results = [];
@@ -375,7 +248,7 @@ function processXPInjections(domain, injArray) {
     });
   }
 
-  const hPath = historyPath(domain);
+  const hPath = paths.historyFile(domain);
   const history = fs.existsSync(hPath) ? readJSON(hPath) : [];
   history.push({ sessionId, timestamp: new Date().toISOString(), injections: injArray, results });
   writeJSON(pPath, progressData);
@@ -384,275 +257,433 @@ function processXPInjections(domain, injArray) {
   return { success: true, sessionId, results };
 }
 
-// POST XP injection - writes to progress file and history
-app.post('/api/xp', (req, res) => {
-  const { injections, domain } = req.body;
-  const injArray = Array.isArray(injections) ? injections : req.body;
-  if (!Array.isArray(injArray)) return res.status(400).json({ error: 'Invalid payload' });
-  if (!domain) return res.status(400).json({ error: 'domain required' });
+// ─── DATA ROUTES (all per-user, all auth-gated) ────────────────────────────────
+function installDataRoutes() {
 
-  try {
-    const xpResult = processXPInjections(domain, injArray);
-    res.json(xpResult);
-  } catch (e) {
-    console.error('XP save error:', e);
-    res.status(e.status || 500).json({ error: e.message });
-  }
-});
+  app.get('/api/domains', requireAuthApi, (req, res) => {
+    try {
+      const paths = userPaths(req);
+      paths.ensureDirs();
+      const files = fs.readdirSync(paths.unitsDir).filter(f => f.endsWith('.json'));
+      res.json(files.map(f => f.replace('.json', '')));
+    } catch (e) {
+      console.error('list domains error:', e);
+      res.status(500).json({ error: 'Failed to list domains' });
+    }
+  });
 
-// UNDO a specific session
-app.delete('/api/xp/:sessionId', (req, res) => {
-  const sessionId = req.params.sessionId;
-  const domain = req.query.domain;
-  if (!domain) return res.status(400).json({ error: 'domain required' });
+  app.post('/api/add-course', requireAuthApi, pdfUpload.single('pdf'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'PDF file required (form field "pdf").' });
+      if (req.file.mimetype !== 'application/pdf' && !req.file.originalname.toLowerCase().endsWith('.pdf')) {
+        return res.status(400).json({ error: 'Uploaded file must be a PDF.' });
+      }
+      const courseName = (req.body.courseName || '').trim();
+      if (!courseName) return res.status(400).json({ error: 'courseName required.' });
 
-  const pPath = progressPath(domain);
-  if (!fs.existsSync(pPath)) return res.status(404).json({ error: 'Progress file not found' });
+      const apiKey = req.headers['x-openai-api-key'] || undefined;
+      const result = await addCourseFromPDF(req.file.buffer, courseName, req.user.id, apiKey);
 
-  backupProgress(domain);
-  const hPath = historyPath(domain);
-  if (!fs.existsSync(hPath)) return res.status(404).json({ error: 'No history found' });
+      res.json({
+        success: true,
+        domain: result.slug,
+        courseName,
+        unitCount: result.unitCount,
+        pdfPages: result.pdfPages,
+        pdfChars: result.pdfChars,
+      });
+    } catch (err) {
+      console.error('add-course error:', err);
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  });
 
-  let progressData = readJSON(pPath);
-  let history = readJSON(hPath);
+  app.delete('/api/domains/:domain', requireAuthApi, (req, res) => {
+    const domain = req.params.domain.replace(/[^a-zA-Z0-9_-]/g, '');
+    const paths = userPaths(req);
+    const targets = [
+      paths.unitsFile(domain),
+      paths.progressFile(domain),
+      paths.historyFile(domain),
+      paths.deadlinesFile(domain),
+    ];
+    if (!fs.existsSync(targets[0])) return res.status(404).json({ error: 'Domain not found' });
+    targets.forEach(p => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {} });
+    res.json({ success: true });
+  });
 
-  const sessionIdx = history.findIndex(s => s.sessionId === sessionId);
-  if (sessionIdx === -1) return res.status(404).json({ error: 'Session not found' });
+  app.get('/api/units/:domain', requireAuthApi, (req, res) => {
+    const p = userPaths(req).unitsFile(req.params.domain);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Domain not found' });
+    const data = readJSON(p);
+    if (!data.meta || !data.tree || !Array.isArray(data.meta.bt) || !Array.isArray(data.meta.cl)) {
+      return res.status(400).json({ error: 'Invalid unit format - missing meta.bt or meta.cl arrays' });
+    }
+    res.json(data);
+  });
 
-  const session = history[sessionIdx];
-  const undoResults = [];
+  app.get('/api/deadlines/:domain', requireAuthApi, (req, res) => {
+    const p = userPaths(req).deadlinesFile(req.params.domain);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Deadline file not found' });
+    res.json(readJSON(p));
+  });
 
-  // Remove logs with this sessionId from all units
-  for (const bt of progressData.tree) {
-    for (const cl of bt.clusters) {
-      for (const u of cl.units) {
-        if (u.logs) {
-          const before = u.logs.length;
-          u.logs = u.logs.filter(l => l.sessionId !== sessionId);
-          // If logs were removed, calculate new totals for this unit
-          if (u.logs.length < before) {
-            let newCum = 0;
-            for (const log of u.logs) {
-              if (log.xpGain !== undefined) newCum += log.xpGain;
+  app.get('/api/progress/:domain', requireAuthApi, (req, res) => {
+    const p = userPaths(req).progressFile(req.params.domain);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Progress file not found' });
+    res.json(readJSON(p));
+  });
+
+  app.post('/api/progress/:domain', requireAuthApi, (req, res) => {
+    const paths = userPaths(req);
+    const domain = req.params.domain;
+    const p = paths.progressFile(domain);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Progress file not found' });
+
+    const { unitId, notes } = req.body;
+    if (unitId === undefined) return res.status(400).json({ error: 'unitId required' });
+    if (!notes || typeof notes !== 'string') return res.status(400).json({ error: 'notes string required' });
+
+    backupProgress(paths, domain);
+    const data = readJSON(p);
+    const unit = findUnitInProgress(data, unitId);
+    if (!unit) return res.status(404).json({ error: `Unit ${unitId} not found in progress` });
+
+    const entry = { timestamp: new Date().toISOString(), notes };
+    unit.logs.push(entry);
+    writeJSON(p, data);
+    res.json({ success: true, unitId, entry });
+  });
+
+  app.post('/api/prompt/:type/compile', requireAuthApi, (req, res) => {
+    const type = req.params.type.replace(/[^a-zA-Z0-9_-]/g, '');
+    const p = path.join(PROMPTS_DIR, `${type}.md`);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Prompt not found' });
+    try {
+      const template = fs.readFileSync(p, 'utf8');
+      const { domain, unitIds, entries } = req.body;
+      const compiled = compilePrompt(template, { domain, unitIds, entries, userId: req.user.id });
+      res.type('text/markdown').send(compiled);
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to compile prompt', details: e.message });
+    }
+  });
+
+  app.get('/api/prompt/:type', requireAuthApi, (req, res) => {
+    const type = req.params.type.replace(/[^a-zA-Z0-9_-]/g, '');
+    const p = path.join(PROMPTS_DIR, `${type}.md`);
+    if (!fs.existsSync(p)) return res.status(404).json({ error: 'Prompt not found' });
+    res.type('text/markdown').send(fs.readFileSync(p, 'utf8'));
+  });
+
+  app.get('/api/xp', requireAuthApi, (req, res) => {
+    const domain = req.query.domain;
+    const paths = userPaths(req);
+    let xpState = {};
+    let history = [];
+    if (domain) {
+      const pPath = paths.progressFile(domain);
+      if (fs.existsSync(pPath)) xpState = calculateXPFromProgress(readJSON(pPath));
+      const hPath = paths.historyFile(domain);
+      if (fs.existsSync(hPath)) history = readJSON(hPath);
+    }
+    xpState._history = history;
+    res.json(xpState);
+  });
+
+  app.post('/api/xp', requireAuthApi, (req, res) => {
+    const { injections, domain } = req.body;
+    const injArray = Array.isArray(injections) ? injections : req.body;
+    if (!Array.isArray(injArray)) return res.status(400).json({ error: 'Invalid payload' });
+    if (!domain) return res.status(400).json({ error: 'domain required' });
+    try {
+      const xpResult = processXPInjections(userPaths(req), domain, injArray);
+      res.json(xpResult);
+    } catch (e) {
+      console.error('XP save error:', e);
+      res.status(e.status || 500).json({ error: e.message });
+    }
+  });
+
+  app.delete('/api/xp/:sessionId', requireAuthApi, (req, res) => {
+    const sessionId = req.params.sessionId;
+    const domain = req.query.domain;
+    if (!domain) return res.status(400).json({ error: 'domain required' });
+    const paths = userPaths(req);
+
+    const pPath = paths.progressFile(domain);
+    if (!fs.existsSync(pPath)) return res.status(404).json({ error: 'Progress file not found' });
+
+    backupProgress(paths, domain);
+    const hPath = paths.historyFile(domain);
+    if (!fs.existsSync(hPath)) return res.status(404).json({ error: 'No history found' });
+
+    let progressData = readJSON(pPath);
+    let history = readJSON(hPath);
+
+    const sessionIdx = history.findIndex(s => s.sessionId === sessionId);
+    if (sessionIdx === -1) return res.status(404).json({ error: 'Session not found' });
+
+    const undoResults = [];
+    for (const bt of progressData.tree) {
+      for (const cl of bt.clusters) {
+        for (const u of cl.units) {
+          if (u.logs) {
+            const before = u.logs.length;
+            u.logs = u.logs.filter(l => l.sessionId !== sessionId);
+            if (u.logs.length < before) {
+              let newCum = 0;
+              for (const log of u.logs) {
+                if (log.xpGain !== undefined) newCum += log.xpGain;
+              }
+              undoResults.push({
+                unitId: u.id,
+                removedXP: before - u.logs.length,
+                newCum,
+                newBand: getBandInfo(newCum).lv
+              });
             }
-            undoResults.push({
-              unitId: u.id,
-              removedXP: before - u.logs.length,
-              newCum,
-              newBand: getBandInfo(newCum).lv
-            });
           }
+        }
+      }
+    }
+    history.splice(sessionIdx, 1);
+    try {
+      writeJSON(pPath, progressData);
+      writeJSON(hPath, history);
+      res.json({ success: true, undone: undoResults });
+    } catch (e) {
+      console.error('Undo XP save error:', e);
+      res.status(500).json({ error: 'Failed to save after undo' });
+    }
+  });
+
+  app.delete('/api/xp', requireAuthApi, (req, res) => {
+    const domain = req.query.domain;
+    if (!domain) return res.status(400).json({ error: 'domain required' });
+    const paths = userPaths(req);
+
+    const pPath = paths.progressFile(domain);
+    if (!fs.existsSync(pPath)) return res.status(404).json({ error: 'Progress file not found' });
+
+    backupProgress(paths, domain);
+    let progressData = readJSON(pPath);
+    for (const bt of progressData.tree) {
+      for (const cl of bt.clusters) {
+        for (const u of cl.units) { u.logs = []; }
+      }
+    }
+    const hPath = paths.historyFile(domain);
+    if (fs.existsSync(hPath)) writeJSON(hPath, []);
+
+    try {
+      writeJSON(pPath, progressData);
+      res.json({ success: true });
+    } catch (e) {
+      console.error('Clear XP save error:', e);
+      res.status(500).json({ error: 'Failed to clear XP' });
+    }
+  });
+
+  // ─── TEST/TEACH (stateless AI; auth-gated to keep BYOK enforcement consistent) ──
+  const VALID_STATES = new Set(['Mastered', 'Pass', 'Partial', 'Incorrect']);
+
+  function validateGenerateShape(data) {
+    if (!Array.isArray(data.questions) || data.questions.length !== 10)
+      throw new Error(`expected questions array of length 10, got ${JSON.stringify(data.questions?.length)}`);
+    for (const q of data.questions) {
+      if (!Number.isInteger(q.id)) throw new Error(`question id must be int, got ${JSON.stringify(q.id)}`);
+      if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`question text missing for id ${q.id}`);
+    }
+  }
+
+  function validateMarkShape(data) {
+    if (!Array.isArray(data.results)) throw new Error('results must be an array');
+    for (const r of data.results) {
+      if (!Number.isInteger(r.id)) throw new Error(`result id must be int, got ${JSON.stringify(r.id)}`);
+      if (!VALID_STATES.has(r.state)) throw new Error(`invalid state "${r.state}" for id ${r.id}`);
+      if (typeof r.feedback !== 'string' || !r.feedback.trim()) throw new Error(`feedback missing for id ${r.id}`);
+    }
+    if (!Array.isArray(data.xpInjections)) throw new Error('xpInjections must be an array');
+    for (const x of data.xpInjections) {
+      if (x.difficultyScore < 20 || x.difficultyScore > 100) throw new Error(`difficultyScore out of range for unitId ${x.unitId}`);
+      if (x.performanceRatio < 0 || x.performanceRatio > 1) throw new Error(`performanceRatio out of range for unitId ${x.unitId}`);
+    }
+  }
+
+  async function generateJSONWithRetry(prompt, options, validate) {
+    let lastError = '';
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const p = attempt === 0 ? prompt
+        : `${prompt}\n\nYour previous response failed validation: ${lastError}\nReturn valid JSON only, matching the exact shape specified.`;
+      try {
+        const raw = await generate(p, options);
+        const parsed = JSON.parse(raw);
+        validate(parsed);
+        return parsed;
+      } catch (e) {
+        if (e.status === 401) throw e;
+        lastError = e.message;
+        if (attempt === 1) {
+          const wrapped = new Error(`AI response invalid after retry: ${lastError}`);
+          wrapped.status = e.status;
+          throw wrapped;
         }
       }
     }
   }
 
-  // Remove session from history
-  history.splice(sessionIdx, 1);
+  const userGroqKey = (req) => req.headers['x-groq-api-key'] || undefined;
 
-  try {
-    writeJSON(pPath, progressData);
-    writeJSON(hPath, history);
-    res.json({ success: true, undone: undoResults });
-  } catch (e) {
-    console.error('Undo XP save error:', e);
-    res.status(500).json({ error: 'Failed to save after undo' });
-  }
-});
-
-// CLEAR ALL XP HISTORY
-app.delete('/api/xp', (req, res) => {
-  const domain = req.query.domain;
-  if (!domain) return res.status(400).json({ error: 'domain required' });
-
-  const pPath = progressPath(domain);
-  if (!fs.existsSync(pPath)) return res.status(404).json({ error: 'Progress file not found' });
-
-  backupProgress(domain);
-  let progressData = readJSON(pPath);
-
-  // Clear all logs from all units
-  for (const bt of progressData.tree) {
-    for (const cl of bt.clusters) {
-      for (const u of cl.units) {
-        u.logs = [];
-      }
-    }
-  }
-
-  // Clear history
-  const hPath = historyPath(domain);
-  if (fs.existsSync(hPath)) {
-    writeJSON(hPath, []);
-  }
-
-  try {
-    writeJSON(pPath, progressData);
-    res.json({ success: true });
-  } catch (e) {
-    console.error('Clear XP save error:', e);
-    res.status(500).json({ error: 'Failed to clear XP' });
-  }
-});
-
-// ─── TEST ENDPOINTS ───────────────────────────────────────────────────────────────
-
-const VALID_STATES = new Set(['Mastered', 'Pass', 'Partial', 'Incorrect']);
-
-function validateGenerateShape(data) {
-  if (!Array.isArray(data.questions) || data.questions.length !== 10)
-    throw new Error(`expected questions array of length 10, got ${JSON.stringify(data.questions?.length)}`);
-  for (const q of data.questions) {
-    if (!Number.isInteger(q.id)) throw new Error(`question id must be int, got ${JSON.stringify(q.id)}`);
-    if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`question text missing for id ${q.id}`);
-  }
-}
-
-function validateMarkShape(data) {
-  if (!Array.isArray(data.results)) throw new Error('results must be an array');
-  for (const r of data.results) {
-    if (!Number.isInteger(r.id)) throw new Error(`result id must be int, got ${JSON.stringify(r.id)}`);
-    if (!VALID_STATES.has(r.state)) throw new Error(`invalid state "${r.state}" for id ${r.id}`);
-    if (typeof r.feedback !== 'string' || !r.feedback.trim()) throw new Error(`feedback missing for id ${r.id}`);
-  }
-  if (!Array.isArray(data.xpInjections)) throw new Error('xpInjections must be an array');
-  for (const x of data.xpInjections) {
-    if (x.difficultyScore < 20 || x.difficultyScore > 100) throw new Error(`difficultyScore out of range for unitId ${x.unitId}`);
-    if (x.performanceRatio < 0 || x.performanceRatio > 1) throw new Error(`performanceRatio out of range for unitId ${x.unitId}`);
-  }
-}
-
-async function generateJSONWithRetry(prompt, options, validate) {
-  let lastError = '';
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const p = attempt === 0 ? prompt
-      : `${prompt}\n\nYour previous response failed validation: ${lastError}\nReturn valid JSON only, matching the exact shape specified.`;
+  app.post('/api/test/generate', requireAuthApi, async (req, res) => {
+    const { domain, unitIds } = req.body;
+    if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+      return res.status(400).json({ error: 'domain and unitIds[] required' });
     try {
-      const raw = await generate(p, options);
-      const parsed = JSON.parse(raw);
-      validate(parsed);
-      return parsed;
-    } catch (e) {
-      // Auth / missing-key errors are not transient — surface them immediately
-      // with the original status code instead of wrapping in a retry message.
-      if (e.status === 401) throw e;
-      lastError = e.message;
-      if (attempt === 1) {
-        const wrapped = new Error(`AI response invalid after retry: ${lastError}`);
-        wrapped.status = e.status;
-        throw wrapped;
+      const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
+      const prompt = compilePrompt(template, { domain, unitIds, userId: req.user.id });
+      const { questions } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateGenerateShape);
+      res.json({ questions });
+    } catch (err) {
+      console.error('test/generate error:', err);
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/test/mark', requireAuthApi, async (req, res) => {
+    const { domain, unitIds, questions, answers } = req.body;
+    if (!domain || !Array.isArray(unitIds) || !Array.isArray(questions) || !Array.isArray(answers))
+      return res.status(400).json({ error: 'domain, unitIds, questions[], answers[] required' });
+    try {
+      const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test-mark.md'), 'utf8');
+      const base = compilePrompt(template, { domain, unitIds, userId: req.user.id });
+      const answerMap = Object.fromEntries(answers.map(a => [a.id, a.answer]));
+      const qa = questions.map(q =>
+        `Q${q.id}: ${q.question}\nA${q.id}: ${answerMap[q.id] ?? '(no answer)'}`
+      ).join('\n\n');
+      const prompt = `${base}\n\n---\n\n${qa}`;
+      const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateMarkShape);
+      const xpResult = processXPInjections(userPaths(req), domain, xpInjections);
+      res.json({ results, xpResult });
+    } catch (err) {
+      console.error('test/mark error:', err);
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/test/compile-and-generate', requireAuthApi, async (req, res) => {
+    const { domain, unitIds } = req.body;
+    if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+      return res.status(400).json({ error: 'domain and unitIds[] required' });
+    try {
+      const { questions } = await testPromptCompile(domain, unitIds, { apiKey: userGroqKey(req), userId: req.user.id });
+      res.json({ questions });
+    } catch (err) {
+      console.error('test/compile-and-generate error:', err);
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/teach', requireAuthApi, async (req, res) => {
+    const { domain, unitIds, messages } = req.body;
+    if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+      return res.status(400).json({ error: 'domain and unitIds[] required' });
+    if (!Array.isArray(messages) || messages.length === 0)
+      return res.status(400).json({ error: 'messages[] required' });
+    if (messages[messages.length - 1]?.role !== 'user')
+      return res.status(400).json({ error: 'last message must have role "user"' });
+    try {
+      const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
+      const systemPrompt = compilePrompt(template, { domain, unitIds, userId: req.user.id });
+      const reply = await chat(systemPrompt, messages, { apiKey: userGroqKey(req) });
+      res.json({ role: 'assistant', reply });
+    } catch (err) {
+      console.error('teach error:', err);
+      res.status(err.status || 500).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/teach/stream', requireAuthApi, async (req, res) => {
+    const { domain, unitIds, messages } = req.body;
+    if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
+      return res.status(400).json({ error: 'domain and unitIds[] required' });
+    if (!Array.isArray(messages) || messages.length === 0)
+      return res.status(400).json({ error: 'messages[] required' });
+    if (messages[messages.length - 1]?.role !== 'user')
+      return res.status(400).json({ error: 'last message must have role "user"' });
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    try {
+      const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
+      const systemPrompt = compilePrompt(template, { domain, unitIds, userId: req.user.id });
+      for await (const chunk of chatStream(systemPrompt, messages, { apiKey: userGroqKey(req) })) {
+        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+      }
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (err) {
+      console.error('teach/stream error:', err);
+      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
+  });
+}
+
+// ─── DEV SEED ACCOUNT + DATA MIGRATION ─────────────────────────────────────────
+async function ensureDevAccount() {
+  if (userRepo.count() > 0) return;
+
+  const passwordHash = await bcrypt.hash('devpassword', 12);
+  userRepo.create({
+    id: 'dev',
+    email: 'dev@dev.local',
+    passwordHash,
+    verified: true,
+    createdAt: new Date().toISOString(),
+  });
+
+  // Migrate any pre-existing legacy global data into the dev user namespace.
+  const devPaths = new UserPaths('dev');
+  devPaths.ensureDirs();
+
+  const moves = [
+    { src: path.join(DATA_DIR, 'units'),     dst: devPaths.unitsDir },
+    { src: path.join(DATA_DIR, 'progress'),  dst: devPaths.progressDir },
+    { src: path.join(DATA_DIR, 'deadlines'), dst: devPaths.deadlinesDir },
+    { src: path.join(DATA_DIR, 'backups'),   dst: devPaths.backupsRootDir },
+  ];
+  for (const { src, dst } of moves) {
+    if (!fs.existsSync(src)) continue;
+    if (!fs.existsSync(dst)) fs.mkdirSync(dst, { recursive: true });
+    for (const entry of fs.readdirSync(src)) {
+      const from = path.join(src, entry);
+      const to = path.join(dst, entry);
+      try {
+        fs.renameSync(from, to);
+      } catch (e) {
+        console.warn(`[seed] could not move ${from} → ${to}: ${e.message}`);
       }
     }
   }
+
+  console.log('────────────────────────────────────────────────────');
+  console.log('[seed] Created dev account: dev@dev.local / devpassword');
+  console.log('[seed] Existing data migrated under data/users/dev/');
+  console.log('────────────────────────────────────────────────────');
 }
 
-// Pull a user-supplied Groq key from the request, if present. Adapter falls
-// back to process.env.GROQ_API_KEY when this is undefined.
-const userGroqKey = (req) => req.headers['x-groq-api-key'] || undefined;
-
-app.post('/api/test/generate', async (req, res) => {
-  const { domain, unitIds } = req.body;
-  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
-    return res.status(400).json({ error: 'domain and unitIds[] required' });
-
-  try {
-    const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
-    const prompt = compilePrompt(template, { domain, unitIds });
-    const { questions } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateGenerateShape);
-    res.json({ questions });
-  } catch (err) {
-    console.error('test/generate error:', err);
-    res.status(err.status || 500).json({ error: err.message });
+// ─── STARTUP ────────────────────────────────────────────────────────────────────
+(async () => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    console.error('[fatal] JWT_SECRET must be set and >= 32 chars. Copy .env.example to .env and fill in the required values before starting.');
+    process.exit(1);
   }
+  await ensureDevAccount();
+  wireAuthDependentRoutes();
+  app.listen(PORT, '0.0.0.0', () => console.log(`🚀 StudyXP running on port ${PORT}`));
+})().catch((err) => {
+  console.error('startup failed', err);
+  process.exit(1);
 });
-
-app.post('/api/test/mark', async (req, res) => {
-  const { domain, unitIds, questions, answers } = req.body;
-  if (!domain || !Array.isArray(unitIds) || !Array.isArray(questions) || !Array.isArray(answers))
-    return res.status(400).json({ error: 'domain, unitIds, questions[], answers[] required' });
-
-  try {
-    const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test-mark.md'), 'utf8');
-    const base = compilePrompt(template, { domain, unitIds });
-    const answerMap = Object.fromEntries(answers.map(a => [a.id, a.answer]));
-    const qa = questions.map(q =>
-      `Q${q.id}: ${q.question}\nA${q.id}: ${answerMap[q.id] ?? '(no answer)'}`
-    ).join('\n\n');
-    const prompt = `${base}\n\n---\n\n${qa}`;
-
-    const { results, xpInjections } = await generateJSONWithRetry(prompt, { json: true, apiKey: userGroqKey(req) }, validateMarkShape);
-    const xpResult = processXPInjections(domain, xpInjections);
-    res.json({ results, xpResult });
-  } catch (err) {
-    console.error('test/mark error:', err);
-    res.status(err.status || 500).json({ error: err.message });
-  }
-});
-
-app.post('/api/test/compile-and-generate', async (req, res) => {
-  const { domain, unitIds } = req.body;
-  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
-    return res.status(400).json({ error: 'domain and unitIds[] required' });
-
-  try {
-    const { questions } = await testPromptCompile(domain, unitIds, { apiKey: userGroqKey(req) });
-    res.json({ questions });
-  } catch (err) {
-    console.error('test/compile-and-generate error:', err);
-    res.status(err.status || 500).json({ error: err.message });
-  }
-});
-
-// ─── TEACH ENDPOINTS ──────────────────────────────────────────────────────────────
-app.post('/api/teach', async (req, res) => {
-  const { domain, unitIds, messages } = req.body;
-
-  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
-    return res.status(400).json({ error: 'domain and unitIds[] required' });
-  if (!Array.isArray(messages) || messages.length === 0)
-    return res.status(400).json({ error: 'messages[] required' });
-  if (messages[messages.length - 1]?.role !== 'user')
-    return res.status(400).json({ error: 'last message must have role "user"' });
-
-  try {
-    const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
-    const systemPrompt = compilePrompt(template, { domain, unitIds });
-    const reply = await chat(systemPrompt, messages, { apiKey: userGroqKey(req) });
-    res.json({ role: 'assistant', reply });
-  } catch (err) {
-    console.error('teach error:', err);
-    res.status(err.status || 500).json({ error: err.message });
-  }
-});
-
-app.post('/api/teach/stream', async (req, res) => {
-  const { domain, unitIds, messages } = req.body;
-
-  if (!domain || !Array.isArray(unitIds) || unitIds.length === 0)
-    return res.status(400).json({ error: 'domain and unitIds[] required' });
-  if (!Array.isArray(messages) || messages.length === 0)
-    return res.status(400).json({ error: 'messages[] required' });
-  if (messages[messages.length - 1]?.role !== 'user')
-    return res.status(400).json({ error: 'last message must have role "user"' });
-
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  try {
-    const template = fs.readFileSync(path.join(__dirname, 'prompts', 'chat.md'), 'utf8');
-    const systemPrompt = compilePrompt(template, { domain, unitIds });
-    for await (const chunk of chatStream(systemPrompt, messages, { apiKey: userGroqKey(req) })) {
-      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
-    }
-    res.write('data: [DONE]\n\n');
-    res.end();
-  } catch (err) {
-    console.error('teach/stream error:', err);
-    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
-    res.end();
-  }
-});
-
-// Bind to 0.0.0.0 so PaaS hosts (Railway, Render, Fly, etc.) can route traffic in.
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 StudyXP running on port ${PORT}`));

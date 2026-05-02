@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyXP — Sign in</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-sans: 'Space Grotesk', Arial, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --shadow: 4px 4px 0px 0px #000;
+      --shadow-sm: 2px 2px 0px 0px #000;
+      --shadow-lg: 6px 6px 0px 0px #000;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: #fde047;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .brand h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+    }
+    .brand .sub {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #000;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .card {
+      background: #fff;
+      border: 3px solid #000;
+      box-shadow: 8px 8px 0px 0px #000;
+      max-width: 460px;
+      width: 100%;
+    }
+    .card-head {
+      background: #000;
+      color: #fde047;
+      padding: 14px 22px;
+    }
+    .card-head h2 {
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .card-body {
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .card-body p.help {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #444;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      border: 2px solid #000;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      background: #f5f5f5;
+    }
+    input:focus { outline: 3px solid #4ade80; outline-offset: 0; }
+    input.code {
+      letter-spacing: 0.4em;
+      font-size: 1.4rem;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .btn {
+      width: 100%;
+      background: #4ade80;
+      border: 2px solid #000;
+      box-shadow: var(--shadow);
+      padding: 14px 20px;
+      font-family: var(--font-sans);
+      font-weight: 900;
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: transform 0.05s, box-shadow 0.05s;
+    }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px 0px #000; }
+    .btn:active { transform: translate(3px, 3px); box-shadow: none; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .link-btn {
+      background: transparent;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      color: #000;
+    }
+    .link-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .error {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 10px 12px;
+      border: 2px solid #000;
+      background: #fca5a5;
+      display: none;
+    }
+    .error.show { display: block; }
+
+    .info {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 10px 12px;
+      border: 2px solid #000;
+      background: #4ade80;
+      display: none;
+    }
+    .info.show { display: block; }
+
+    section[data-view] { display: none; }
+    section[data-view].active { display: flex; flex-direction: column; gap: 18px; }
+
+    .email-pill {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 8px 12px;
+      border: 2px solid #000;
+      background: #fde047;
+      display: inline-block;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brand">
+    <h1>StudyXP</h1>
+    <div class="sub">Adaptive Learning System</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2 id="card-title">Sign in</h2></div>
+    <div class="card-body">
+
+      <!-- View 1: Email entry -->
+      <section data-view="email" class="active">
+        <p class="help">Enter your email to sign in or create an account.</p>
+        <div>
+          <label for="email-input">Email</label>
+          <input id="email-input" type="email" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="error" data-error="email"></div>
+        <button class="btn" id="email-submit">Continue</button>
+      </section>
+
+      <!-- View 2: Verification code -->
+      <section data-view="code">
+        <p class="help">We sent a 6-digit code to <span class="email-pill" id="code-email-pill"></span>. Codes expire in 10 minutes.</p>
+        <div>
+          <label for="code-input">Verification code</label>
+          <input id="code-input" class="code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+        </div>
+        <div class="error" data-error="code"></div>
+        <div class="info" data-info="code"></div>
+        <button class="btn" id="code-submit">Verify</button>
+        <div class="row">
+          <button class="link-btn" id="code-back">← Use a different email</button>
+          <button class="link-btn" id="code-resend">Resend code</button>
+        </div>
+      </section>
+
+      <!-- View 3: Password creation (signup) -->
+      <section data-view="password-create">
+        <p class="help">Create a password for <span class="email-pill" id="create-email-pill"></span>. Minimum 8 characters.</p>
+        <div>
+          <label for="new-password">Password</label>
+          <input id="new-password" type="password" autocomplete="new-password" placeholder="••••••••">
+        </div>
+        <div>
+          <label for="confirm-password">Confirm password</label>
+          <input id="confirm-password" type="password" autocomplete="new-password" placeholder="••••••••">
+        </div>
+        <div class="error" data-error="password-create"></div>
+        <button class="btn" id="password-create-submit">Create account</button>
+      </section>
+
+      <!-- View 4: Password (login) -->
+      <section data-view="password-login">
+        <p class="help">Welcome back. Enter the password for <span class="email-pill" id="login-email-pill"></span>.</p>
+        <div>
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <div class="error" data-error="password-login"></div>
+        <button class="btn" id="password-login-submit">Sign in</button>
+        <div class="row">
+          <button class="link-btn" id="login-back">← Use a different email</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    let currentEmail = '';
+
+    const views = document.querySelectorAll('section[data-view]');
+    function show(name) {
+      views.forEach(v => v.classList.toggle('active', v.dataset.view === name));
+      // Clear inline messages on transition.
+      document.querySelectorAll('.error, .info').forEach(el => {
+        el.classList.remove('show');
+        el.textContent = '';
+      });
+    }
+
+    function setError(view, msg) {
+      const el = document.querySelector(`[data-error="${view}"]`);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+    function setInfo(view, msg) {
+      const el = document.querySelector(`[data-info="${view}"]`);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    async function postJSON(path, body) {
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {}),
+      });
+      let data = {};
+      try { data = await res.json(); } catch {}
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    // ─── View 1: email ────────────────────────────────────────────
+    const emailInput = document.getElementById('email-input');
+    document.getElementById('email-submit').addEventListener('click', submitEmail);
+    emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
+
+    async function submitEmail() {
+      const email = emailInput.value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return setError('email', 'Please enter a valid email address.');
+      }
+      currentEmail = email;
+      const btn = document.getElementById('email-submit');
+      btn.disabled = true;
+      const { ok, status, data } = await postJSON('/api/auth/register', { email });
+      btn.disabled = false;
+      if (status === 429) return setError('email', 'Too many requests. Try again in a few minutes.');
+      if (!ok) return setError('email', data.error || 'Something went wrong. Try again.');
+      if (data.status === 'needs-password') {
+        document.getElementById('login-email-pill').textContent = email;
+        show('password-login');
+        document.getElementById('login-password').focus();
+      } else {
+        document.getElementById('code-email-pill').textContent = email;
+        show('code');
+        document.getElementById('code-input').focus();
+      }
+    }
+
+    // ─── View 2: code ─────────────────────────────────────────────
+    const codeInput = document.getElementById('code-input');
+    document.getElementById('code-submit').addEventListener('click', submitCode);
+    codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitCode(); });
+    codeInput.addEventListener('input', () => {
+      codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 6);
+    });
+    document.getElementById('code-back').addEventListener('click', () => {
+      currentEmail = '';
+      show('email');
+      emailInput.focus();
+    });
+    document.getElementById('code-resend').addEventListener('click', async () => {
+      if (!currentEmail) return;
+      const { ok, status, data } = await postJSON('/api/auth/register', { email: currentEmail });
+      if (status === 429) return setError('code', 'Too many requests. Try again in a few minutes.');
+      if (!ok) return setError('code', data.error || 'Could not resend code.');
+      setInfo('code', 'A new code has been sent.');
+    });
+
+    async function submitCode() {
+      const code = codeInput.value.trim();
+      if (!/^\d{6}$/.test(code)) return setError('code', 'Enter the 6-digit code from your email.');
+      const btn = document.getElementById('code-submit');
+      btn.disabled = true;
+      const { ok, status, data } = await postJSON('/api/auth/verify', { email: currentEmail, code });
+      btn.disabled = false;
+      if (status === 429) return setError('code', 'Too many requests. Try again in a few minutes.');
+      if (!ok) return setError('code', data.error || 'Invalid or expired code.');
+      document.getElementById('create-email-pill').textContent = currentEmail;
+      show('password-create');
+      document.getElementById('new-password').focus();
+    }
+
+    // ─── View 3: password create ─────────────────────────────────
+    const newPassword = document.getElementById('new-password');
+    const confirmPassword = document.getElementById('confirm-password');
+    document.getElementById('password-create-submit').addEventListener('click', submitCreate);
+    confirmPassword.addEventListener('keydown', e => { if (e.key === 'Enter') submitCreate(); });
+
+    async function submitCreate() {
+      const pw = newPassword.value;
+      const cf = confirmPassword.value;
+      if (pw.length < 8) return setError('password-create', 'Password must be at least 8 characters.');
+      if (pw !== cf) return setError('password-create', 'Passwords do not match.');
+      const btn = document.getElementById('password-create-submit');
+      btn.disabled = true;
+      const { ok, data } = await postJSON('/api/auth/complete-registration', {
+        email: currentEmail,
+        password: pw,
+      });
+      btn.disabled = false;
+      if (!ok) return setError('password-create', data.error || 'Could not create account. Try again.');
+      window.location = '/';
+    }
+
+    // ─── View 4: password login ──────────────────────────────────
+    const loginPassword = document.getElementById('login-password');
+    document.getElementById('password-login-submit').addEventListener('click', submitLogin);
+    loginPassword.addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(); });
+    document.getElementById('login-back').addEventListener('click', () => {
+      currentEmail = '';
+      show('email');
+      emailInput.focus();
+    });
+
+    async function submitLogin() {
+      const pw = loginPassword.value;
+      if (pw.length < 8) return setError('password-login', 'Invalid credentials.');
+      const btn = document.getElementById('password-login-submit');
+      btn.disabled = true;
+      const { ok, status, data } = await postJSON('/api/auth/login', {
+        email: currentEmail,
+        password: pw,
+      });
+      btn.disabled = false;
+      if (status === 429) return setError('password-login', 'Too many requests. Try again in a few minutes.');
+      if (!ok) return setError('password-login', data.error || 'Invalid credentials.');
+      window.location = '/';
+    }
+
+    emailInput.focus();
+  </script>
+</body>
+</html>

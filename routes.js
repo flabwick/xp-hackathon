@@ -1,33 +1,38 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { COOKIE_NAME } = require('./auth/middleware');
 
-const router = express.Router();
 const pub = (file) => path.join(__dirname, 'public', file);
 
-// ── Domain picker (new home page) ───────────────────────────────────────────
-router.get('/', (req, res) => {
-  res.sendFile(pub('domains.html'));
-});
+function buildPageRouter(authService, requireAuth) {
+  const router = express.Router();
 
-// ── Domain-specific study page (existing index.html, domain pre-selected) ──
-router.get('/unit/:domain', (req, res) => {
-  const domain = req.params.domain.replace(/[^a-zA-Z0-9_-]/g, '');
-  const html = fs.readFileSync(pub('index.html'), 'utf8');
-  // <base href="/"> fixes relative asset paths (index.css, app.js) when served from /unit/:domain
-  const injected = html
-    .replace('<head>', '<head>\n  <base href="/">')
-    .replace('</body>', `<script>window.__domain = '${domain}';</script>\n</body>`);
-  res.type('text/html').send(injected);
-});
+  // Home: serve auth page if no valid session, else the domain picker.
+  router.get('/', (req, res) => {
+    const token = req.cookies?.[COOKIE_NAME];
+    const user = token ? authService.verifyToken(token) : null;
+    if (!user) return res.sendFile(pub('auth.html'));
+    res.sendFile(pub('domains.html'));
+  });
 
-// ── Test & teach ─────────────────────────────────────────────────────────────
-router.get('/test', (req, res) => res.sendFile(pub('test.html')));
-router.get('/teach', (req, res) => res.sendFile(pub('teach.html')));
+  // Domain-specific study page (existing index.html, domain pre-selected)
+  router.get('/unit/:domain', requireAuth, (req, res) => {
+    const domain = req.params.domain.replace(/[^a-zA-Z0-9_-]/g, '');
+    const html = fs.readFileSync(pub('index.html'), 'utf8');
+    const injected = html
+      .replace('<head>', '<head>\n  <base href="/">')
+      .replace('</body>', `<script>window.__domain = '${domain}';</script>\n</body>`);
+    res.type('text/html').send(injected);
+  });
 
-// ── Utility pages ─────────────────────────────────────────────────────────────
-router.get('/mobile-upload', (req, res) => res.sendFile(pub('mobile-upload.html')));
-router.get('/mapping', (req, res) => res.sendFile(pub('mapping.html')));
-router.get('/markdown-ui', (req, res) => res.sendFile(pub('markdown-ui.html')));
+  router.get('/test', requireAuth, (req, res) => res.sendFile(pub('test.html')));
+  router.get('/teach', requireAuth, (req, res) => res.sendFile(pub('teach.html')));
+  router.get('/mobile-upload', requireAuth, (req, res) => res.sendFile(pub('mobile-upload.html')));
+  router.get('/mapping', requireAuth, (req, res) => res.sendFile(pub('mapping.html')));
+  router.get('/markdown-ui', requireAuth, (req, res) => res.sendFile(pub('markdown-ui.html')));
 
-module.exports = router;
+  return router;
+}
+
+module.exports = { buildPageRouter };

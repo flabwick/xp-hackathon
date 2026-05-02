@@ -15,11 +15,7 @@ const path = require('path');
 const { PDFParse } = require('pdf-parse');
 const { OpenAI } = require('openai');
 const { resolveKey } = require('./byok');
-
-const DATA_DIR      = path.join(__dirname, 'data');
-const UNITS_DIR     = path.join(DATA_DIR, 'units');
-const PROGRESS_DIR  = path.join(DATA_DIR, 'progress');
-const DEADLINES_DIR = path.join(DATA_DIR, 'deadlines');
+const { UserPaths } = require('./userPaths');
 
 // PDF-extracted text gets truncated to keep the prompt under a sane token
 // budget. ~200k chars ≈ 50k tokens, well within gpt-4o-mini's 128k window.
@@ -163,20 +159,18 @@ function slugify(name) {
     || `course-${Date.now().toString(36)}`;
 }
 
-/** Pick a slug that doesn't collide with an existing data/units/<slug>.json. */
-function pickUniqueSlug(name) {
+/** Pick a slug that doesn't collide with an existing user-scoped <slug>.json. */
+function pickUniqueSlug(name, paths) {
   const base = slugify(name);
-  if (!fs.existsSync(path.join(UNITS_DIR, `${base}.json`))) return base;
+  if (!fs.existsSync(paths.unitsFile(base))) return base;
   let n = 2;
-  while (fs.existsSync(path.join(UNITS_DIR, `${base}-${n}.json`))) n++;
+  while (fs.existsSync(paths.unitsFile(`${base}-${n}`))) n++;
   return `${base}-${n}`;
 }
 
-/** Build empty progress + deadlines files mirroring the units tree. */
-function bootstrapDomainFiles(slug, units) {
-  for (const dir of [PROGRESS_DIR, DEADLINES_DIR]) {
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  }
+/** Build empty progress + deadlines files mirroring the units tree, in user namespace. */
+function bootstrapDomainFiles(slug, units, paths) {
+  paths.ensureDirs();
   const progress = {
     tree: units.tree.map(bt => ({
       bt: bt.bt,
@@ -186,23 +180,29 @@ function bootstrapDomainFiles(slug, units) {
       })),
     })),
   };
-  fs.writeFileSync(path.join(PROGRESS_DIR, `${slug}.json`),         JSON.stringify(progress, null, 2));
-  fs.writeFileSync(path.join(PROGRESS_DIR, `${slug}-history.json`), JSON.stringify([], null, 2));
-  fs.writeFileSync(path.join(DEADLINES_DIR, `${slug}.json`),
-    JSON.stringify({ meta: units.meta, deadlines: {} }, null, 2));
+  fs.writeFileSync(paths.progressFile(slug),  JSON.stringify(progress, null, 2));
+  fs.writeFileSync(paths.historyFile(slug),   JSON.stringify([], null, 2));
+  fs.writeFileSync(paths.deadlinesFile(slug), JSON.stringify({ meta: units.meta, deadlines: {} }, null, 2));
 }
 
 /**
- * Full one-shot pipeline: PDF buffer → write data/units/<slug>.json + scaffold.
+ * Full one-shot pipeline: PDF buffer → write per-user units file + scaffold.
+ * @param {Buffer} pdfBuffer
+ * @param {string} courseName
+ * @param {string} userId    REQUIRED — the authenticated user's id (req.user.id).
+ * @param {string} [apiKey]  OpenAI BYOK key.
  * @returns {Promise<{ slug, unitCount, pdfPages, pdfChars }>}
  */
-async function addCourseFromPDF(pdfBuffer, courseName, apiKey) {
-  const { units, pdfPages, pdfChars } = await extractUnitsFromPDF(pdfBuffer, courseName, apiKey);
-  const slug = pickUniqueSlug(courseName);
+async function addCourseFromPDF(pdfBuffer, courseName, userId, apiKey) {
+  if (!userId) throw new Error('addCourseFromPDF: userId is required');
+  const paths = new UserPaths(userId);
+  paths.ensureDirs();
 
-  if (!fs.existsSync(UNITS_DIR)) fs.mkdirSync(UNITS_DIR, { recursive: true });
-  fs.writeFileSync(path.join(UNITS_DIR, `${slug}.json`), JSON.stringify(units, null, 2));
-  bootstrapDomainFiles(slug, units);
+  const { units, pdfPages, pdfChars } = await extractUnitsFromPDF(pdfBuffer, courseName, apiKey);
+  const slug = pickUniqueSlug(courseName, paths);
+
+  fs.writeFileSync(paths.unitsFile(slug), JSON.stringify(units, null, 2));
+  bootstrapDomainFiles(slug, units, paths);
 
   const unitCount = units.tree.reduce(
     (a, bt) => a + bt.clusters.reduce((b, cl) => b + cl.units.length, 0), 0);

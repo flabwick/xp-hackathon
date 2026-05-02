@@ -1,3 +1,8 @@
+/* DEPRECATED — This script is not user-scoped and predates the auth layer.
+   Running it against a live installation will write data to the legacy global
+   path, bypassing per-user isolation entirely. Do not run this script. It is
+   retained for reference only. */
+
 /**
  * scripts/bootstrap_domain.js
  *

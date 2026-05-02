@@ -325,6 +325,7 @@
     <div class="header-actions">
       <button id="open-keys" class="btn-header">🔑 API Keys</button>
       <button id="open-add-course" class="btn-header primary">+ Add Course</button>
+      <button id="logout-btn" class="btn-header warn">Log out</button>
     </div>
   </header>
 
@@ -535,6 +536,10 @@
 
     document.getElementById('open-keys').addEventListener('click', () => openModal('keys-modal'));
     document.getElementById('open-add-course').addEventListener('click', () => openModal('add-course-modal'));
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      window.location = '/';
+    });
 
     /* ─────────────── Keys modal logic ─────────────── */
     function hydrateKeysModal() {

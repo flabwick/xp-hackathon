@@ -1,21 +1,25 @@
 const fs = require('fs');
 const path = require('path');
+const { UserPaths } = require('./userPaths');
 
-const UNITS_DIR = path.join(__dirname, 'data/units');
-const PROGRESS_DIR = path.join(__dirname, 'data/progress');
 const PROMPTS_DIR = path.join(__dirname, 'prompts');
+
+function pathsFor(userId) {
+  if (!userId) throw new Error('promptCompiler: userId is required');
+  return new UserPaths(userId);
+}
 
 // ─── UNIT COMPILATION ─────────────────────────────────────────────────────────────
 /**
  * Converts unit JSON data into natural language description.
  * Handles both single unitId and arrays of relevantUnits.
  */
-function compileUnits(domain, unitIds) {
+function compileUnits(domain, unitIds, userId) {
   if (!unitIds || unitIds.length === 0) {
     return 'No specific units selected.';
   }
 
-  const unitsFile = path.join(UNITS_DIR, `${domain}.json`);
+  const unitsFile = pathsFor(userId).unitsFile(domain);
   if (!fs.existsSync(unitsFile)) {
     return `Units data not found for domain: ${domain}`;
   }
@@ -132,7 +136,7 @@ function compileUnits(domain, unitIds) {
     // Load progress for this domain
     let progressMap = {};
     if (domain) {
-      const progressFile = path.join(PROGRESS_DIR, `${domain}.json`);
+      const progressFile = pathsFor(userId).progressFile(domain);
       if (fs.existsSync(progressFile)) {
         const progressData = JSON.parse(fs.readFileSync(progressFile, 'utf8'));
         progressData.tree.forEach(bt => {
@@ -237,8 +241,8 @@ function compileUnits(domain, unitIds) {
 /**
  * Compiles progress logs into readable natural language format.
  */
-function compileProgress(domain, unitIds) {
-  const progressFile = path.join(PROGRESS_DIR, `${domain}.json`);
+function compileProgress(domain, unitIds, userId) {
+  const progressFile = pathsFor(userId).progressFile(domain);
   if (!fs.existsSync(progressFile)) {
     return `No progress logs found for domain: ${domain}`;
   }
@@ -313,10 +317,10 @@ function compileQuestionsAnswers(entries) {
  * Generates a dynamic summary from the domain's units data.
  * Falls back to summary.md if available.
  */
-function compileSummary(domain) {
+function compileSummary(domain, userId) {
   // If domain is provided, generate dynamic summary from units
   if (domain) {
-    const unitsFile = path.join(UNITS_DIR, `${domain}.json`);
+    const unitsFile = pathsFor(userId).unitsFile(domain);
     if (fs.existsSync(unitsFile)) {
       const unitsData = JSON.parse(fs.readFileSync(unitsFile, 'utf8'));
       return generateDynamicSummary(unitsData);
@@ -431,13 +435,13 @@ function generateDynamicSummary(unitsData) {
  * @returns {string} Compiled prompt
  */
 function compilePrompt(template, context = {}) {
-  const { domain, unitIds, entries } = context;
+  const { domain, unitIds, entries, userId } = context;
   let result = template;
 
   // Compile UNITS, UNITS+CONTEXT, and UNITS+CONTEXT+PROGRESS
   if (result.includes('{{UNITS+CONTEXT+PROGRESS}}') || result.includes('{{UNITS+CONTEXT}}') || result.includes('{{UNITS}}')) {
     const { unitsOnly, unitsWithContext, unitsWithContextAndProgress } = domain && unitIds
-      ? compileUnits(domain, unitIds)
+      ? compileUnits(domain, unitIds, userId)
       : { unitsOnly: 'No units specified.', unitsWithContext: 'No units specified.', unitsWithContextAndProgress: 'No units specified.' };
     result = result.replace(/{{UNITS\+CONTEXT\+PROGRESS}}/g, unitsWithContextAndProgress);
     result = result.replace(/{{UNITS\+CONTEXT}}/g, unitsWithContext);
@@ -446,7 +450,7 @@ function compilePrompt(template, context = {}) {
 
   // Compile PROGRESS
   if (result.includes('{{PROGRESS}}')) {
-    const progressText = domain ? compileProgress(domain, unitIds) : 'No progress data available.';
+    const progressText = domain ? compileProgress(domain, unitIds, userId) : 'No progress data available.';
     result = result.replace(/{{PROGRESS}}/g, progressText);
   }
 
@@ -459,7 +463,7 @@ function compilePrompt(template, context = {}) {
 
   // Compile SUMMARY
   if (result.includes('{{SUMMARY}}')) {
-    const summaryText = compileSummary(domain);
+    const summaryText = compileSummary(domain, userId);
     result = result.replace(/{{SUMMARY}}/g, summaryText);
   }
 

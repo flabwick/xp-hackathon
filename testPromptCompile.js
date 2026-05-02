@@ -15,9 +15,10 @@ function validateQuestions(data) {
 
 async function testPromptCompile(domain, unitIds, options = {}) {
   console.log(`[testPromptCompile] domain="${domain}" unitIds=[${unitIds.join(',')}]`);
+  if (!options.userId) throw new Error('testPromptCompile: options.userId required');
 
   const template = fs.readFileSync(path.join(PROMPTS_DIR, 'test.md'), 'utf8');
-  const prompt = compilePrompt(template, { domain, unitIds });
+  const prompt = compilePrompt(template, { domain, unitIds, userId: options.userId });
   console.log(`[testPromptCompile] compiled prompt length: ${prompt.length} chars`);
 
   let lastError = '';
