@@ -1,0 +1,305 @@
+Debugging
+=========
+
+Appendix A
+Debugging
+Whenyouaredebugging,youshoulddistinguishamongdifferentkindsoferrorsinorder
+totrackthemdownmorequickly:
+• Syntaxerrorsarediscoveredbytheinterpreterwhenitistranslatingthesourcecode
+intobytecode. Theyindicatethatthereissomethingwrongwiththestructureofthe
+program. Example: Omitting the colon at the end of a def statement generates the
+somewhatredundantmessageSyntaxError: invalid syntax.
+• Runtime errors are produced by the interpreter if something goes wrong while the
+programisrunning. Mostruntimeerrormessagesincludeinformationaboutwhere
+the error occurred and what functions were executing. Example: An infinite recur-
+sion eventually causes the runtime error “maximum recursion depth exceeded”.
+• Semanticerrorsareproblemswithaprogramthatrunswithoutproducingerrormes-
+sagesbutdoesn’tdotherightthing. Example: Anexpressionmaynotbeevaluated
+intheorderyouexpect,yieldinganincorrectresult.
+Thefirststepindebuggingistofigureoutwhichkindoferroryouaredealingwith. Al-
+thoughthefollowingsectionsareorganizedbyerrortype,sometechniquesareapplicable
+inmorethanonesituation.
+A.1 Syntax errors
+Syntax errors are usually easy to fix once you figure out what they are. Unfortunately,
+the error messages are often not helpful. The most common messages are SyntaxError:
+invalid syntax and SyntaxError: invalid token, neither of which is very informa-
+tive.
+Ontheotherhand,themessagedoestellyouwhereintheprogramtheproblemoccurred.
+Actually,ittellsyouwherePythonnoticedaproblem,whichisnotnecessarilywherethe
+error is. Sometimes the error is prior to the location of the error message, often on the
+precedingline.
+
+194 AppendixA. Debugging
+Ifyouarebuildingtheprogramincrementally,youshouldhaveagoodideaaboutwhere
+theerroris. Itwillbeinthelastlineyouadded.
+If you are copying code from a book, start by comparing your code to the book’s code
+verycarefully. Checkeverycharacter. Atthesametime,rememberthatthebookmightbe
+wrong,soifyouseesomethingthatlookslikeasyntaxerror,itmightbe.
+Herearesomewaystoavoidthemostcommonsyntaxerrors:
+1. MakesureyouarenotusingaPythonkeywordforavariablename.
+2. Checkthatyouhaveacolonattheendoftheheaderofeverycompoundstatement,
+includingfor,while,if,anddefstatements.
+3. Make sure that any strings in the code have matching quotation marks. Make sure
+thatallquotationmarksare“straightquotes”,not“curlyquotes”.
+4. If you have multiline strings with triple quotes (single or double), make sure you
+haveterminatedthestringproperly. Anunterminatedstringmaycauseaninvalid
+token error at the end of your program, or it may treat the following part of the
+programasastringuntilitcomestothenextstring. Inthesecondcase,itmightnot
+produceanerrormessageatall!
+5. Anunclosedopeningoperator—(,{,or[—makesPythoncontinuewiththenextline
+aspartofthecurrentstatement. Generally,anerroroccursalmostimmediatelyinthe
+nextline.
+6. Checkfortheclassic=insteadof==insideaconditional.
+7. Check the indentation to make sure it lines up the way it is supposed to. Python
+canhandlespaceandtabs,butifyoumixthemitcancauseproblems. Thebestway
+toavoidthisproblemistouseatexteditorthatknowsaboutPythonandgenerates
+consistentindentation.
+8. Ifyouhavenon-ASCIIcharactersinthecode(includingstringsandcomments),that
+mightcauseaproblem,althoughPython3usuallyhandlesnon-ASCIIcharacters. Be
+carefulifyoupasteintextfromawebpageorothersource.
+Ifnothingworks,moveontothenextsection...
+A.1.1 Ikeepmakingchangesanditmakesnodifference.
+Iftheinterpretersaysthereisanerrorandyoudon’tseeit,thatmightbebecauseyouand
+theinterpreterarenotlookingatthesamecode. Checkyourprogrammingenvironmentto
+makesurethattheprogramyouareeditingistheonePythonistryingtorun.
+Ifyouarenotsure,tryputtinganobviousanddeliberatesyntaxerroratthebeginningof
+the program. Now run it again. If the interpreter doesn’t find the new error, you are not
+runningthenewcode.
+Thereareafewlikelyculprits:
+• You edited the file and forgot to save the changes before running it again. Some
+programmingenvironmentsdothisforyou,butsomedon’t.
+
+A.2. Runtimeerrors 195
+• Youchangedthenameofthefile,butyouarestillrunningtheoldname.
+• Somethinginyourdevelopmentenvironmentisconfiguredincorrectly.
+• Ifyouarewritingamoduleandusingimport,makesureyoudon’tgiveyourmodule
+thesamenameasoneofthestandardPythonmodules.
+• If you are using import to read a module, remember that you have to restart the
+interpreterorusereloadtoreadamodifiedfile. Ifyouimportthemoduleagain,it
+doesn’tdoanything.
+Ifyougetstuckandyoucan’tfigureoutwhatisgoingon, oneapproachistostartagain
+withanewprogramlike“Hello,World!”,andmakesureyoucangetaknownprogramto
+run. Thengraduallyaddthepiecesoftheoriginalprogramtothenewone.
+A.2 Runtime errors
+Onceyourprogramissyntacticallycorrect,Pythoncanreaditandatleaststartrunningit.
+Whatcouldpossiblygowrong?
+A.2.1 Myprogramdoesabsolutelynothing.
+This problem is most common when your file consists of functions and classes but does
+notactuallyinvokeafunctiontostartexecution. Thismaybeintentionalifyouonlyplan
+toimportthismoduletosupplyclassesandfunctions.
+Ifitisnotintentional,makesurethereisafunctioncallintheprogram,andmakesurethe
+flowofexecutionreachesit(see“FlowofExecution”below).
+A.2.2 Myprogramhangs.
+Ifaprogramstopsandseemstobedoingnothing,itis“hanging”. Oftenthatmeansthatit
+iscaughtinaninfinitelooporinfiniterecursion.
+• If there is a particular loop that you suspect is the problem, add a print statement
+immediatelybeforetheloopthatsays“enteringtheloop”andanotherimmediately
+afterthatsays“exitingtheloop”.
+Run the program. If you get the first message and not the second, you’ve got an
+infiniteloop. Gotothe“InfiniteLoop”sectionbelow.
+• Mostofthetime,aninfiniterecursionwillcausetheprogramtorunforawhileand
+then produce a “RuntimeError: Maximum recursion depth exceeded” error. If that
+happens,gotothe“InfiniteRecursion”sectionbelow.
+If you are not getting this error but you suspect there is a problem with a recursive
+methodorfunction, youcanstillusethetechniquesinthe“InfiniteRecursion”sec-
+tion.
+• Ifneitherofthosestepsworks,starttestingotherloopsandotherrecursivefunctions
+andmethods.
+• Ifthatdoesn’twork,thenitispossiblethatyoudon’tunderstandtheflowofexecu-
+tioninyourprogram. Gotothe“FlowofExecution”sectionbelow.
+
+196 AppendixA. Debugging
+InfiniteLoop
+If you think you have an infinite loop and you think you know what loop is causing the
+problem,addaprintstatementattheendoftheloopthatprintsthevaluesofthevariables
+intheconditionandthevalueofthecondition.
+Forexample:
+while x > 0 and y < 0 :
+# do something to x
+# do something to y
+print('x: ', x)
+print('y: ', y)
+print("condition: ", (x > 0 and y < 0))
+Nowwhenyouruntheprogram,youwillseethreelinesofoutputforeachtimethrough
+theloop. Thelasttimethroughtheloop,theconditionshouldbeFalse. Iftheloopkeeps
+going,youwillbeabletoseethevaluesofxandy,andyoumightfigureoutwhytheyare
+notbeingupdatedcorrectly.
+InfiniteRecursion
+Mostofthetime,infiniterecursioncausestheprogramtorunforawhileandthenproduce
+aMaximum recursion depth exceedederror.
+Ifyoususpectthatafunctioniscausinganinfiniterecursion,makesurethatthereisabase
+case. Thereshouldbesomeconditionthatcausesthefunctiontoreturnwithoutmakinga
+recursiveinvocation. Ifnot,youneedtorethinkthealgorithmandidentifyabasecase.
+If there is a base case but the program doesn’t seem to be reaching it, add a print state-
+mentatthebeginningofthefunctionthatprintstheparameters. Nowwhenyourunthe
+program, you will see a few lines of output every time the function is invoked, and you
+willseetheparametervalues. Iftheparametersarenotmovingtowardthebasecase,you
+willgetsomeideasaboutwhynot.
+FlowofExecution
+Ifyouarenotsurehowtheflowofexecutionismovingthroughyourprogram,addprint
+statementstothebeginningofeachfunctionwithamessagelike“enteringfunctionfoo”,
+wherefooisthenameofthefunction.
+Nowwhenyouruntheprogram,itwillprintatraceofeachfunctionasitisinvoked.
+A.2.3 WhenIruntheprogramIgetanexception.
+Ifsomethinggoeswrongduringruntime,Pythonprintsamessagethatincludesthename
+oftheexception,thelineoftheprogramwheretheproblemoccurred,andatraceback.
+Thetracebackidentifiesthefunctionthatiscurrentlyrunning, andthenthefunctionthat
+called it, and then the function that called that, and so on. In other words, it traces the
+
+A.2. Runtimeerrors 197
+sequenceoffunctioncallsthatgotyoutowhereyouare,includingthelinenumberinyour
+filewhereeachcalloccurred.
+The first step is to examine the place in the program where the error occurred and see if
+youcanfigureoutwhathappened. Thesearesomeofthemostcommonruntimeerrors:
+NameError: Youaretryingtouseavariablethatdoesn’texistinthecurrentenvironment.
+Checkifthenameisspelledright,oratleastconsistently. Andrememberthatlocal
+variablesarelocal;youcannotrefertothemfromoutsidethefunctionwheretheyare
+defined.
+TypeError: Thereareseveralpossiblecauses:
+• You are trying to use a value improperly. Example: indexing a string, list, or
+tuplewithsomethingotherthananinteger.
+• Thereisamismatchbetweentheitemsinaformatstringandtheitemspassed
+forconversion. Thiscanhappenifeitherthenumberofitemsdoesnotmatchor
+aninvalidconversioniscalledfor.
+• You are passing the wrong number of arguments to a function. For methods,
+look at the method definition and check that the first parameter is self. Then
+look at the method invocation; make sure you are invoking the method on an
+objectwiththerighttypeandprovidingtheotherargumentscorrectly.
+KeyError: Youaretryingtoaccessanelementofadictionaryusingakeythatthedictio-
+narydoesnotcontain. Ifthekeysarestrings,rememberthatcapitalizationmatters.
+AttributeError: Youaretryingtoaccessanattributeormethodthatdoesnotexist. Check
+thespelling! Youcanusethebuilt-infunctionvarstolisttheattributesthatdoexist.
+IfanAttributeErrorindicatesthatanobjecthasNoneType,thatmeansthatitisNone.
+Sotheproblemisnottheattributename,buttheobject.
+Thereasontheobjectisnonemightbethatyouforgottoreturnavaluefromafunc-
+tion;ifyougettotheendofafunctionwithouthittingareturnstatement,itreturns
+None. Another common cause is using the result from a list method, like sort, that
+returnsNone.
+IndexError: The index you are using to access a list, string, or tuple is greater than its
+lengthminusone. Immediatelybeforethesiteoftheerror,addaprintstatementto
+displaythevalueoftheindexandthelengthofthearray. Isthearraytherightsize?
+Istheindextherightvalue?
+ThePythondebugger(pdb)isusefulfortrackingdownexceptionsbecauseitallowsyouto
+examinethestateoftheprogramimmediatelybeforetheerror. Youcanreadaboutpdbat
+https://docs.python.org/3/library/pdb.html.
+A.2.4 IaddedsomanyprintstatementsIgetinundatedwithoutput.
+One of the problems with using print statements for debugging is that you can end up
+buried in output. There are two ways to proceed: simplify the output or simplify the
+program.
+
+198 AppendixA. Debugging
+Tosimplifytheoutput,youcanremoveorcommentoutprintstatementsthataren’thelp-
+ing,orcombinethem,orformattheoutputsoitiseasiertounderstand.
+Tosimplifytheprogram,thereareseveralthingsyoucando.First,scaledowntheproblem
+theprogramisworkingon. Forexample, ifyouaresearchingalist, searchasmalllist. If
+theprogramtakesinputfromtheuser,giveitthesimplestinputthatcausestheproblem.
+Second, clean up the program. Remove dead code and reorganize the program to make
+itaseasytoreadaspossible. Forexample, ifyoususpectthattheproblemisinadeeply
+nestedpartoftheprogram,tryrewritingthatpartwithsimplerstructure. Ifyoususpecta
+largefunction,trysplittingitintosmallerfunctionsandtestingthemseparately.
+Often the process of finding the minimal test case leads you to the bug. If you find that
+a program works in one situation but not in another, that gives you a clue about what is
+goingon.
+Similarly, rewriting a piece of code can help you find subtle bugs. If you make a change
+thatyouthinkshouldn’taffecttheprogram,anditdoes,thatcantipyouoff.
+A.3 Semantic errors
+Insomeways, semanticerrorsarethehardesttodebug, becausetheinterpreterprovides
+noinformationaboutwhatiswrong. Onlyyouknowwhattheprogramissupposedtodo.
+Thefirststepistomakeaconnectionbetweentheprogramtextandthebehavioryouare
+seeing. Youneedahypothesisaboutwhattheprogramisactuallydoing. Oneofthethings
+thatmakesthathardisthatcomputersrunsofast.
+You will often wish that you could slow the program down to human speed, and with
+somedebuggersyoucan.Butthetimeittakestoinsertafewwell-placedprintstatements
+is often short compared to setting up the debugger, inserting and removing breakpoints,
+and“stepping”theprogramtowheretheerrorisoccurring.
+A.3.1 Myprogramdoesn’twork.
+Youshouldaskyourselfthesequestions:
+• Is there something the program was supposed to do but which doesn’t seem to be
+happening? Findthesectionofthecodethatperformsthatfunctionandmakesure
+itisexecutingwhenyouthinkitshould.
+• Is something happening that shouldn’t? Find code in your program that performs
+thatfunctionandseeifitisexecutingwhenitshouldn’t.
+• Isasectionofcodeproducinganeffectthatisnotwhatyouexpected?Makesurethat
+youunderstandthecodeinquestion,especiallyifitinvolvesfunctionsormethodsin
+otherPythonmodules. Readthedocumentationforthefunctionsyoucall. Trythem
+outbywritingsimpletestcasesandcheckingtheresults.
+
+A.3. Semanticerrors 199
+In order to program, you need a mental model of how programs work. If you write a
+programthatdoesn’tdowhatyouexpect,oftentheproblemisnotintheprogram; it’sin
+yourmentalmodel.
+The best way to correct your mental model is to break the program into its components
+(usually the functions and methods) and test each component independently. Once you
+findthediscrepancybetweenyourmodelandreality,youcansolvetheproblem.
+Of course, you should be building and testing components as you develop the program.
+Ifyouencounteraproblem, thereshouldbeonlyasmallamountofnewcodethatisnot
+knowntobecorrect.
+A.3.2 I’vegotabighairyexpressionanditdoesn’tdowhatIexpect.
+Writing complex expressions is fine as long as they are readable, but they can be hard to
+debug. Itisoftenagoodideatobreakacomplexexpressionintoaseriesofassignmentsto
+temporaryvariables.
+Forexample:
+self.hands[i].addCard(self.hands[self.findNeighbor(i)].popCard())
+Thiscanberewrittenas:
+neighbor = self.findNeighbor(i)
+pickedCard = self.hands[neighbor].popCard()
+self.hands[i].addCard(pickedCard)
+Theexplicitversioniseasiertoreadbecausethevariablenamesprovideadditionaldocu-
+mentation, and it is easier to debug because you can check the types of the intermediate
+variablesanddisplaytheirvalues.
+Another problem that can occur with big expressions is that the order of evaluation may
+notbewhatyouexpect. Forexample,ifyouaretranslatingtheexpression x intoPython,
+2π
+youmightwrite:
+y = x / 2 * math.pi
+Thatisnotcorrectbecausemultiplicationanddivisionhavethesameprecedenceandare
+evaluatedfromlefttoright. Sothisexpressioncomputesxπ/2.
+A good way to debug expressions is to add parentheses to make the order of evaluation
+explicit:
+y = x / (2 * math.pi)
+Wheneveryouarenotsureoftheorderofevaluation,useparentheses. Notonlywillthe
+programbecorrect(inthesenseofdoingwhatyouintended),itwillalsobemorereadable
+forotherpeoplewhohaven’tmemorizedtheorderofoperations.
+A.3.3 I’vegotafunctionthatdoesn’treturnwhatIexpect.
+If you have a return statement with a complex expression, you don’t have a chance to
+print the resultbefore returning. Again, you can use a temporaryvariable. For example,
+insteadof:
+return self.hands[i].removeMatches()
+
+200 AppendixA. Debugging
+youcouldwrite:
+count = self.hands[i].removeMatches()
+return count
+Nowyouhavetheopportunitytodisplaythevalueofcountbeforereturning.
+A.3.4 I’mreally,reallystuckandIneedhelp.
+First,trygettingawayfromthecomputerforafewminutes. Computersemitwavesthat
+affectthebrain,causingthesesymptoms:
+• Frustrationandrage.
+• Superstitiousbeliefs(“thecomputerhatesme”)andmagicalthinking(“theprogram
+onlyworkswhenIwearmyhatbackward”).
+• Randomwalkprogramming(theattempttoprogrambywritingeverypossiblepro-
+gramandchoosingtheonethatdoestherightthing).
+Ifyoufindyourselfsufferingfromanyofthesesymptoms,getupandgoforawalk. When
+youarecalm,thinkabouttheprogram. Whatisitdoing? Whataresomepossiblecauses
+ofthatbehavior? Whenwasthelasttimeyouhadaworkingprogram,andwhatdidyou
+donext?
+Sometimes it just takes time to find a bug. I often find bugs when I am away from the
+computerandletmymindwander.Someofthebestplacestofindbugsaretrains,showers,
+andinbed,justbeforeyoufallasleep.
+A.3.5 No,Ireallyneedhelp.
+Ithappens. Eventhebestprogrammersoccasionallygetstuck. Sometimesyouworkona
+programsolongthatyoucan’tseetheerror. Youneedafreshpairofeyes.
+Beforeyoubringsomeoneelsein,makesureyouareprepared. Yourprogramshouldbeas
+simpleaspossible,andyoushouldbeworkingonthesmallestinputthatcausestheerror.
+Youshouldhaveprintstatementsintheappropriateplaces(andtheoutputtheyproduce
+shouldbecomprehensible). Youshouldunderstandtheproblemwellenoughtodescribe
+itconcisely.
+Whenyoubringsomeoneintohelp,besuretogivethemtheinformationtheyneed:
+• Ifthereisanerrormessage,whatisitandwhatpartoftheprogramdoesitindicate?
+• Whatwasthelastthingyoudidbeforethiserroroccurred? Whatwerethelastlines
+ofcodethatyouwrote,orwhatisthenewtestcasethatfails?
+• Whathaveyoutriedsofar,andwhathaveyoulearned?
+Whenyoufindthebug,takeasecondtothinkaboutwhatyoucouldhavedonetofindit
+faster. Nexttimeyouseesomethingsimilar,youwillbeabletofindthebugmorequickly.
+Remember,thegoalisnotjusttomaketheprogramwork.Thegoalistolearnhowtomake
+theprogramwork.

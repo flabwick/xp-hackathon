@@ -1,0 +1,280 @@
+The way of the program
+======================
+
+Chapter 1
+The way of the program
+Thegoalofthisbookistoteachyoutothinklikeacomputerscientist. Thiswayofthink-
+ing combinessome ofthe bestfeatures of mathematics, engineering, andnatural science.
+Like mathematicians, computer scientists use formal languages to denote ideas (specifi-
+callycomputations). Likeengineers,theydesignthings,assemblingcomponentsintosys-
+temsandevaluatingtradeoffsamongalternatives. Likescientists,theyobservethebehav-
+iorofcomplexsystems,formhypotheses,andtestpredictions.
+Thesinglemostimportantskillforacomputerscientistisproblemsolving. Problemsolv-
+ingmeanstheabilitytoformulateproblems,thinkcreativelyaboutsolutions,andexpress
+asolutionclearlyandaccurately. Asitturnsout,theprocessoflearningtoprogramisan
+excellentopportunitytopracticeproblem-solvingskills. That’swhythischapteriscalled,
+“Thewayoftheprogram”.
+Ononelevel,youwillbelearningtoprogram,ausefulskillbyitself.Onanotherlevel,you
+willuseprogrammingasameanstoanend. Aswegoalong,thatendwillbecomeclearer.
+1.1 What is a program?
+Aprogramisasequenceofinstructionsthatspecifieshowtoperformacomputation. The
+computationmightbesomethingmathematical, suchassolvingasystemofequationsor
+findingtherootsofapolynomial,butitcanalsobeasymboliccomputation,suchassearch-
+ingandreplacingtextinadocumentorsomethinggraphical,likeprocessinganimageor
+playingavideo.
+Thedetailslookdifferentindifferentlanguages,butafewbasicinstructionsappearinjust
+abouteverylanguage:
+input: Getdatafromthekeyboard,afile,thenetwork,orsomeotherdevice.
+output: Displaydataonthescreen,saveitinafile,senditoverthenetwork,etc.
+math: Performbasicmathematicaloperationslikeadditionandmultiplication.
+conditionalexecution: Checkforcertainconditionsandruntheappropriatecode.
+
+2 Chapter1. Thewayoftheprogram
+repetition: Performsomeactionrepeatedly,usuallywithsomevariation.
+Believe it or not, that’s pretty much all there is to it. Every program you’ve ever used,
+no matter how complicated, is made up of instructions that look pretty much like these.
+So you can think of programming as the process of breaking a large, complex task into
+smaller and smaller subtasks until the subtasks are simple enough to be performed with
+oneofthesebasicinstructions.
+1.2 Running Python
+One of the challenges of getting started with Python is that you might have to install
+Python and related software on your computer. If you are familiar with your operating
+system, and especially if you are comfortable with the command-line interface, you will
+havenotroubleinstallingPython. Butforbeginners, itcanbepainfultolearnaboutsys-
+temadministrationandprogrammingatthesametime.
+Toavoidthatproblem,IrecommendthatyoustartoutrunningPythoninabrowser. Later,
+whenyouarecomfortablewithPython,I’llmakesuggestionsforinstallingPythononyour
+computer.
+There are a number of web pages you can use to run Python. If you already have a fa-
+vorite,goaheadanduseit. OtherwiseIrecommendPythonAnywhere. Iprovidedetailed
+instructionsforgettingstartedathttp://tinyurl.com/thinkpython2e.
+TherearetwoversionsofPython,calledPython2andPython3. Theyareverysimilar,so
+ifyoulearnone,itiseasytoswitchtotheother.Infact,thereareonlyafewdifferencesyou
+will encounter as abeginner. Thisbook iswritten for Python3, butI includesome notes
+aboutPython2.
+The Python interpreter is a program that reads and executes Python code. Depending
+onyourenvironment,youmightstarttheinterpreterbyclickingonanicon,orbytyping
+pythononacommandline. Whenitstarts,youshouldseeoutputlikethis:
+Python 3.4.0 (default, Jun 19 2015, 14:20:21)
+[GCC 4.8.2] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+Thefirstthreelinescontaininformationabouttheinterpreterandtheoperatingsystemit’s
+runningon,soitmightbedifferentforyou.Butyoushouldcheckthattheversionnumber,
+whichis3.4.0inthisexample,beginswith3,whichindicatesthatyouarerunningPython
+3. Ifitbeginswith2,youarerunning(youguessedit)Python2.
+Thelastlineisapromptthatindicatesthattheinterpreterisreadyforyoutoentercode. If
+youtypealineofcodeandhitEnter,theinterpreterdisplaystheresult:
+>>> 1 + 1
+2
+Nowyou’rereadytogetstarted. Fromhereon, Iassumethatyouknowhowtostartthe
+Pythoninterpreterandruncode.
+
+1.3. Thefirstprogram 3
+1.3 The first program
+Traditionally,thefirstprogramyouwriteinanewlanguageiscalled“Hello,World!” be-
+causeallitdoesisdisplaythewords“Hello,World!”. InPython,itlookslikethis:
+>>> print('Hello, World!')
+This is an example of a print statement, although it doesn’t actually print anything on
+paper. Itdisplaysaresultonthescreen. Inthiscase,theresultisthewords
+Hello, World!
+The quotation marks in the program mark the beginning and end of the text to be dis-
+played;theydon’tappearintheresult.
+Theparenthesesindicatethatprintisafunction. We’llgettofunctionsinChapter3.
+In Python 2, the print statement is slightly different; it is not a function, so it doesn’t use
+parentheses.
+>>> print 'Hello, World!'
+Thisdistinctionwillmakemoresensesoon,butthat’senoughtogetstarted.
+1.4 Arithmetic operators
+After “Hello, World”, the next step is arithmetic. Python provides operators, which are
+specialsymbolsthatrepresentcomputationslikeadditionandmultiplication.
+The operators +, -, and * perform addition, subtraction, and multiplication, as in the fol-
+lowingexamples:
+>>> 40 + 2
+42
+>>> 43 - 1
+42
+>>> 6 * 7
+42
+Theoperator/performsdivision:
+>>> 84 / 2
+42.0
+Youmightwonderwhytheresultis42.0insteadof42. I’llexplaininthenextsection.
+Finally,theoperator**performsexponentiation;thatis,itraisesanumbertoapower:
+>>> 6**2 + 6
+42
+Insomeotherlanguages,^isusedforexponentiation,butinPythonitisabitwiseoperator
+calledXOR.Ifyouarenotfamiliarwithbitwiseoperators,theresultwillsurpriseyou:
+>>> 6 ^ 2
+4
+Iwon’tcoverbitwiseoperatorsinthisbook,butyoucanreadaboutthemathttp://wiki.
+python.org/moin/BitwiseOperators.
+
+4 Chapter1. Thewayoftheprogram
+1.5 Values and types
+Avalueisoneofthebasicthingsaprogramworkswith, likealetteroranumber. Some
+valueswehaveseensofarare2,42.0,and'Hello, World!'.
+Thesevaluesbelongtodifferenttypes:2isaninteger,42.0isafloating-pointnumber,and
+'Hello, World!'isastring,so-calledbecausethelettersitcontainsarestrungtogether.
+Ifyouarenotsurewhattypeavaluehas,theinterpretercantellyou:
+>>> type(2)
+<class 'int'>
+>>> type(42.0)
+<class 'float'>
+>>> type('Hello, World!')
+<class 'str'>
+Intheseresults,theword“class”isusedinthesenseofacategory;atypeisacategoryof
+values.
+Notsurprisingly,integersbelongtothetypeint,stringsbelongtostrandfloating-point
+numbersbelongtofloat.
+Whataboutvalueslike'2'and'42.0'? Theylooklikenumbers,buttheyareinquotation
+markslikestrings.
+>>> type('2')
+<class 'str'>
+>>> type('42.0')
+<class 'str'>
+They’restrings.
+When you type a large integer, you might be tempted to use commas between groups of
+digits,asin1,000,000. ThisisnotalegalintegerinPython,butitislegal:
+>>> 1,000,000
+(1, 0, 0)
+That’s not what we expected at all! Python interprets 1,000,000 as a comma-separated
+sequenceofintegers. We’lllearnmoreaboutthiskindofsequencelater.
+1.6 Formal and natural languages
+Naturallanguagesarethelanguagespeoplespeak,suchasEnglish,Spanish,andFrench.
+They were not designed by people (although people try to impose some order on them);
+theyevolvednaturally.
+Formallanguagesarelanguagesthataredesignedbypeopleforspecificapplications. For
+example, the notation that mathematicians use is a formal language that is particularly
+goodatdenotingrelationshipsamongnumbersandsymbols. Chemistsuseaformallan-
+guagetorepresentthechemicalstructureofmolecules. Andmostimportantly:
+Programming languages are formal languages that have been designed to
+expresscomputations.
+
+1.6. Formalandnaturallanguages 5
+Formallanguagestendtohavestrictsyntaxrulesthatgovernthestructureofstatements.
+For example, in mathematics the statement 3+3 = 6 has correct syntax, but 3+ = 3$6
+doesnot. InchemistryH Oisasyntacticallycorrectformula,but Zzisnot.
+2 2
+Syntaxrulescomeintwoflavors,pertainingtotokensandstructure. Tokensarethebasic
+elements of the language, such as words, numbers, and chemical elements. One of the
+problems with 3+ = 3$6 is that $ is not a legal token in mathematics (at least as far as I
+know). Similarly, ZzisnotlegalbecausethereisnoelementwiththeabbreviationZz.
+2
+The second type of syntax rule pertains to the way tokens are combined. The equation
+3+/3 is illegal because even though + and / are legal tokens, you can’t have one right
+aftertheother.Similarly,inachemicalformulathesubscriptcomesaftertheelementname,
+notbefore.
+Thisis@well-structuredEngli$hsentencewithinvalidt*kensinit. Thissentenceallvalid
+tokenshas,butinvalidstructurewith.
+When you read a sentence in English or a statement in a formal language, you have to
+figureoutthestructure(althoughinanaturallanguageyoudothissubconsciously). This
+processiscalledparsing.
+Although formal and natural languages have many features in common—tokens, struc-
+ture,andsyntax—therearesomedifferences:
+ambiguity: Naturallanguagesarefullofambiguity,whichpeopledealwithbyusingcon-
+textualcluesandotherinformation. Formallanguagesaredesignedtobenearlyor
+completelyunambiguous,whichmeansthatanystatementhasexactlyonemeaning,
+regardlessofcontext.
+redundancy: In order to make up for ambiguity and reduce misunderstandings, natural
+languages employ lots of redundancy. As a result, they are often verbose. Formal
+languagesarelessredundantandmoreconcise.
+literalness: Natural languages are full of idiom and metaphor. If I say, “The penny
+dropped”,thereisprobablynopennyandnothingdropping(thisidiommeansthat
+someoneunderstoodsomethingafteraperiodofconfusion).Formallanguagesmean
+exactlywhattheysay.
+Becauseweallgrowupspeakingnaturallanguages,itissometimeshardtoadjusttofor-
+mallanguages. Thedifferencebetweenformalandnaturallanguageislikethedifference
+betweenpoetryandprose,butmoreso:
+Poetry: Wordsareusedfortheirsoundsaswellasfortheirmeaning,andthewholepoem
+togethercreatesaneffectoremotionalresponse. Ambiguityisnotonlycommonbut
+oftendeliberate.
+Prose: Theliteralmeaningofwordsismoreimportant,andthestructurecontributesmore
+meaning. Proseismoreamenabletoanalysisthanpoetrybutstilloftenambiguous.
+Programs: The meaning of a computer program is unambiguous and literal, and can be
+understoodentirelybyanalysisofthetokensandstructure.
+
+6 Chapter1. Thewayoftheprogram
+Formallanguagesaremoredensethannaturallanguages,soittakeslongertoreadthem.
+Also,thestructureisimportant,soitisnotalwaysbesttoreadfromtoptobottom,leftto
+right. Instead, learntoparsetheprogramin your head, identifyingthe tokens andinter-
+pretingthestructure. Finally,thedetailsmatter. Smallerrorsinspellingandpunctuation,
+whichyoucangetawaywithinnaturallanguages,canmakeabigdifferenceinaformal
+language.
+1.7 Debugging
+Programmersmakemistakes. Forwhimsicalreasons,programmingerrorsarecalledbugs
+andtheprocessoftrackingthemdowniscalleddebugging.
+Programming, and especially debugging, sometimes brings out strong emotions. If you
+arestrugglingwithadifficultbug,youmightfeelangry,despondent,orembarrassed.
+Thereisevidencethatpeoplenaturallyrespondtocomputersasiftheywerepeople.When
+theyworkwell,wethinkofthemasteammates,andwhentheyareobstinateorrude,we
+respond to them the same way we respond to rude, obstinate people (Reeves and Nass,
+The Media Equation: How People Treat Computers, Television, and New Media Like Real People
+andPlaces).
+Preparingforthesereactionsmighthelpyoudealwiththem. Oneapproachistothinkof
+thecomputerasanemployeewithcertainstrengths,likespeedandprecision,andpartic-
+ularweaknesses,likelackofempathyandinabilitytograspthebigpicture.
+Yourjobistobeagoodmanager:findwaystotakeadvantageofthestrengthsandmitigate
+theweaknesses. Andfindwaystouseyouremotionstoengagewiththeproblem,without
+lettingyourreactionsinterferewithyourabilitytoworkeffectively.
+Learningtodebugcanbefrustrating,butitisavaluableskillthatisusefulformanyactiv-
+itiesbeyondprogramming. Attheendofeachchapterthereisasection,likethisone,with
+mysuggestionsfordebugging. Ihopetheyhelp!
+1.8 Glossary
+problemsolving: Theprocessofformulatingaproblem,findingasolution,andexpress-
+ingit.
+high-levellanguage: AprogramminglanguagelikePythonthatisdesignedtobeeasyfor
+humanstoreadandwrite.
+low-levellanguage: Aprogramminglanguagethatisdesignedtobeeasyforacomputer
+torun;alsocalled“machinelanguage”or“assemblylanguage”.
+portability: Apropertyofaprogramthatcanrunonmorethanonekindofcomputer.
+interpreter: Aprogramthatreadsanotherprogramandexecutesit
+prompt: Characters displayed by the interpreter to indicate that it is ready to take input
+fromtheuser.
+program: Asetofinstructionsthatspecifiesacomputation.
+
+1.9. Exercises 7
+printstatement: An instruction that causes the Python interpreter to display a value on
+thescreen.
+operator: A special symbol that represents a simple computation like addition, multipli-
+cation,orstringconcatenation.
+value: Oneofthebasicunitsofdata,likeanumberorstring,thataprogrammanipulates.
+type: Acategoryofvalues. Thetypeswehaveseensofarareintegers(typeint),floating-
+pointnumbers(typefloat),andstrings(typestr).
+integer: Atypethatrepresentswholenumbers.
+floating-point: Atypethatrepresentsnumberswithfractionalparts.
+string: Atypethatrepresentssequencesofcharacters.
+naturallanguage: Anyoneofthelanguagesthatpeoplespeakthatevolvednaturally.
+formallanguage: Any one of the languages that people have designed for specific pur-
+poses,suchasrepresentingmathematicalideasorcomputerprograms;allprogram-
+minglanguagesareformallanguages.
+token: One of the basic elements of the syntactic structure of a program, analogous to a
+wordinanaturallanguage.
+syntax: Therulesthatgovernthestructureofaprogram.
+parse: Toexamineaprogramandanalyzethesyntacticstructure.
+bug: Anerrorinaprogram.
+debugging: Theprocessoffindingandcorrectingbugs.
+1.9 Exercises
+Exercise 1.1. It is a good idea to read this book in front of a computer so you can try out the
+examplesasyougo.
+Wheneveryouareexperimentingwithanewfeature,youshouldtrytomakemistakes.Forexample,
+inthe“Hello,world!” program,whathappensifyouleaveoutoneofthequotationmarks? Whatif
+youleaveoutboth? Whatifyouspellprintwrong?
+Thiskindofexperimenthelpsyourememberwhatyouread;italsohelpswhenyouareprogramming,
+because you get to know what the error messages mean. It is better to make mistakes now and on
+purposethanlaterandaccidentally.
+1. Inaprintstatement,whathappensifyouleaveoutoneoftheparentheses,orboth?
+2. Ifyouaretryingtoprintastring,whathappensifyouleaveoutoneofthequotationmarks,
+orboth?
+3. Youcanuseaminussigntomakeanegativenumberlike-2. Whathappensifyouputaplus
+signbeforeanumber? Whatabout2++2?
+
+8 Chapter1. Thewayoftheprogram
+4. In math notation, leading zeros are ok, as in 09. What happens if you try this in Python?
+Whatabout011?
+5. Whathappensifyouhavetwovalueswithnooperatorbetweenthem?
+Exercise1.2. StartthePythoninterpreteranduseitasacalculator.
+1. Howmanysecondsaretherein42minutes42seconds?
+2. Howmanymilesaretherein10kilometers? Hint: thereare1.61kilometersinamile.
+3. Ifyouruna10kilometerracein42minutes42seconds,whatisyouraveragepace(timeper
+mileinminutesandseconds)? Whatisyouraveragespeedinmilesperhour?

@@ -1,0 +1,445 @@
+Functions
+=========
+
+Chapter 3
+Functions
+Inthecontextofprogramming,afunctionisanamedsequenceofstatementsthatperforms
+a computation. When you define a function, you specify the name and the sequence of
+statements. Later,youcan“call”thefunctionbyname.
+3.1 Function calls
+Wehavealreadyseenoneexampleofafunctioncall:
+>>> type(42)
+<class 'int'>
+Thenameofthefunctionistype. Theexpressioninparenthesesiscalledtheargumentof
+thefunction. Theresult,forthisfunction,isthetypeoftheargument.
+Itiscommontosaythatafunction“takes”anargumentand“returns”aresult. Theresult
+isalsocalledthereturnvalue.
+Pythonprovidesfunctionsthatconvertvaluesfromonetypetoanother. Theintfunction
+takesanyvalueandconvertsittoaninteger,ifitcan,orcomplainsotherwise:
+>>> int('32')
+32
+>>> int('Hello')
+ValueError: invalid literal for int(): Hello
+intcanconvertfloating-pointvaluestointegers,butitdoesn’troundoff; itchopsoffthe
+fractionpart:
+>>> int(3.99999)
+3
+>>> int(-2.3)
+-2
+floatconvertsintegersandstringstofloating-pointnumbers:
+>>> float(32)
+32.0
+>>> float('3.14159')
+3.14159
+
+18 Chapter3. Functions
+Finally,strconvertsitsargumenttoastring:
+>>> str(32)
+'32'
+>>> str(3.14159)
+'3.14159'
+3.2 Math functions
+Python has a math module that provides most of the familiar mathematical functions. A
+moduleisafilethatcontainsacollectionofrelatedfunctions.
+Before we can use the functions in a module, we have to import it with an import state-
+ment:
+>>> import math
+Thisstatementcreatesamoduleobjectnamedmath.Ifyoudisplaythemoduleobject,you
+getsomeinformationaboutit:
+>>> math
+<module 'math' (built-in)>
+The module object contains the functions and variables defined in the module. To access
+one of the functions, you have to specify the name of the module and the name of the
+function,separatedbyadot(alsoknownasaperiod). Thisformatiscalleddotnotation.
+>>> ratio = signal_power / noise_power
+>>> decibels = 10 * math.log10(ratio)
+>>> radians = 0.7
+>>> height = math.sin(radians)
+Thefirstexampleusesmath.log10tocomputeasignal-to-noiseratioindecibels(assuming
+that signal_power and noise_power are defined). The math module also provides log,
+whichcomputeslogarithmsbasee.
+The second example finds the sine of radians. The variable name radians is a hint that
+sin and the other trigonometric functions (cos, tan, etc.) take arguments in radians. To
+convertfromdegreestoradians,divideby180andmultiplybyπ:
+>>> degrees = 45
+>>> radians = degrees / 180.0 * math.pi
+>>> math.sin(radians)
+0.707106781187
+Theexpressionmath.pigetsthevariablepifromthemathmodule. Itsvalueisafloating-
+pointapproximationofπ,accuratetoabout15digits.
+Ifyouknowtrigonometry,youcancheckthepreviousresultbycomparingittothesquare
+rootoftwo,dividedbytwo:
+>>> math.sqrt(2) / 2.0
+0.707106781187
+
+3.3. Composition 19
+3.3 Composition
+So far, we have looked at the elements of a program—variables, expressions, and
+statements—inisolation,withouttalkingabouthowtocombinethem.
+One of the most useful features of programming languages is their ability to take small
+building blocks and compose them. For example, the argument of a function can be any
+kindofexpression,includingarithmeticoperators:
+x = math.sin(degrees / 360.0 * 2 * math.pi)
+Andevenfunctioncalls:
+x = math.exp(math.log(x+1))
+Almostanywhereyoucanputavalue, youcanputanarbitraryexpression, withoneex-
+ception: the left side of an assignment statement has to be a variable name. Any other
+expressionontheleftsideisasyntaxerror(wewillseeexceptionstothisrulelater).
+>>> minutes = hours * 60 # right
+>>> hours * 60 = minutes # wrong!
+SyntaxError: can't assign to operator
+3.4 Adding new functions
+Sofar,wehaveonlybeenusingthefunctionsthatcomewithPython,butitisalsopossible
+toaddnewfunctions. Afunctiondefinitionspecifiesthenameofanewfunctionandthe
+sequenceofstatementsthatrunwhenthefunctioniscalled.
+Hereisanexample:
+def print_lyrics():
+print("I'm a lumberjack, and I'm okay.")
+print("I sleep all night and I work all day.")
+defisakeywordthatindicatesthatthisisafunctiondefinition. Thenameofthefunction
+isprint_lyrics. Therulesforfunctionnamesarethesameasforvariablenames: letters,
+numbersandunderscorearelegal,butthefirstcharactercan’tbeanumber.Youcan’tusea
+keywordasthenameofafunction,andyoushouldavoidhavingavariableandafunction
+withthesamename.
+The empty parentheses after the name indicate that this function doesn’t take any argu-
+ments.
+Thefirstlineofthefunctiondefinitioniscalledtheheader;therestiscalledthebody. The
+headerhastoendwithacolonandthebodyhastobeindented.Byconvention,indentation
+isalwaysfourspaces. Thebodycancontainanynumberofstatements.
+Thestringsintheprintstatementsareenclosedindoublequotes.Singlequotesanddouble
+quotesdothesamething; mostpeopleusesinglequotesexceptincaseslikethiswherea
+singlequote(whichisalsoanapostrophe)appearsinthestring.
+All quotation marks (single and double) must be “straight quotes”, usually located next
+to Enter on the keyboard. “Curly quotes”, like the ones in this sentence, are not legal in
+Python.
+Ifyoutypeafunctiondefinitionininteractivemode,theinterpreterprintsdots(...) tolet
+youknowthatthedefinitionisn’tcomplete:
+
+20 Chapter3. Functions
+>>> def print_lyrics():
+... print("I'm a lumberjack, and I'm okay.")
+... print("I sleep all night and I work all day.")
+...
+Toendthefunction,youhavetoenteranemptyline.
+Definingafunctioncreatesafunctionobject,whichhastypefunction:
+>>> print(print_lyrics)
+<function print_lyrics at 0xb7e99e9c>
+>>> type(print_lyrics)
+<class 'function'>
+Thesyntaxforcallingthenewfunctionisthesameasforbuilt-infunctions:
+>>> print_lyrics()
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+Onceyouhavedefinedafunction,youcanuseitinsideanotherfunction. Forexample,to
+repeatthepreviousrefrain,wecouldwriteafunctioncalledrepeat_lyrics:
+def repeat_lyrics():
+print_lyrics()
+print_lyrics()
+Andthencallrepeat_lyrics:
+>>> repeat_lyrics()
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+I'm a lumberjack, and I'm okay.
+I sleep all night and I work all day.
+Butthat’snotreallyhowthesonggoes.
+3.5 Definitions and uses
+Pulling together the code fragments from the previous section, the whole program looks
+likethis:
+def print_lyrics():
+print("I'm a lumberjack, and I'm okay.")
+print("I sleep all night and I work all day.")
+def repeat_lyrics():
+print_lyrics()
+print_lyrics()
+repeat_lyrics()
+Thisprogramcontainstwofunctiondefinitions: print_lyricsandrepeat_lyrics. Func-
+tion definitions get executed just like other statements, but the effect is to create function
+objects. Thestatementsinsidethefunctiondonotrununtilthefunctioniscalled,andthe
+functiondefinitiongeneratesnooutput.
+
+3.6. Flowofexecution 21
+Asyoumightexpect,youhavetocreateafunctionbeforeyoucanrunit. Inotherwords,
+thefunctiondefinitionhastorunbeforethefunctiongetscalled.
+As an exercise, move the last line of this program to the top, so the function call appears
+beforethedefinitions. Runtheprogramandseewhaterrormessageyouget.
+Nowmovethefunctioncallbacktothebottomandmovethedefinitionofprint_lyrics
+afterthedefinitionofrepeat_lyrics. Whathappenswhenyourunthisprogram?
+3.6 Flow of execution
+Toensurethatafunctionisdefinedbeforeitsfirstuse, youhavetoknowtheorderstate-
+mentsrunin,whichiscalledtheflowofexecution.
+Executionalwaysbeginsatthefirststatementoftheprogram. Statementsarerunoneata
+time,inorderfromtoptobottom.
+Functiondefinitionsdonotaltertheflowofexecutionoftheprogram,butrememberthat
+statementsinsidethefunctiondon’trununtilthefunctioniscalled.
+Afunctioncallislikeadetourintheflowofexecution. Insteadofgoingtothenextstate-
+ment,theflowjumpstothebodyofthefunction,runsthestatementsthere,andthencomes
+backtopickupwhereitleftoff.
+Thatsoundssimpleenough,untilyourememberthatonefunctioncancallanother. While
+in the middle of one function, the program might have to run the statements in another
+function. Then, while runningthat newfunction, theprogram mighthave to runyet an-
+otherfunction!
+Fortunately, Python is good at keeping track of where it is, so each time a function com-
+pletes,theprogrampicksupwhereitleftoffinthefunctionthatcalledit. Whenitgetsto
+theendoftheprogram,itterminates.
+Insummary,whenyoureadaprogram,youdon’talwayswanttoreadfromtoptobottom.
+Sometimesitmakesmoresenseifyoufollowtheflowofexecution.
+3.7 Parameters and arguments
+Some of the functions we have seen require arguments. For example, when you call
+math.sin you pass a number as an argument. Some functions take more than one ar-
+gument: math.powtakestwo,thebaseandtheexponent.
+Inside the function, the arguments are assigned to variables called parameters. Here is a
+definitionforafunctionthattakesanargument:
+def print_twice(bruce):
+print(bruce)
+print(bruce)
+This function assigns the argument to a parameter named bruce. When the function is
+called,itprintsthevalueoftheparameter(whateveritis)twice.
+Thisfunctionworkswithanyvaluethatcanbeprinted.
+
+22 Chapter3. Functions
+>>> print_twice('Spam')
+Spam
+Spam
+>>> print_twice(42)
+42
+42
+>>> print_twice(math.pi)
+3.14159265359
+3.14159265359
+Thesamerulesofcompositionthatapplytobuilt-infunctionsalsoapplytoprogrammer-
+definedfunctions,sowecanuseanykindofexpressionasanargumentforprint_twice:
+>>> print_twice('Spam '*4)
+Spam Spam Spam Spam
+Spam Spam Spam Spam
+>>> print_twice(math.cos(math.pi))
+-1.0
+-1.0
+Theargumentisevaluatedbeforethefunctioniscalled,sointheexamplestheexpressions
+'Spam '*4andmath.cos(math.pi)areonlyevaluatedonce.
+Youcanalsouseavariableasanargument:
+>>> michael = 'Eric, the half a bee.'
+>>> print_twice(michael)
+Eric, the half a bee.
+Eric, the half a bee.
+The name of the variable we pass as an argument (michael) has nothing to do with the
+nameoftheparameter(bruce). Itdoesn’tmatterwhatthevaluewascalledbackhome(in
+thecaller);hereinprint_twice,wecalleverybodybruce.
+3.8 Variables and parameters are local
+When you create a variable inside a function, it is local, which means that it only exists
+insidethefunction. Forexample:
+def cat_twice(part1, part2):
+cat = part1 + part2
+print_twice(cat)
+Thisfunctiontakestwoarguments,concatenatesthem,andprintstheresulttwice. Hereis
+anexamplethatusesit:
+>>> line1 = 'Bing tiddle '
+>>> line2 = 'tiddle bang.'
+>>> cat_twice(line1, line2)
+Bing tiddle tiddle bang.
+Bing tiddle tiddle bang.
+Whencat_twiceterminates,thevariablecatisdestroyed. Ifwetrytoprintit,wegetan
+exception:
+
+3.9. Stackdiagrams 23
+line1 ’Bing tiddle ’
+__main__
+line2 ’tiddle bang.’
+part1 ’Bing tiddle ’
+cat_twice part2 ’tiddle bang.’
+cat ’Bing tiddle tiddle bang.’
+print_twice bruce ’Bing tiddle tiddle bang.’
+Figure3.1: Stackdiagram.
+>>> print(cat)
+NameError: name 'cat' is not defined
+Parameters are also local. For example, outside print_twice, there is no such thing as
+bruce.
+3.9 Stack diagrams
+Tokeeptrackofwhichvariablescanbeusedwhere,itissometimesusefultodrawastack
+diagram. Like state diagrams, stack diagrams show the value of each variable, but they
+alsoshowthefunctioneachvariablebelongsto.
+Each function is represented by a frame. A frame is a box with the name of a function
+besideitandtheparametersandvariablesofthefunctioninsideit. Thestackdiagramfor
+thepreviousexampleisshowninFigure3.1.
+The frames are arranged in a stack that indicates which function called which, and so
+on. In this example, print_twice was called by cat_twice, and cat_twice was called
+by__main__, whichisaspecialnameforthetopmostframe. Whenyoucreateavariable
+outsideofanyfunction,itbelongsto__main__.
+Eachparameterreferstothesamevalueasitscorrespondingargument. So,part1hasthe
+samevalueasline1,part2hasthesamevalueasline2,andbrucehasthesamevalueas
+cat.
+Ifanerroroccursduringafunctioncall,Pythonprintsthenameofthefunction,thename
+ofthefunctionthatcalledit,andthenameofthefunctionthatcalledthat,allthewayback
+to__main__.
+Forexample,ifyoutrytoaccesscatfromwithinprint_twice,yougetaNameError:
+Traceback (innermost last):
+File "test.py", line 13, in __main__
+cat_twice(line1, line2)
+File "test.py", line 5, in cat_twice
+print_twice(cat)
+File "test.py", line 9, in print_twice
+print(cat)
+NameError: name 'cat' is not defined
+
+24 Chapter3. Functions
+Thislistoffunctionsiscalledatraceback. Ittellsyouwhatprogramfiletheerroroccurred
+in,andwhatline,andwhatfunctionswereexecutingatthetime. Italsoshowsthelineof
+codethatcausedtheerror.
+The order of the functions in the traceback is the same as the order of the frames in the
+stackdiagram. Thefunctionthatiscurrentlyrunningisatthebottom.
+3.10 Fruitful functions and void functions
+Someofthefunctionswehaveused,suchasthemathfunctions,returnresults;forlackof
+abettername, Icallthemfruitfulfunctions. Otherfunctions, likeprint_twice, perform
+anactionbutdon’treturnavalue. Theyarecalledvoidfunctions.
+Whenyoucallafruitfulfunction,youalmostalwayswanttodosomethingwiththeresult;
+forexample,youmightassignittoavariableoruseitaspartofanexpression:
+x = math.cos(radians)
+golden = (math.sqrt(5) + 1) / 2
+Whenyoucallafunctionininteractivemode,Pythondisplaystheresult:
+>>> math.sqrt(5)
+2.2360679774997898
+Butinascript,ifyoucallafruitfulfunctionallbyitself,thereturnvalueislostforever!
+math.sqrt(5)
+Thisscriptcomputesthesquarerootof5,butsinceitdoesn’tstoreordisplaytheresult,it
+isnotveryuseful.
+Voidfunctionsmightdisplaysomethingonthescreenorhavesomeothereffect,butthey
+don’t have a return value. If you assign the result to a variable, you get a special value
+calledNone.
+>>> result = print_twice('Bing')
+Bing
+Bing
+>>> print(result)
+None
+ThevalueNoneisnotthesameasthestring'None'. Itisaspecialvaluethathasitsown
+type:
+>>> type(None)
+<class 'NoneType'>
+Thefunctionswehavewrittensofarareallvoid. Wewillstartwritingfruitfulfunctionsin
+afewchapters.
+3.11 Why functions?
+Itmaynotbeclearwhyitisworththetroubletodivideaprogramintofunctions. There
+areseveralreasons:
+
+3.12. Debugging 25
+• Creating a new function gives you an opportunity to name a group of statements,
+whichmakesyourprogrameasiertoreadanddebug.
+• Functionscanmakea programsmallerbyeliminatingrepetitivecode. Later, ifyou
+makeachange,youonlyhavetomakeitinoneplace.
+• Dividingalongprogramintofunctionsallowsyoutodebugthepartsoneatatime
+andthenassemblethemintoaworkingwhole.
+• Well-designed functions are often useful for many programs. Once you write and
+debugone,youcanreuseit.
+3.12 Debugging
+One of the most important skills you will acquire is debugging. Although it can be frus-
+trating,debuggingisoneofthemostintellectuallyrich,challenging,andinterestingparts
+ofprogramming.
+In some ways debugging is like detective work. You are confronted with clues and you
+havetoinfertheprocessesandeventsthatledtotheresultsyousee.
+Debuggingisalsolikeanexperimentalscience.Onceyouhaveanideaaboutwhatisgoing
+wrong, youmodifyyourprogramandtryagain. Ifyourhypothesiswascorrect,youcan
+predicttheresultofthemodification,andyoutakeastepclosertoaworkingprogram. If
+your hypothesis was wrong, you have to come up with a new one. As Sherlock Holmes
+pointedout,“Whenyouhaveeliminatedtheimpossible,whateverremains,howeverim-
+probable,mustbethetruth.” (A.ConanDoyle,TheSignofFour)
+Forsomepeople,programminganddebuggingarethesamething. Thatis,programming
+istheprocessofgraduallydebuggingaprogramuntilitdoeswhatyouwant. Theideais
+thatyoushouldstartwithaworkingprogramandmakesmallmodifications, debugging
+themasyougo.
+For example, Linux is an operating system that contains millions of lines of code, but it
+started out as a simple program Linus Torvalds used to explore the Intel 80386 chip. Ac-
+cording to Larry Greenfield, “One of Linus’s earlier projects was a program that would
+switchbetweenprintingAAAAandBBBB.ThislaterevolvedtoLinux.” (TheLinuxUsers’
+GuideBetaVersion1).
+3.13 Glossary
+function: A named sequence of statements that performs some useful operation. Func-
+tionsmayormaynottakeargumentsandmayormaynotproducearesult.
+functiondefinition: Astatementthatcreatesanewfunction,specifyingitsname,param-
+eters,andthestatementsitcontains.
+functionobject: A value created by a function definition. The name of the function is a
+variablethatreferstoafunctionobject.
+header: Thefirstlineofafunctiondefinition.
+
+26 Chapter3. Functions
+body: Thesequenceofstatementsinsideafunctiondefinition.
+parameter: Anameusedinsideafunctiontorefertothevaluepassedasanargument.
+functioncall: Astatementthatrunsafunction. Itconsistsofthefunctionnamefollowed
+byanargumentlistinparentheses.
+argument: A value provided to a function when the function is called. This value is as-
+signedtothecorrespondingparameterinthefunction.
+localvariable: A variable defined inside a function. A local variable can only be used
+insideitsfunction.
+returnvalue: Theresultofafunction. Ifafunctioncallisusedasanexpression,thereturn
+valueisthevalueoftheexpression.
+fruitfulfunction: Afunctionthatreturnsavalue.
+voidfunction: AfunctionthatalwaysreturnsNone.
+None: Aspecialvaluereturnedbyvoidfunctions.
+module: Afilethatcontainsacollectionofrelatedfunctionsandotherdefinitions.
+importstatement: Astatementthatreadsamodulefileandcreatesamoduleobject.
+moduleobject: Avaluecreatedbyanimportstatementthatprovidesaccesstothevalues
+definedinamodule.
+dotnotation: Thesyntaxforcallingafunctioninanothermodulebyspecifyingthemod-
+ulenamefollowedbyadot(period)andthefunctionname.
+composition: Usinganexpressionaspartofalargerexpression,orastatementaspartof
+alargerstatement.
+flowofexecution: Theorderstatementsrunin.
+stackdiagram: Agraphicalrepresentationofastackoffunctions,theirvariables,andthe
+valuestheyreferto.
+frame: Aboxinastackdiagramthatrepresentsafunctioncall. Itcontainsthelocalvari-
+ablesandparametersofthefunction.
+traceback: Alistofthefunctionsthatareexecuting,printedwhenanexceptionoccurs.
+3.14 Exercises
+Exercise3.1. Writeafunctionnamedright_justifythattakesastringnamedsasaparameter
+andprintsthestringwithenoughleadingspacessothatthelastletterofthestringisincolumn70
+ofthedisplay.
+>>> right_justify('monty')
+monty
+Hint:Usestringconcatenationandrepetition. Also,Pythonprovidesabuilt-infunctioncalledlen
+thatreturnsthelengthofastring,sothevalueoflen('monty')is5.
+
+3.14. Exercises 27
+Exercise3.2. Afunctionobjectisavalueyoucanassigntoavariableorpassasanargument. For
+example,do_twiceisafunctionthattakesafunctionobjectasanargumentandcallsittwice:
+def do_twice(f):
+f()
+f()
+Here’sanexamplethatusesdo_twicetocallafunctionnamedprint_spamtwice.
+def print_spam():
+print('spam')
+do_twice(print_spam)
+1. Typethisexampleintoascriptandtestit.
+2. Modifydo_twicesothatittakestwoarguments,afunctionobjectandavalue,andcallsthe
+functiontwice,passingthevalueasanargument.
+3. Copythedefinitionofprint_twicefromearlierinthischaptertoyourscript.
+4. Use the modified version of do_twice to call print_twice twice, passing 'spam' as an
+argument.
+5. Defineanewfunctioncalleddo_fourthattakesafunctionobjectandavalueandcallsthe
+functionfourtimes,passingthevalueasaparameter. Thereshouldbeonlytwostatementsin
+thebodyofthisfunction,notfour.
+Solution: https://thinkpython.com/code/do_four.py.
+Exercise3.3. Note: Thisexerciseshouldbedoneusingonlythestatementsandotherfeatureswe
+havelearnedsofar.
+1. Writeafunctionthatdrawsagridlikethefollowing:
++ - - - - + - - - - +
+| | |
+| | |
+| | |
+| | |
++ - - - - + - - - - +
+| | |
+| | |
+| | |
+| | |
++ - - - - + - - - - +
+Hint: to print more than one value on a line, you can print a comma-separated sequence of
+values:
+print('+', '-')
+By default, print advances to the next line, but you can override that behavior and put a
+spaceattheend,likethis:
+print('+', end=' ')
+print('-')
+
+28 Chapter3. Functions
+The output of these statements is '+ -' on the same line. The output from the next print
+statementwouldbeginonthenextline.
+2. Writeafunctionthatdrawsasimilargridwithfourrowsandfourcolumns.
+Solution: https://thinkpython.com/code/grid.py. Credit: This exercise is based on an
+exerciseinOualline,PracticalCProgramming,ThirdEdition,O’ReillyMedia,1997.

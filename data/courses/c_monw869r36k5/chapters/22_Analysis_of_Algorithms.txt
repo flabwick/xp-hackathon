@@ -1,0 +1,968 @@
+Analysis of Algorithms
+======================
+
+Appendix B
+Analysis of Algorithms
+ThisappendixisaneditedexcerptfromThinkComplexity,byAllenB.Downey,
+also published by O’Reilly Media (2012). When you are done with this book,
+youmightwanttomoveontothatone.
+Analysis of algorithms is a branch of computer science that studies the performance of
+algorithms,especiallytheirruntimeandspacerequirements. Seehttp://en.wikipedia.
+org/wiki/Analysis_of_algorithms.
+The practical goal of algorithm analysis is to predict the performance of different algo-
+rithmsinordertoguidedesigndecisions.
+Duringthe2008UnitedStatesPresidentialCampaign,candidateBarackObamawasasked
+toperformanimpromptuanalysiswhenhevisitedGoogle. ChiefexecutiveEricSchmidt
+jokingly asked him for “the most efficient way to sort a million 32-bit integers.” Obama
+hadapparentlybeentippedoff,becausehequicklyreplied,“Ithinkthebubblesortwould
+bethewrongwaytogo.” Seehttp://www.youtube.com/watch?v=k4RRi_ntQc8.
+This is true: bubble sort is conceptually simple but slow for large datasets. The an-
+swerSchmidtwasprobablylookingforis“radixsort”(http://en.wikipedia.org/wiki/
+Radix_sort)1.
+The goal of algorithm analysis is to make meaningful comparisons between algorithms,
+buttherearesomeproblems:
+• The relative performance of the algorithms might depend on characteristics of the
+hardware, so one algorithm might be faster on Machine A, another on Machine B.
+Thegeneralsolutiontothisproblemistospecifyamachinemodelandanalyzethe
+numberofsteps,oroperations,analgorithmrequiresunderagivenmodel.
+• Relativeperformancemightdependonthedetailsofthedataset. Forexample,some
+sortingalgorithmsrunfasterifthedataarealreadypartiallysorted;otheralgorithms
+1Butifyougetaquestionlikethisinaninterview,Ithinkabetteransweris,“Thefastestwaytosortamillion
+integersistousewhateversortfunctionisprovidedbythelanguageI’musing.Itsperformanceisgoodenough
+forthevastmajorityofapplications,butifitturnedoutthatmyapplicationwastooslow,Iwoulduseaprofiler
+toseewherethetimewasbeingspent. Ifitlookedlikeafastersortalgorithmwouldhaveasignificanteffecton
+performance,thenIwouldlookaroundforagoodimplementationofradixsort.”
+
+202 AppendixB. AnalysisofAlgorithms
+runslowerinthiscase. Acommonwaytoavoidthisproblemistoanalyzetheworst
+casescenario. Itissometimesusefultoanalyzeaveragecaseperformance,butthat’s
+usuallyharder,anditmightnotbeobviouswhatsetofcasestoaverageover.
+• Relativeperformancealsodependsonthesizeoftheproblem. Asortingalgorithm
+that is fast for small lists might be slow for long lists. The usual solution to this
+problem is to express run time (or number of operations) as a function of problem
+size, and group functions into categories depending on how quickly they grow as
+problemsizeincreases.
+Thegoodthingaboutthiskindofcomparisonisthatitlendsitselftosimpleclassification
+of algorithms. For example, if I know that the run time of Algorithm A tends to be pro-
+portionaltothesizeoftheinput,n,andAlgorithmBtendstobeproportionalton2,thenI
+expectAtobefasterthanB,atleastforlargevaluesofn.
+Thiskindofanalysiscomeswithsomecaveats,butwe’llgettothatlater.
+B.1 Order of growth
+Supposeyouhaveanalyzedtwoalgorithmsandexpressedtheirruntimesintermsofthe
+sizeoftheinput: AlgorithmAtakes100n+1stepstosolveaproblemwithsize n; Algo-
+rithmBtakesn2+n+1steps.
+Thefollowingtableshowstheruntimeofthesealgorithmsfordifferentproblemsizes:
+Input Runtimeof Runtimeof
+size AlgorithmA AlgorithmB
+10 1001 111
+100 10001 10101
+1000 100001 1001001
+10000 1000001 100010001
+At n = 10, AlgorithmAlooksprettybad; ittakesalmost10timeslongerthanAlgorithm
+B.Butforn =100theyareaboutthesame,andforlargervaluesAismuchbetter.
+Thefundamentalreasonisthatforlargevaluesofn,anyfunctionthatcontainsann2 term
+willgrowfasterthanafunctionwhoseleadingtermisn.Theleadingtermisthetermwith
+thehighestexponent.
+ForAlgorithmA,theleadingtermhasalargecoefficient,100,whichiswhyBdoesbetter
+thanAforsmalln. Butregardlessofthecoefficients,therewillalwaysbesomevalueofn
+wherean2 > bn,foranyvaluesofaandb.
+Thesameargumentappliestothenon-leadingterms. EveniftheruntimeofAlgorithmA
+weren+1000000,itwouldstillbebetterthanAlgorithmBforsufficientlylargen.
+Ingeneral,weexpectanalgorithmwithasmallerleadingtermtobeabetteralgorithmfor
+large problems, but for smaller problems, there may be a crossover point where another
+algorithmisbetter. Thelocationofthecrossoverpointdependsonthedetailsofthealgo-
+rithms, theinputs, andthehardware, soitisusuallyignoredforpurposesofalgorithmic
+analysis. Butthatdoesn’tmeanyoucanforgetaboutit.
+
+B.1. Orderofgrowth 203
+Iftwoalgorithmshavethesameleadingorderterm,itishardtosaywhichisbetter;again,
+the answer depends on the details. So for algorithmic analysis, functions with the same
+leadingtermareconsideredequivalent,eveniftheyhavedifferentcoefficients.
+Anorderofgrowthisasetoffunctionswhosegrowthbehaviorisconsideredequivalent.
+Forexample,2n,100nandn+1belongtothesameorderofgrowth,whichiswrittenO(n)
+inBig-Ohnotationandoftencalledlinearbecauseeveryfunctioninthesetgrowslinearly
+withn.
+Allfunctionswiththeleadingtermn2belongtoO(n2);theyarecalledquadratic.
+The following table shows some of the orders of growth that appear most commonly in
+algorithmicanalysis,inincreasingorderofbadness.
+Orderof Name
+growth
+O(1) constant
+O(log n) logarithmic(foranyb)
+b
+O(n) linear
+O(nlog n) linearithmic
+b
+O(n2) quadratic
+O(n3) cubic
+O(cn) exponential(foranyc)
+Forthelogarithmicterms,thebaseofthelogarithmdoesn’tmatter; changingbasesisthe
+equivalentofmultiplyingbyaconstant, whichdoesn’tchangetheorderofgrowth. Sim-
+ilarly,allexponentialfunctionsbelongtothesameorderofgrowthregardlessofthebase
+of the exponent. Exponential functions grow very quickly, so exponential algorithms are
+onlyusefulforsmallproblems.
+Exercise B.1. Read the Wikipedia page on Big-Oh notation at http://en.wikipedia.org/
+wiki/Big_O_notation andanswerthefollowingquestions:
+1. What is the order of growth of n3+n2? What about 1000000n3+n2? What about n3+
+1000000n2?
+2. Whatistheorderofgrowthof (n2+n)·(n+1)? Beforeyoustartmultiplying, remember
+thatyouonlyneedtheleadingterm.
+3. If f isinO(g),forsomeunspecifiedfunction g,whatcanwesayaboutaf +b,whereaand
+bareconstants?
+4. If f and f areinO(g),whatcanwesayabout f + f ?
+1 2 1 2
+5. If f isinO(g)and f isinO(h),whatcanwesayabout f + f ?
+1 2 1 2
+6. If f isinO(g)and f isO(h),whatcanwesayabout f · f ?
+1 2 1 2
+Programmers who care about performance often find this kind of analysis hard to swal-
+low. Theyhaveapoint: sometimesthecoefficientsandthenon-leadingtermsmakeareal
+difference. Sometimes the details of the hardware, the programming language, and the
+characteristicsoftheinputmakeabigdifference. Andforsmallproblems,orderofgrowth
+isirrelevant.
+But if you keep those caveats in mind, algorithmic analysis is a useful tool. At least for
+large problems, the “better” algorithm is usually better, and sometimes it is much better.
+Thedifferencebetweentwoalgorithmswiththesameorderofgrowthisusuallyaconstant
+factor,butthedifferencebetweenagoodalgorithmandabadalgorithmisunbounded!
+
+204 AppendixB. AnalysisofAlgorithms
+B.2 Analysis of basic Python operations
+In Python, most arithmetic operations are constant time; multiplication usually takes
+longerthanadditionandsubtraction,anddivisiontakesevenlonger,buttheseruntimes
+don’t depend on the magnitude of the operands. Very large integers are an exception; in
+thatcasetheruntimeincreaseswiththenumberofdigits.
+Indexing operations—reading or writing elements in a sequence or dictionary—are also
+constanttime,regardlessofthesizeofthedatastructure.
+A for loop that traverses a sequence or dictionary is usually linear, as long as all of the
+operationsinthebodyoftheloopareconstanttime. Forexample,addinguptheelements
+ofalistislinear:
+total = 0
+for x in t:
+total += x
+The built-in function sum is also linear because it does the same thing, but it tends to be
+fasterbecauseitisamoreefficientimplementation;inthelanguageofalgorithmicanalysis,
+ithasasmallerleadingcoefficient.
+Asaruleofthumb,ifthebodyofaloopisinO(na)thenthewholeloopisinO(na+1). The
+exceptionisifyoucanshowthattheloopexitsafteraconstantnumberofiterations. Ifa
+looprunsktimesregardlessofn,thentheloopisinO(na),evenforlargek.
+Multiplyingby k doesn’tchangetheorderofgrowth,butneitherdoesdividing. Soifthe
+bodyofaloopisinO(na)anditrunsn/ktimes,theloopisinO(na+1),evenforlargek.
+Most string and tuple operations are linear, except indexing and len, which are constant
+time. The built-in functions min and max are linear. The run-time of a slice operation is
+proportionaltothelengthoftheoutput,butindependentofthesizeoftheinput.
+String concatenation is linear; the run time depends on the sum of the lengths of the
+operands.
+Allstringmethodsarelinear,butifthelengthsofthestringsareboundedbyaconstant—
+for example, operations on single characters—they are considered constant time. The
+stringmethodjoinislinear;theruntimedependsonthetotallengthofthestrings.
+Mostlistmethodsarelinear,buttherearesomeexceptions:
+• Adding an element to the end of a list is constant time on average; when it runs
+out of room it occasionally gets copied to a bigger location, but the total time for n
+operationsisO(n),sotheaveragetimeforeachoperationisO(1).
+• Removinganelementfromtheendofalistisconstanttime.
+• SortingisO(nlogn).
+Mostdictionaryoperationsandmethodsareconstanttime,buttherearesomeexceptions:
+• The run time of update is proportional to the size of the dictionary passed as a pa-
+rameter,notthedictionarybeingupdated.
+• keys, values and items are constant time because they return iterators. But if you
+loopthroughtheiterators,theloopwillbelinear.
+
+B.3. Analysisofsearchalgorithms 205
+Theperformanceofdictionariesisoneoftheminormiraclesofcomputerscience. Wewill
+seehowtheyworkinSectionB.4.
+ExerciseB.2. ReadtheWikipediapageonsortingalgorithmsathttp://en.wikipedia.org/
+wiki/Sorting_algorithm andanswerthefollowingquestions:
+1. Whatisa“comparisonsort?” Whatisthebestworst-caseorderofgrowthforacomparison
+sort? Whatisthebestworst-caseorderofgrowthforanysortalgorithm?
+2. Whatistheorderofgrowthofbubblesort,andwhydoesBarackObamathinkitis“thewrong
+waytogo?”
+3. Whatistheorderofgrowthofradixsort? Whatpreconditionsdoweneedtouseit?
+4. Whatisastablesortandwhymightitmatterinpractice?
+5. Whatistheworstsortingalgorithm(thathasaname)?
+6. WhatsortalgorithmdoestheClibraryuse? WhatsortalgorithmdoesPythonuse? Arethese
+algorithmsstable? YoumighthavetoGooglearoundtofindtheseanswers.
+7. Manyofthenon-comparisonsortsarelinear,sowhydoesPythonuseanO(nlogn)compar-
+isonsort?
+B.3 Analysis of search algorithms
+Asearchisanalgorithmthattakesacollectionandatargetitemanddetermineswhether
+thetargetisinthecollection,oftenreturningtheindexofthetarget.
+Thesimplestsearchalgorithmisa“linearsearch”,whichtraversestheitemsofthecollec-
+tion in order, stopping if it finds the target. In the worst case it has to traverse the entire
+collection,sotheruntimeislinear.
+The in operator for sequences uses a linear search; so do string methods like find and
+count.
+If the elements of the sequence are in order, you can use a bisection search, which is
+O(logn). Bisection search is similar to the algorithm you might use to look a word up
+in a dictionary (a paper dictionary, not the data structure). Instead of starting at the be-
+ginningandcheckingeachiteminorder,youstartwiththeiteminthemiddleandcheck
+whether the word you are looking for comes before or after. If it comes before, then you
+searchthefirsthalfofthesequence. Otherwiseyousearchthesecondhalf. Eitherway,you
+cutthenumberofremainingitemsinhalf.
+Ifthesequencehas1,000,000items,itwilltakeabout20stepstofindthewordorconclude
+thatit’snotthere. Sothat’sabout50,000timesfasterthanalinearsearch.
+Bisectionsearchcanbemuchfasterthanlinearsearch,butitrequiresthesequencetobein
+order,whichmightrequireextrawork.
+There is another data structure, called a hashtable that is even faster—it can do a search
+in constant time—and it doesn’t require the items to be sorted. Python dictionaries are
+implementedusinghashtables,whichiswhymostdictionaryoperations,includingthein
+operator,areconstanttime.
+
+206 AppendixB. AnalysisofAlgorithms
+B.4 Hashtables
+Toexplainhowhashtablesworkandwhytheirperformanceissogood,Istartwithasimple
+implementationofamapandgraduallyimproveituntilit’sahashtable.
+I use Python to demonstrate these implementations, but in real life you wouldn’t write
+codelikethisinPython;youwouldjustuseadictionary!Sofortherestofthischapter,you
+havetoimaginethatdictionariesdon’texistandyouwanttoimplementadatastructure
+thatmapsfromkeystovalues. Theoperationsyouhavetoimplementare:
+add(k, v): Addanewitemthatmapsfromkeyktovaluev. WithaPythondictionary,d,
+thisoperationiswrittend[k] = v.
+get(k): Lookupandreturnthevaluethatcorrespondstokeyk.WithaPythondictionary,
+d,thisoperationiswrittend[k]ord.get(k).
+For now, I assume that each key only appears once. The simplest implementation of this
+interfaceusesalistoftuples,whereeachtupleisakey-valuepair.
+class LinearMap:
+def __init__(self):
+self.items = []
+def add(self, k, v):
+self.items.append((k, v))
+def get(self, k):
+for key, val in self.items:
+if key == k:
+return val
+raise KeyError
+addappendsakey-valuetupletothelistofitems,whichtakesconstanttime.
+getusesaforlooptosearchthelist: ifitfindsthetargetkeyitreturnsthecorresponding
+value;otherwiseitraisesaKeyError. Sogetislinear.
+Analternativeistokeepthelistsortedbykey.Thengetcoulduseabisectionsearch,which
+isO(logn).Butinsertinganewiteminthemiddleofalistislinear,sothismightnotbethe
+best option. There are other data structures that can implement add and get in log time,
+butthat’sstillnotasgoodasconstanttime,solet’smoveon.
+One way to improve LinearMap is to break the list of key-value pairs into smaller lists.
+Here’s an implementation called BetterMap, which is a list of 100 LinearMaps. As we’ll
+see in a second, the order of growth for get is still linear, but BetterMap is a step on the
+pathtowardhashtables:
+class BetterMap:
+def __init__(self, n=100):
+self.maps = []
+for i in range(n):
+self.maps.append(LinearMap())
+
+B.4. Hashtables 207
+def find_map(self, k):
+index = hash(k) % len(self.maps)
+return self.maps[index]
+def add(self, k, v):
+m = self.find_map(k)
+m.add(k, v)
+def get(self, k):
+m = self.find_map(k)
+return m.get(k)
+__init__makesalistofnLinearMaps.
+find_mapisusedbyaddandgettofigureoutwhichmaptoputthenewitemin,orwhich
+maptosearch.
+find_mapusesthebuilt-infunctionhash,whichtakesalmostanyPythonobjectandreturns
+an integer. A limitation of this implementation is that it only works with hashable keys.
+Mutabletypeslikelistsanddictionariesareunhashable.
+Hashable objects that are considered equivalent return the same hash value, but the con-
+verse is not necessarily true: two objects with different values can return the same hash
+value.
+find_map uses the modulus operator to wrap the hash values into the range from 0 to
+len(self.maps),sotheresultisalegalindexintothelist. Ofcourse,thismeansthatmany
+differenthashvalueswillwrapontothesameindex.Butifthehashfunctionspreadsthings
+outprettyevenly(whichiswhathashfunctionsaredesignedtodo),thenweexpectn/100
+itemsperLinearMap.
+Since the run time of LinearMap.get is proportional to the number of items, we expect
+BetterMaptobeabout100timesfasterthanLinearMap. Theorderofgrowthisstilllinear,
+buttheleadingcoefficientissmaller. That’snice,butstillnotasgoodasahashtable.
+Here(finally)isthecrucialideathatmakeshashtablesfast: ifyoucankeepthemaximum
+lengthoftheLinearMapsbounded,LinearMap.getisconstanttime. Allyouhavetodois
+keeptrackofthenumberofitemsandwhenthenumberofitemsperLinearMapexceeds
+athreshold,resizethehashtablebyaddingmoreLinearMaps.
+Hereisanimplementationofahashtable:
+class HashMap:
+def __init__(self):
+self.maps = BetterMap(2)
+self.num = 0
+def get(self, k):
+return self.maps.get(k)
+def add(self, k, v):
+if self.num == len(self.maps.maps):
+
+208 AppendixB. AnalysisofAlgorithms
+self.resize()
+self.maps.add(k, v)
+self.num += 1
+def resize(self):
+new_maps = BetterMap(self.num * 2)
+for m in self.maps.maps:
+for k, v in m.items:
+new_maps.add(k, v)
+self.maps = new_maps
+__init__createsaBetterMapandinitializesnum,whichkeepstrackofthenumberofitems.
+getjustdispatchestoBetterMap. Therealworkhappensinadd,whichchecksthenumber
+ofitemsandthesizeoftheBetterMap: iftheyareequal,theaveragenumberofitemsper
+LinearMapis1,soitcallsresize.
+resizemakesanewBetterMap,twiceasbigasthepreviousone,andthen“rehashes”the
+itemsfromtheoldmaptothenew.
+RehashingisnecessarybecausechangingthenumberofLinearMapschangesthedenomi-
+natorofthemodulusoperatorinfind_map.Thatmeansthatsomeobjectsthatusedtohash
+intothesameLinearMapwillgetsplitup(whichiswhatwewanted,right?).
+Rehashingislinear, soresizeislinear, whichmightseembad, sinceIpromisedthatadd
+wouldbeconstanttime. Butrememberthatwedon’thavetoresizeeverytime, soaddis
+usuallyconstanttimeandonlyoccasionallylinear. Thetotalamountofworktorunaddn
+timesisproportionalton,sotheaveragetimeofeachaddisconstanttime!
+To see how this works, think about starting with an empty HashTable and adding a se-
+quence of items. We start with 2 LinearMaps, so the first 2 adds are fast (no resizing re-
+quired). Let’ssaythattheytakeoneunitofworkeach. Thenextaddrequiresaresize,so
+wehavetorehashthefirsttwoitems(let’scallthat2moreunitsofwork)andthenaddthe
+thirditem(onemoreunit). Addingthenextitemcosts1unit,sothetotalsofaris6units
+ofworkfor4items.
+Thenextaddcosts5units,butthenextthreeareonlyoneuniteach,sothetotalis14units
+forthefirst8adds.
+Thenextaddcosts9units,butthenwecanadd7morebeforethenextresize,sothetotalis
+30unitsforthefirst16adds.
+After32adds,thetotalcostis62units,andIhopeyouarestartingtoseeapattern. Aftern
+adds,wherenisapoweroftwo,thetotalcostis2n−2units,sotheaverageworkperadd
+isalittlelessthan2units.Whennisapoweroftwo,that’sthebestcase;forothervaluesof
+ntheaverageworkisalittlehigher,butthat’snotimportant. Theimportantthingisthatit
+isO(1).
+Figure B.1 shows how this works graphically. Each block represents a unit of work. The
+columnsshowthetotalworkforeachaddinorderfromlefttoright:thefirsttwoaddscost
+1uniteach,thethirdcosts3units,etc.
+
+B.5. Glossary 209
+FigureB.1: Thecostofahashtableadd.
+Theextraworkofrehashingappearsasasequenceofincreasinglytalltowerswithincreas-
+ingspacebetweenthem. Nowifyouknockoverthetowers,spreadingthecostofresizing
+overalladds,youcanseegraphicallythatthetotalcostafternaddsis2n−2.
+An important feature of this algorithm is that when we resize the HashTable it grows
+geometrically; that is, we multiply the size by a constant. If you increase the size
+arithmetically—addingafixednumbereachtime—theaveragetimeperaddislinear.
+You can download my implementation of HashMap from https://thinkpython.com/
+code/Map.py,butrememberthatthereisnoreasontouseit;ifyouwantamap,justusea
+Pythondictionary.
+B.5 Glossary
+analysisofalgorithms: A way to compare algorithms in terms of their run time and/or
+spacerequirements.
+machinemodel: Asimplifiedrepresentationofacomputerusedtodescribealgorithms.
+worstcase: The input that makes a given algorithm run slowest (or require the most
+space).
+leadingterm: Inapolynomial,thetermwiththehighestexponent.
+crossoverpoint: The problem size where two algorithms require the same run time or
+space.
+orderofgrowth: Asetoffunctionsthatallgrowinawayconsideredequivalentforpur-
+posesofanalysisofalgorithms. Forexample,allfunctionsthatgrowlinearlybelong
+tothesameorderofgrowth.
+Big-Ohnotation: Notationforrepresentinganorderofgrowth;forexample,O(n)repre-
+sentsthesetoffunctionsthatgrowlinearly.
+linear: An algorithm whose run time is proportional to problem size, at least for large
+problemsizes.
+quadratic: An algorithm whose run time is proportional to n2, where n is a measure of
+problemsize.
+search: The problem of locating an element of a collection (like a list or dictionary) or
+determiningthatitisnotpresent.
+
+210 AppendixB. AnalysisofAlgorithms
+hashtable: A data structure that represents a collection of key-value pairs and performs
+searchinconstanttime.
+
+Index
+abecedarian,73,84 augmented,93,100
+absfunction,52 item,74,90,116
+absolutepath,139,145 tuple,116,117,119,122
+access,90 assignmentstatement,9
+accumulator,100 attribute,153,169
+histogram,127 __dict__,168
+list,93 class,172,180
+string,175 initializing,168
+sum,93 instance,148,153,172,180
+Ackermannfunction,61,113 AttributeError,152,197
+addmethod,165 augmentedassignment,93,100
+additionwithcarrying,68 Austen,Jane,127
+algorithm,67,69,130,201 averagecase,202
+MD5,146 averagecost,208
+squareroot,69
+aliasing,95,96,100,149,151,170 badness,203
+copyingtoavoid,99 basecase,44,47
+all,186 benchmarking,133,134
+alphabet,37 BetterMap,206
+alternativeexecution,41 big,hairyexpression,199
+ambiguity,5 Big-Ohnotation,209
+anagram,101 big-ohnotation,203
+anagramset,123,145 binarysearch,101
+analysisofalgorithms,201,209 bingo,123
+analysisofprimitives,204 birthday,160
+andoperator,40 birthdayparadox,101
+any,185 bisectmodule,101
+appendmethod,92,97,101,174,175 bisectionsearch,101,205
+arcfunction,31 bisection,debuggingby,68
+Archimedianspiral,38 bitwiseoperator,3
+argument,17,19,21,22,26,97 body,19,26,65
+gather,118 booltype,40
+keyword,33,36,191 booleanexpression,40,47
+list,97 booleanfunction,54
+optional,76,79,95,107,184 booleanoperator,76
+positional,164,169,190 borrowing,subtractionwith,68,159
+variable-lengthtuple,118 bounded,207
+argumentscatter,118 bracket
+arithmeticoperator,3 squiggly,103
+assertstatement,159,160 bracketoperator,71,90,116
+assignment,14,63,89 branch,41,47
+
+212 Index
+breakstatement,66 compoundstatement,41,47
+bubblesort,201 concatenation,12,14,22,73,74,95
+bug,6,7,13 list,91,97,101
+worst,170 condition,41,47,65,196
+built-infunction conditional,194
+any,185,186 chained,41,47
+bytesobject,141,145 nested,42,47
+conditionalexecution,41
+calculator,8,15 conditionalexpression,183,191
+callgraph,109,112 conditionalstatement,41,47,55,184
+CarTalk,88,113,124 consistencycheck,111,158
+Cardclass,172 constanttime,208
+card,playing,171 contributors,vii
+carrying,additionwith,68,156,158 conversion
+catch,145 type,17
+chainedconditional,41,47 copy
+character,71 deep,152
+checksum,143,146 shallow,152
+childclass,176,180 slice,74,92
+choicefunction,126 toavoidaliasing,99
+circlefunction,31 copymodule,151
+circulardefinition,55 copyingobjects,151
+class,4,147,153 countmethod,79
+Card,172 Counter,187
+child,176,180 counter,75,79,104,111
+Deck,174 countingandlooping,75
+Hand,176 CreativeCommons,vi
+Kangaroo,170 crossoverpoint,202,209
+parent,176 crosswords,83
+Point,148,165 cumulativesum,100
+Rectangle,149
+Time,155 dataencapsulation,179,181
+classattribute,172,180 datastructure,122,123,132
+classdefinition,147 database,141,145
+classdiagram,177,181 databaseobject,141
+classobject,148,153,190 datetimemodule,160
+closemethod,138,141,143 dbmmodule,141
+__cmp__method,173 deadcode,52,60,198
+Collatzconjecture,65 debugger(pdb),197
+collections,187,188,190 debugging,6,7,13,36,46,59,77,87,98,111,
+colon,19,194 122, 133, 144, 152, 159, 168, 178,
+comment,12,14 185,193
+commutativity,12,167 bybisection,68
+comparefunction,52 emotionalresponse,6,200
+comparingalgorithms,201 experimental,25
+comparison rubberduck,134
+string,77 superstition,200
+tuple,116,174 deck,171
+comparisonsort,205 Deckclass,174
+composition,19,22,26,54,174 deck,playingcards,174
+
+Index 213
+declaration,110,112 walk,140
+decrement,64,69 working,139
+deepcopy,152,153 dispatch
+deepcopyfunction,152 type-based,167
+defkeyword,19 dispatch,type-based,166
+defaultvalue,129,134,165 divisibility,39
+avoidingmutable,170 division
+defaultdict,188 floating-point,39
+definition floor,39,46,47
+circular,55 divmod,117,158
+class,147 docstring,35,37,148
+function,19 dotnotation,18,26,76,148,162,172
+recursive,124 DoubleDay,160
+deloperator,94 doubleletters,88
+deletion,elementoflist,94 Doyle,ArthurConan,25
+delimiter,95,100 duplicate,101,113,146,187
+designeddevelopment,160
+deterministic,126,134 element,89,100
+developmentplan,36 elementdeletion,94
+dataencapsulation,179,181 elifkeyword,42
+designed,158 Elkner,Jeff,v,vi
+encapsulationandgeneralization,35 ellipses,19
+incremental,52,193 elsekeyword,41
+prototypeandpatch,156,158 emailaddress,117
+randomwalkprogramming,134,200 embeddedobject,150,153,170
+reduction,85,87 copying,152
+diagram emotionaldebugging,6,200
+callgraph,112 emptylist,89
+class,177,181 emptystring,79,95
+object,148,150,152,153,155,173 encapsulation,32,36,54,69,75,177
+stack,23,97 encode,171,180
+state,9,63,78,90,96,108,120,148,150, encrypt,171
+152,155,173 endoflinecharacter,144
+__dict__attribute,168 enumeratefunction,119
+dictfunction,103 enumerateobject,119
+dictionary,103,112,120,197 epsilon,67
+initialize,120 equalityandassignment,63
+invert,107 equivalence,96,152
+lookup,106 equivalent,100
+loopingwith,106 error
+reverselookup,106 runtime,13,44,46,193
+subtraction,129 semantic,13,193,198
+traversal,120,168 shape,122
+dictionarymethods,204 syntax,13,193
+dbmmodule,141 errorchecking,58
+dictionarysubtraction,186 errormessage,7,13,193
+diff,146 evalfunction,69
+Dijkstra,Edsger,87 evaluate,10
+dirfunction,197 exception,13,14,193,196
+directory,139,145 AttributeError,152,197
+
+214 Index
+FileNotFoundError,140 forloop,30,44,72,91,119,184
+IndexError,72,78,90,197 formallanguage,4,7
+KeyError,104,197 formatoperator,138,145,197
+LookupError,107 formatsequence,138,145
+NameError,22,197 formatstring,138,145
+OverflowError,46 frame,23,26,44,56,109
+RuntimeError,45 FreeDocumentationLicense,GNU,v,vi
+StopIteration,185 frequency,105
+SyntaxError,19 letter,123
+TypeError,72,74,108,116,118,139,164, word,125,134
+197 fruitfulfunction,24,26
+UnboundLocalError,110 frustration,200
+ValueError,46,117 function,3,17,19,25,161
+exception,catching,140 abs,52
+execute,11,14 ack,61,113
+existsfunction,139 arc,31
+experimentaldebugging,25,134 choice,126
+exponent,202 circle,31
+exponentialgrowth,203 compare,52
+expression,10,14 deepcopy,152
+bigandhairy,199 dict,103
+boolean,40,47 dir,197
+conditional,183,191 enumerate,119
+generator,185,186,191 eval,69
+extendmethod,92 exists,139
+factorial,56,183
+factorial,183 fibonacci,57,109
+factorialfunction,56,58 find,74
+factory,191 float,17
+factoryfunction,188,189 fruitful,24
+Falsespecialvalue,40 getattr,168
+Fermat’sLastTheorem,48 getcwd,139
+fibonaccifunction,57,109 hasattr,153,168
+file,137 input,45
+permission,140 int,17
+readingandwriting,137 isinstance,58,153,166
+fileobject,83,87 len,26,72,104
+filename,139 list,94
+FileNotFoundError,140 log,18
+filterpattern,93,100,184 math,18
+findfunction,74 max,117,118
+flag,110,112 min,117,118
+floatfunction,17 open,83,84,137,140,141
+floattype,4 polygon,31
+floating-point,4,7,67,183 popen,142
+floating-pointdivision,39 programmerdefined,22,129
+floordivision,39,46,47 randint,101,126
+flowofexecution,21,26,58,59,65,178,196 random,126
+flower,37 reasonsfor,24
+folder,139 recursive,43
+
+Index 215
+reload,144,195 hashable,108,112,120
+repr,144 HashMap,207
+reversed,121 hashtable,112,206,210
+shuffle,175 header,19,25,194
+sorted,99,106,121 Hello,World,3
+sqrt,18,53 hexadecimal,148
+str,18 high-levellanguage,6
+sum,118,185 histogram,105
+trigonometric,18 randomchoice,126,130
+tuple,115 wordfrequencies,127
+tupleasreturnvalue,117 Holmes,Sherlock,25
+type,153 homophone,113
+void,24 hypotenuse,54
+zip,118
+functionargument,21 identical,100
+functioncall,17,26 identity,96,152
+functioncomposition,54 ifstatement,41
+functiondefinition,19,20,25 immutability,74,79,97,108,115,121
+functionframe,23,26,44,56,109 implementation,105,112,132,169
+functionobject,27 importstatement,26,144
+functionparameter,21
+inoperator,205
+functionsyntax,162 inoperator,76,85,90,104
+functiontype,20 increment,64,69,157,163
+modifier,157 incrementaldevelopment,60,193
+pure,156 indentation,19,162,194
+functionalprogrammingstyle,158,160 index,71,78,79,90,103,197
+loopingwith,86,91
+gammafunction,58 negative,72
+gather,118,123,190 slice,73,91
+GCD(greatestcommondivisor),61 startingatzero,71,90
+generalization,32,36,85,159 IndexError,72,78,90,197
+generatorexpression,185,186,191 indexing,204
+generatorobject,185 infiniteloop,65,69,195,196
+geometricresizing,209 infiniterecursion,44,47,58,195,196
+getmethod,105 inheritance,176,178,180,190
+getattrfunction,168 initmethod,164,168,172,174,176
+getcwdfunction,139 initialization
+globalstatement,110,112 variable,69
+globalvariable,110,112 initialization(beforeupdate),64
+update,110 inputfunction,45
+GNUFreeDocumentationLicense,v,vi instance,148,153
+greatestcommondivisor(GCD),61 asargument,149
+grid,27 asreturnvalue,150
+guardianpattern,59,60,78 instanceattribute,148,153,172,180
+instantiate,153
+Handclass,176 instantiation,148
+hanging,195 intfunction,17
+HAS-Arelationship,177,180 inttype,4
+hasattrfunction,153,168 integer,4,7
+hashfunction,108,112,207 interactivemode,11,14,24
+
+216 Index
+interface,33,36,169,179 Liskovsubstitutionprinciple,179
+interlockingwords,101 list,89,94,100,121,184
+interpret,6 asargument,97
+interpreter,2 concatenation,91,97,101
+invariant,159,160 copy,92
+invertdictionary,107 element,90
+invocation,76,79 empty,89
+isoperator,95,152 function,94
+IS-Arelationship,177,180 index,90
+isinstancefunction,58,153,166 membership,90
+item,74,79,89,103 method,92
+dictionary,112 nested,89,91
+itemassignment,74,90,116 ofobjects,174
+itemupdate,91 oftuples,119
+itemsmethod,120 operation,91
+iteration,64,69 repetition,91
+iterator,119–121,123,204 slice,91
+traversal,91
+join,204
+listcomprehension,184,191
+joinmethod,95,175
+listmethods,204
+literalness,5
+Kangarooclass,170
+localvariable,22,26
+key,103,112
+logfunction,18
+key-valuepair,103,112,120
+logarithm,135
+keyboardinput,45
+logarithmicgrowth,203
+KeyError,104,197
+KeyError,206 logicaloperator,40
+lookup,112
+keyword,10,14,194
+lookup,dictionary,106
+def,19
+LookupError,107
+elif,42
+loop,31,36,65,119
+else,41
+condition,196
+keywordargument,33,36,191
+for,30,44,72,91
+Kochcurve,49
+infinite,65,196
+language nested,174
+formal,4 traversal,72
+natural,4 while,64
+safe,13 loopvariable,184
+Turingcomplete,55 looping
+leadingcoefficient,202 withdictionaries,106
+leadingterm,202,209 withindices,86,91
+leapoffaith,57 withstrings,75
+lenfunction,26,72,104 loopingandcounting,75
+letterfrequency,123 low-levellanguage,6
+letterrotation,80,113 ls(Unixcommand),142
+linear,209
+lineargrowth,203 machinemodel,201,209
+linearsearch,205 main,23,43,110,144
+LinearMap,206 maintainable,169
+Linux,25 mappattern,93,100
+lipogram,84 mapto,171
+
+Index 217
+mapping,112,131 method,list,92
+Markovanalysis,130 Meyers,Chris,vi
+mash-up,132 minfunction,117,118
+mathfunction,18 MobyProject,83
+matplotlib,135 model,mental,199
+maxfunction,117,118 modifier,157,160
+McCloskey,Robert,73 module,18,26
+md5,143 bisect,101
+MD5algorithm,146 collections,187,188,190
+md5sum,146 copy,151
+membership datetime,160
+binarysearch,101 dbm,141
+bisectionsearch,101 os,139
+dictionary,104 pickle,137,142
+list,90 pprint,112
+set,113 profile,133
+memo,109,112 random,101,126,175
+mentalmodel,199 reload,144,195
+metaphor,methodinvocation,163 shelve,142
+metathesis,123 string,125
+method,36,75,161,169 structshape,122
+__cmp__,173 time,101
+__str__,165,174 moduleobject,18,143
+add,165 module,writing,143
+append,92,97,101,174,175 modulusoperator,39,47
+close,138,141,143 MontyPythonandtheHolyGrail,156
+count,79 MP3,146
+extend,92 mromethod,179
+get,105 multilinestring,35,194
+init,164,172,174,176 multiplicity(inclassdiagram),178,181
+items,120 multiset,187
+join,95,175 mutability,74,90,92,96,111,115,121,151
+mro,179 mutableobject,asdefaultvalue,170
+pop,94,175
+radd,167 namebuilt-invariable,144
+read,143 namedtuple,190
+readline,83,143 NameError,22,197
+remove,94 NaN,183
+replace,125 naturallanguage,4,7
+setdefault,113 negativeindex,72
+sort,92,99,176 nestedconditional,42,47
+split,95,117 nestedlist,89,91,100
+string,79 newline,45,175
+strip,84,125 Newton’smethod,66
+translate,125 Nonespecialvalue,24,26,52,92,94
+update,120 NoneTypetype,24
+values,104 notoperator,40
+void,92 number,random,126
+methodresolutionorder,179
+methodsyntax,162 Obama,Barack,201
+
+218 Index
+object,74,79,95,96,100 oroperator,40
+bytes,141,145 orderofgrowth,202,209
+class,147,148,153,190 orderofoperations,11,14,199
+copying,151 osmodule,139
+Counter,187 other(parametername),164
+database,141 OverflowError,46
+defaultdict,188 overloading,169
+embedded,150,153,170 override,129,134,165,173,176,179
+enumerate,119
+file,83,87 palindrome,61,80,86,88
+function,27 parameter,21,23,26,97
+generator,185 gather,118
+module,143 optional,129,165
+mutable,151 other,164
+namedtuple,190 self,163
+pipe,145 parentclass,176,180
+printing,162 parentheses
+set,186 argumentin,17
+zip,123 empty,19,76
+objectdiagram,148,150,152,153,155,173 parametersin,21,22
+object-orienteddesign,169 parentclassin,176
+object-orientedlanguage,169 tuplesin,115
+object-orientedprogramming,147,161,169, parse,5,7
+176 passstatement,41
+odometer,88 path,139,145
+OlinCollege,v absolute,139
+openfunction,83,84,137,140,141 relative,139
+operand,14 pattern
+operator,7 filter,93,100,184
+and,40 guardian,59,60,78
+arithmetic,3 map,93,100
+bitwise,3 reduce,93,100
+boolean,76 search,75,79,85,107,186
+bracket,71,90,116 swap,116
+del,94 pdb(Pythondebugger),197
+format,138,145,197 PEMDAS,11
+in,76,85,90,104 permission,file,140
+is,95,152 persistence,137,145
+logical,40 pi,18,70
+modulus,39,47 picklemodule,137,142
+not,40 pickling,142
+or,40 pie,37
+overloading,169 pipe,142
+relational,40,173 pipeobject,145
+slice,73,79,91,98,116 plaintext,83,125
+string,12 planneddevelopment,158
+update,93 poetry,5
+operatoroverloading,166,173 Pointclass,148,165
+optionalargument,76,79,95,107,184 point,mathematical,147
+optionalparameter,129,165 poker,171,181
+
+Index 219
+polygonfunction,31 randomwalkprogramming,134,200
+polymorphism,168,169 rank,171
+popmethod,94,175 readmethod,143
+popenfunction,142 readlinemethod,83,143
+portability,6 reassignment,63,68,90,110
+positionalargument,164,169,190 Rectangleclass,149
+postcondition,36,59,179 recursion,43,47,55,57
+pprintmodule,112 basecase,44
+precedence,199 infinite,44,58,196
+precondition,36,37,59,179 recursivedefinition,56,124
+prefix,131 red-blacktree,206
+prettyprint,112 reducepattern,93,100
+printfunction,3 reducibleword,113,124
+printstatement,3,7,165,197 reduction to a previously solved problem,
+problemsolving,1,6 85
+profilemodule,133 reduction to a previously solved problem,
+program,1,6 87
+programtesting,87 redundancy,5
+programmer-definedfunction,22,129 refactoring,34–36,180
+programmer-defined type, 147, 153, 155, reference,96,97,100
+162,165,173 aliasing,96
+ProjectGutenberg,125 rehashing,208
+prompt,2,6,45 relationaloperator,40,173
+prose,5 relativepath,139,145
+prototypeandpatch,156,158,160 reloadfunction,144,195
+pseudorandom,126,134 removemethod,94
+purefunction,156,160 repetition,30
+Puzzler,88,113,124 list,91
+Pythagoreantheorem,52 replacemethod,125
+Python reprfunction,144
+running,2 representation,147,149,171
+Python2,2,3,33,40,45 returnstatement,44,51,199
+Pythoninabrowser,2 returnvalue,17,26,51,150
+PythonAnywhere,2 tuple,117
+reverselookup,112
+quadratic,209 reverselookup,dictionary,106
+quadraticgrowth,203 reversewordpair,101
+quotationmark,3,4,35,74,194 reversedfunction,121
+rotation
+raddmethod,167 letters,113
+radian,18 rotation,letter,80
+radixsort,201 rubberduckdebugging,134
+rage,200 runningpace,8,15,160
+raisestatement,107,112,159 runningPython,2
+Ramanujan,Srinivasa,70 runtimeerror,13,44,46,193,196
+randintfunction,101,126 RuntimeError,45,58
+randomfunction,126
+randommodule,101,126,175 safelanguage,13
+randomnumber,126 sanitycheck,111
+randomtext,131 scaffolding,53,60,112
+
+220 Index
+scatter,118,123,191 squigglybracket,103
+Schmidt,Eric,201 stablesort,205
+Scrabble,123 stackdiagram,23,26,37,44,56,60,97
+script,11,14 state diagram, 9, 14, 63, 78, 90, 96, 108, 120,
+scriptmode,11,14,24 148,150,152,155,173
+search,107,205,209 statement,10,14
+searchpattern,75,79,85,186 assert,159,160
+search,binary,101 assignment,9,63
+search,bisection,101 break,66
+self(parametername),163 compound,41
+semanticerror,13,14,193,198 conditional,41,47,55,184
+semantics,14,162 for,30,72,91
+sequence,4,71,79,89,94,115,121 global,110,112
+set,130,186 if,41
+anagram,123,145 import,26,144
+setmembership,113 pass,41
+setsubtraction,186 print,3,7,165,197
+setdefault,189 raise,107,112,159
+setdefaultmethod,113 return,44,51,199
+sexagesimal,158 try,140,153
+shallowcopy,152,153 while,64
+shape,123 stepsize,79
+shapeerror,122 StopIteration,185
+shell,142,145 strfunction,18
+shelvemodule,142 __str__method,165,174
+shufflefunction,175 string,4,7,94,121
+sinefunction,18 accumulator,175
+singleton,108,112,115 comparison,77
+slice,79 empty,95
+copy,74,92 immutable,74
+list,91 method,75
+string,73 multiline,35,194
+tuple,116 operation,12
+update,92 slice,73
+sliceoperator,73,79,91,98,116 triple-quoted,35
+sortmethod,92,99,176 stringconcatenation,204
+sorted stringmethod,79
+function,99,106 stringmethods,204
+sortedfunction,121 stringmodule,125
+sorting,204,205 stringrepresentation,144,165
+specialcase,87,157 stringtype,4
+specialvalue stripmethod,84,125
+False,40 structshapemodule,122
+None,24,26,52,92,94 structure,5
+True,40 subject,163,169
+spiral,38 subset,187
+splitmethod,95,117 subtraction
+sqrt,53 dictionary,129
+sqrtfunction,18 withborrowing,68
+squareroot,66 subtractionwithborrowing,159
+
+Index 221
+suffix,131 TuringThesis,55
+suit,171 Turing,Alan,55
+sum,185 turtlemodule,48
+sumfunction,118 turtletypewriter,37
+superstitiousdebugging,200 type,4,7
+swappattern,116 bool,40
+syntax,5,7,13,162,194 dict,103
+syntaxerror,13,14,193 file,137
+SyntaxError,19 float,4
+function,20
+temporaryvariable,51,60,199 int,4
+testcase,minimal,198 list,89
+testing NoneType,24
+andabsenceofbugs,87 programmer-defined,147,153,155,162,
+incrementaldevelopment,52 165,173
+ishard,87 set,130
+knowingtheanswer,53 str,4
+leapoffaith,57 tuple,115
+minimaltestcase,198 typechecking,58
+text typeconversion,17
+plain,83,125 typefunction,153
+random,131 type-baseddispatch,166,167,169
+textfile,145 TypeError,72,74,108,116,118,139,164,197
+Timeclass,155 typewriter,turtle,37
+timemodule,101 typographicalerror,134
+token,5,7
+traceback,24,26,44,46,107,196 UnboundLocalError,110
+translatemethod,125 underscorecharacter,10
+traversal,72,75,77,79,85,93,100,105,106, uniqueness,101
+119,127 Unixcommand
+dictionary,168 ls,142
+list,91 update,64,67,69
+traverse database,141
+dictionary,120 globalvariable,110
+triangle,48 histogram,127
+trigonometricfunction,18 item,91
+triple-quotedstring,35 slice,92
+Truespecialvalue,40 updatemethod,120
+trystatement,140,153 updateoperator,93
+tuple,115,117,121,122 usebeforedef,20
+askeyindictionary,120,132
+assignment,116 value,4,7,95,96,112
+comparison,116,174 default,129
+inbrackets,120 tuple,117
+singleton,115 ValueError,46,117
+slice,116 valuesmethod,104
+tupleassignment,117,119,122 variable,9,14
+tuplefunction,115 global,110
+tuplemethods,204 local,22
+Turingcompletelanguage,55 temporary,51,60,199
+
+222 Index
+updating,64
+variable-lengthargumenttuple,118
+veneer,175,180
+voidfunction,24,26
+voidmethod,92
+vorpal,55
+walk,directory,140
+whileloop,64
+whitespace,46,84,144,194
+wordcount,143
+wordfrequency,125,134
+word,reducible,113,124
+workingdirectory,139
+worstbug,170
+worstcase,202,209
+zero,indexstartingat,71
+zero,indexstartingat,90
+zipfunction,118
+usewithdict,120
+zipobject,123
+Zipf’slaw,134
