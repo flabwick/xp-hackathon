@@ -1,11 +1,15 @@
 {
   "name": "mastery5",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "concurrently \"nodemon server.js\" \"vite\"",
     "start": "node server.js",
     "build": "vite build",
+    "bootstrap:domains": "node scripts/bootstrap_domain.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

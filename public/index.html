@@ -4,20 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XP Study & Injection</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
 <header id="study-menu">
-  <h1>📚 STUDY MENU</h1>
-  <a href="/mapping" class="btn mapping-btn" target="_blank">🗺️ MAPPING</a>
+  <div class="header-top">
+    <a href="/" class="back-link" title="Back to domain picker">←</a>
+    <h1>STUDY MENU</h1>
+    <span class="header-badge" id="domain-badge">—</span>
+  </div>
+
   <div class="controls">
-    <select id="domain-select">
-      <option value="">-- Select Domain --</option>
-    </select>
-    
-    <div class="toggle-group">
-      <label>Mode:</label>
+    <div class="control-block">
+      <label class="control-label">Domain</label>
+      <select id="domain-select">
+        <option value="">— Select —</option>
+      </select>
+    </div>
+
+    <div class="control-block">
+      <label class="control-label">Mode</label>
       <select id="prompt-mode">
         <option value="test">Test</option>
         <option value="study">Study</option>
@@ -25,64 +36,42 @@
       </select>
     </div>
 
-    <div class="toggle-group">
-      <label>Selection:</label>
-      <button id="mode-toggle" class="btn toggle active" data-target="select">Select Mode</button>
-      <button id="mode-priority" class="btn toggle" data-target="priority">Priority Mode</button>
+    <div class="control-block">
+      <label class="control-label">Selection</label>
+      <div class="toggle-pair">
+        <button id="mode-toggle" class="btn toggle active" data-target="select">Select</button>
+        <button id="mode-priority" class="btn toggle" data-target="priority">Priority</button>
+      </div>
     </div>
 
-    <div id="priority-controls" class="hidden">
-      <label>Units to Study:</label>
+    <div id="priority-controls" class="control-block hidden">
+      <label class="control-label">Units to Study: <span id="priority-val">5</span></label>
       <input type="range" id="priority-count" min="1" max="50" value="5">
-      <span id="priority-val">5</span>
     </div>
 
-    <button id="test-btn" class="btn primary">▶ TEST</button>
+    <div class="control-spacer"></div>
+
+    <button id="test-btn" class="btn btn-test">▶ TEST</button>
   </div>
 </header>
 
-<section id="injection-menu">
-  <h2>💉 INJECTION MENU</h2>
-  
-  <div class="injection-grid">
-    <!-- XP INJECTION -->
-    <div class="card">
-      <h3>XP Injection</h3>
-      <textarea id="xp-input" placeholder='[{"unitId":0, "difficultyScore":65, "performanceRatio":0.82, "notes":"Good"}]'></textarea>
-      <button id="process-xp" class="btn primary">PROCESS XP</button>
-    </div>
-
-    <!-- TEACHING INJECTION -->
-    <div class="card">
-      <h3>Teaching Injection</h3>
-      <textarea id="teaching-input" placeholder='[{"question":"What is a supremum?","answer":"The least upper bound of a set","relevantUnits":[3]},{"question":"Define compactness","answer":"Every open cover has a finite subcover","relevantUnits":[11]}]'></textarea>
-      <button id="copy-teaching" class="btn secondary">📋 COPY TEACHING PROMPT</button>
-    </div>
-
-    <!-- XP HISTORY -->
-    <div class="card">
-      <h3>XP History</h3>
-      <button id="show-xp-history" class="btn outline">📖 VIEW HISTORY</button>
-    </div>
-  </div>
-</section>
-
 <main id="content-area">
-  <!-- SELECT MODE TREE -->
+  <div class="section-bar">
+    <h2 class="section-title">Topics</h2>
+    <span class="section-hint">Pick units to test, or switch to Priority mode.</span>
+  </div>
+
   <section id="tree-container">
     <div id="tree-loader" class="placeholder">Select a domain to load units.</div>
   </section>
-  
-  <!-- PRIORITY MODE LIST -->
+
   <section id="priority-list" class="hidden">
     <div id="priority-loader" class="placeholder">Priority calculation requires loaded domain & XP.</div>
   </section>
 </main>
 
-<!-- TOAST -->
 <div id="toast" class="toast"></div>
 
-<!-- XP MODAL -->
 <dialog id="xp-modal">
   <div class="modal-header">
     <h2>📊 XP Update Results</h2>
@@ -97,15 +86,15 @@
       <div id="modal-stats"></div>
     </div>
     <div id="tab-history" class="tab-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
+      <div class="history-toolbar">
         <strong>Injection History</strong>
-        <button id="clear-all-history" class="btn-undo" style="font-size:0.75rem">🗑 CLEAR ALL</button>
+        <button id="clear-all-history" class="btn-undo">🗑 CLEAR ALL</button>
       </div>
       <div id="modal-history"></div>
     </div>
   </div>
 </dialog>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

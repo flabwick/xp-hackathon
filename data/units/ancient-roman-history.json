@@ -1,0 +1,257 @@
+{
+  "meta": {
+    "bt": [
+      "Foundations & Early Rome",
+      "The Roman Republic (509–27 BCE)",
+      "Transition to Empire (Civil Wars & Augustus)",
+      "The Principate (Early Empire)",
+      "The Roman Peace & Imperial Administration",
+      "Society, Culture & Daily Life",
+      "Military Organization & Warfare",
+      "Crisis, Decline & Legacy"
+    ],
+    "cl": [
+      "Geographical setting & Italian peoples",
+      "Foundation myths (Romulus, Aeneas)",
+      "Regal period (753–509 BCE)",
+      "Overthrow of monarchy & early Republic",
+      "Struggle of the Orders (patricians vs. plebeians)",
+      "Roman expansion in Italy (Latin, Samnite, Pyrrhic wars)",
+      "Conquest of Mediterranean (Punic Wars, Macedonia, Syria)",
+      "Late Republic: Gracchi, Marius, Sulla",
+      "Fall of Republic: Pompey, Crassus, Cicero, Catiline",
+      "First Triumvirate & Caesar's rise",
+      "Caesar's dictatorship & assassination",
+      "Second Triumvirate (Antony, Octavian, Lepidus)",
+      "Augustus: settlement, reforms & principate creation",
+      "Julio-Claudian dynasty (Tiberius to Nero)",
+      "Year of the Four Emperors (69 CE) & Flavian dynasty",
+      "Five Good Emperors (Nerva to Marcus Aurelius)",
+      "Severan dynasty & military anarchy (235–284 CE)",
+      "Diocletian & Tetrarchy reforms",
+      "Constantine & Christianization",
+      "Late Empire & fall of the West (395–476 CE)",
+      "Roman law, governance & bureaucracy",
+      "Trade, economy & coinage",
+      "Social hierarchy: senators, equestrians, freedmen, slaves",
+      "Family life, education & marriage",
+      "Religion: pantheon, cults, imperial cult",
+      "Roman architecture & engineering (roads, aqueducts, concrete)",
+      "Literature, art & philosophy",
+      "Roman army: legions, auxiliaries, organization",
+      "Weapons, tactics & siegecraft",
+      "Naval warfare & border defense (limes, walls)",
+      "Byzantine continuation & cultural legacy",
+      "Historiography & major ancient sources"
+    ]
+  },
+  "tree": [
+    {
+      "bt": 0,
+      "clusters": [
+        {
+          "cl": 0,
+          "units": [
+            {"id": 0, "n": "Italian Peninsula Geography & Early Peoples", "t": "f", "nt": "Covers Apennine mountains, Tiber River, Latium region; early inhabitants: Latins, Etruscans, Greeks, Sabines; influence of Etruscan civilization on early Rome; excludes detailed toponymy of each tribe.", "l": []},
+            {"id": 1, "n": "Foundation Myths: Romulus & Remus, Aeneas", "t": "f", "nt": "Covers legend of twins, she-wolf, founding date 753 BCE; Aeneas as Trojan refugee and link to Homeric epic; historical vs mythical interpretation; excludes alternative foundation stories.", "l": [[0, "h"]]}
+          ]
+        },
+        {
+          "cl": 1,
+          "units": [
+            {"id": 2, "n": "The Regal Period (753–509 BCE): Seven Kings", "t": "f", "nt": "Covers traditional list of kings, contributions (institutions, temples, Servian reforms); transition from monarchy to republic; historical reliability of king list; excludes detailed genealogy.", "l": [[1, "h"]]},
+            {"id": 3, "n": "Overthrow of Tarquinius Superbus & Early Republic Institutions", "t": "f", "nt": "Covers rape of Lucretia, expulsion of last king; creation of consuls, Senate, comitia centuriata; early conflict with Etruscan cities; excludes detailed legislative procedures.", "l": [[2, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 1,
+      "clusters": [
+        {
+          "cl": 2,
+          "units": [
+            {"id": 4, "n": "Struggle of the Orders: Patricians vs. Plebeians", "t": "f", "nt": "Covers secessions of the plebs (494, 449, 287 BCE); tribunes of the plebs, Twelve Tables; lex Hortensia (287 BCE); achievement of political equality; excludes detailed legal reforms.", "l": [[3, "h"]]}
+          ]
+        },
+        {
+          "cl": 3,
+          "units": [
+            {"id": 5, "n": "Roman Expansion in Italy (c. 500–264 BCE)", "t": "f", "nt": "Covers Latin League, Samnite Wars (343–290 BCE), Pyrrhic War (280–275 BCE); tactics of Roman manipular legion; road building (Via Appia); excludes detailed battle narratives.", "l": [[4, "h"]]},
+            {"id": 6, "n": "The Punic Wars (264–146 BCE): Rome vs. Carthage", "t": "f", "nt": "Covers First (naval, Sicily), Second (Hannibal, Cannae, Scipio), Third (Carthage destroyed); key generals: Hamilcar, Hannibal, Scipio Africanus; political consequences; excludes naval tactics debate.", "l": [[5, "h"]]}
+          ]
+        },
+        {
+          "cl": 4,
+          "units": [
+            {"id": 7, "n": "Conquest of Greece & Eastern Mediterranean", "t": "f", "nt": "Covers Macedonian Wars (214–148 BCE), defeat of Seleucids, Corinth destruction; Greek cultural influence (Graecia capta); role of philhellenism among Roman elite; excludes detailed treaty terms.", "l": [[6, "h"]]},
+            {"id": 8, "n": "Late Republic: Gracchi Brothers (Tiberius & Gaius)", "t": "f", "nt": "Covers land reform, agrarian laws, assassination of Tiberius (133 BCE); death of Gaius (121 BCE); beginning of political violence; populares vs optimates; excludes full social context.", "l": [[7, "h"]]}
+          ]
+        },
+        {
+          "cl": 5,
+          "units": [
+            {"id": 9, "n": "Marius, Sulla & Civil War (88–82 BCE)", "t": "f", "nt": "Covers Marius’ army reforms (professionalization); Sulla’s march on Rome, proscriptions, constitutional reforms; Mithridatic War; consequences for Republic; excludes detailed campaign maps.", "l": [[8, "h"]]},
+            {"id": 10, "n": "Pompey, Crassus, Cicero & Catilinarian Conspiracy (63 BCE)", "t": "f", "nt": "Covers Pompey’s eastern campaigns, Crassus’ wealth, Cicero’s consulship, suppression of Catiline; First Triumvirate formation (60 BCE); excludes oratory analysis.", "l": [[9, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 2,
+      "clusters": [
+        {
+          "cl": 6,
+          "units": [
+            {"id": 11, "n": "First Triumvirate & Caesar’s Rise (60–49 BCE)", "t": "f", "nt": "Covers secret alliance, Caesar’s Gallic Wars, death of Crassus, Senate vs Caesar; crossing the Rubicon; excludes detailed Gaul battle tactics.", "l": [[10, "h"]]},
+            {"id": 12, "n": "Caesar’s Civil War (49–45 BCE) & Dictatorship", "t": "f", "nt": "Covers defeat of Pompey (Pharsalus 48 BCE); Egyptian affair (Cleopatra); calendar reform, dictatorship for life (44 BCE); assassination (Ides of March); excludes constitutional analysis.", "l": [[11, "h"]]}
+          ]
+        },
+        {
+          "cl": 7,
+          "units": [
+            {"id": 13, "n": "Second Triumvirate (Octavian, Antony, Lepidus)", "t": "f", "nt": "Covers proscriptions, Battle of Philippi (42 BCE); division of provinces; Antony’s alliance with Cleopatra; rising conflict; excludes propaganda analysis.", "l": [[12, "h"]]},
+            {"id": 14, "n": "Final Civil War: Actium (31 BCE) & Fall of Antony", "t": "f", "nt": "Covers naval battle, Cleopatra’s death, Antony’s suicide; Octavian’s sole rule; Egypt annexed as Roman province; excludes economic consequences.", "l": [[13, "h"]]}
+          ]
+        },
+        {
+          "cl": 8,
+          "units": [
+            {"id": 15, "n": "Augustus’ Constitutional Settlement & Principate Creation", "t": "f", "nt": "Covers ‘Restoration of Republic’ (27 BCE); titles: Augustus, Princeps, Pontifex Maximus; division of provinces (imperial vs senatorial); reforms of army, treasury, and morals; excludes succession planning details.", "l": [[14, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 3,
+      "clusters": [
+        {
+          "cl": 9,
+          "units": [
+            {"id": 16, "n": "Julio‑Claudian Dynasty (Tiberius, Caligula, Claudius, Nero)", "t": "f", "nt": "Covers each emperor’s reign, key events (Germanicus, conquest of Britain, Great Fire); scandals, conspiracies; end with Nero’s suicide (68 CE); excludes detailed provincial policies.", "l": [[15, "h"]]}
+          ]
+        },
+        {
+          "cl": 10,
+          "units": [
+            {"id": 17, "n": "Year of the Four Emperors (69 CE) & Flavian Dynasty", "t": "f", "nt": "Covers Galba, Otho, Vitellius, Vespasian; civil war; Flavian building projects (Colosseum); destruction of Jerusalem (70 CE); excludes Jewish War tactical details.", "l": [[16, "h"]]}
+          ]
+        },
+        {
+          "cl": 11,
+          "units": [
+            {"id": 18, "n": "Five Good Emperors (Nerva to Marcus Aurelius)", "t": "f", "nt": "Covers adoptive succession: Trajan (max extent), Hadrian (walls, travel), Antoninus Pius (peace), Marcus Aurelius (Parthian/Marcomannic wars, Meditations); peak of Roman power; excludes philosophical analysis.", "l": [[17, "h"]]}
+          ]
+        },
+        {
+          "cl": 12,
+          "units": [
+            {"id": 19, "n": "Severan Dynasty & Military Anarchy (235–284 CE)", "t": "f", "nt": "Covers Septimius Severus (military monarchy), Caracalla (Constitutio Antoniniana), Elagabalus, Alexander Severus; crisis of the third century: multiple emperors, invasions, plague, economic collapse; excludes detailed numismatics.", "l": [[18, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 4,
+      "clusters": [
+        {
+          "cl": 13,
+          "units": [
+            {"id": 20, "n": "Diocletian’s Reforms & Tetrarchy (284–305 CE)", "t": "f", "nt": "Covers division into East/West, two Augusti and two Caesares; economic reforms (Edict on Maximum Prices); military reorganization; abdication; excludes administrative boundary details.", "l": [[19, "h"]]}
+          ]
+        },
+        {
+          "cl": 14,
+          "units": [
+            {"id": 21, "n": "Constantine the Great (306–337 CE)", "t": "f", "nt": "Covers Battle of Milvian Bridge (312), Edict of Milan (313), Christian toleration; foundation of Constantinople (330); Council of Nicaea; army and monetary reforms; excludes theological debates.", "l": [[20, "h"]]}
+          ]
+        },
+        {
+          "cl": 15,
+          "units": [
+            {"id": 22, "n": "Late Empire & Division after Theodosius (395 CE)", "t": "f", "nt": "Covers Valentinian, Valens, Adrianople (378); Theodosius I (last sole emperor); permanent East/West split; barbarian settlement; excludes ecclesiastical history.", "l": [[21, "h"]]},
+            {"id": 23, "n": "Fall of the Western Roman Empire (410–476 CE)", "t": "f", "nt": "Covers Sack of Rome by Visigoths (410), by Vandals (455); last emperors Romulus Augustulus (deposed 476); Odoacer as King of Italy; reasons for fall (military, economic, political); excludes ‘Byzantine survival’ details.", "l": [[22, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 5,
+      "clusters": [
+        {
+          "cl": 16,
+          "units": [
+            {"id": 24, "n": "Roman Law: Twelve Tables to Justinian’s Code", "t": "f", "nt": "Covers development of ius civile, praetorian edict, jurists (Gaius, Ulpian); Corpus Iuris Civilis (529–534 CE); legal concepts (paterfamilias, property, contracts); excludes detailed case law.", "l": [[23, "h"]]}
+          ]
+        },
+        {
+          "cl": 17,
+          "units": [
+            {"id": 25, "n": "Economy & Trade: Currency, Taxation, Commerce", "t": "f", "nt": "Covers denarius & sestertius; Mediterranean trade routes, amphorae, annona (grain dole); taxes (tributum, portoria); role of villas and latifundia; excludes full price history.", "l": [[24, "h"]]}
+          ]
+        },
+        {
+          "cl": 18,
+          "units": [
+            {"id": 26, "n": "Social Hierarchy: Senators, Equestrians, Freedmen, Slaves", "t": "f", "nt": "Covers cursus honorum, property classes, patronage system (clientela); manumission; slavery as economic base (servile wars: Spartacus); daily life differences; excludes prosopographical databases.", "l": [[25, "h"]]},
+            {"id": 27, "n": "Family, Marriage & Education", "t": "f", "nt": "Covers paterfamilias, patria potestas, marriage types (cum/manu vs sine manu); children’s education (ludus, rhetoric); role of women; excludes legal divorce cases.", "l": [[26, "h"]]}
+          ]
+        },
+        {
+          "cl": 19,
+          "units": [
+            {"id": 28, "n": "Religion: State Cults, Mystery Religions & Imperial Cult", "t": "f", "nt": "Covers Capitoline Triad, pontiffs, augurs; foreign cults (Isis, Mithras); emperor worship as political loyalty; Christianity as outlawed cult; excludes detailed theology.", "l": [[27, "h"]]},
+            {"id": 29, "n": "Roman Architecture & Engineering", "t": "f", "nt": "Covers concrete, arches, domes (Pantheon); aqueducts, roads (viae, milestones), bridges, basilicas, baths; examples: Colosseum, Circus Maximus; excludes modern engineering calculations.", "l": [[28, "h"]]}
+          ]
+        },
+        {
+          "cl": 20,
+          "units": [
+            {"id": 30, "n": "Literature, Art & Philosophy", "t": "f", "nt": "Covers Golden Age: Cicero, Virgil (Aeneid), Horace, Ovid, Livy; Silver Age: Seneca, Tacitus, Pliny; Stoicism (Epictetus, Marcus); portraiture, frescoes (Pompeii); excludes textual criticism.", "l": [[29, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 6,
+      "clusters": [
+        {
+          "cl": 21,
+          "units": [
+            {"id": 31, "n": "Roman Army: Legions, Auxiliaries & Organization", "t": "f", "nt": "Covers legio (cohorts, centuries, legionaries), auxilia (archers, cavalry); ranks (centurion, legate); camp life, discipline (decimation); excludes equipment metallurgy details.", "l": [[30, "h"]]},
+            {"id": 32, "n": "Weapons, Tactics & Siegecraft", "t": "f", "nt": "Covers gladius, pilum, scutum; manipular vs cohort tactics; testudo formation; siege engines (ballista, onager, siege towers); famous sieges (Alesia, Masada); excludes reconstruction specs.", "l": [[31, "h"]]}
+          ]
+        },
+        {
+          "cl": 22,
+          "units": [
+            {"id": 33, "n": "Naval Warfare & Border Defense (Limes, Walls)", "t": "f", "nt": "Covers corvus, naval ram; fleet bases (Misenum, Ravenna); limes (Germanic, African, eastern frontiers), Hadrian’s Wall, Antonine Wall; Dacian wars; excludes minor fortlets.", "l": [[32, "h"]]}
+          ]
+        }
+      ]
+    },
+    {
+      "bt": 7,
+      "clusters": [
+        {
+          "cl": 23,
+          "units": [
+            {"id": 34, "n": "Byzantine Continuation & Eastern Roman Empire", "t": "f", "nt": "Covers Constantinople as ‘New Rome’; reign of Justinian (527–565); reconquests under Belisarius; survival until 1453; Roman law legacy; excludes Orthodox theology.", "l": [[23, "h"]]}
+          ]
+        },
+        {
+          "cl": 24,
+          "units": [
+            {"id": 35, "n": "Roman Cultural Legacy: Language, Law, Government", "t": "f", "nt": "Covers Latin as basis of Romance languages; Roman law as foundation for civil law (Napoleonic, German); republican ideals in Enlightenment and modern constitutions; Roman calendar and names; excludes reception studies.", "l": [[34, "h"]]}
+          ]
+        },
+        {
+          "cl": 25,
+          "units": [
+            {"id": 36, "n": "Historiography & Major Ancient Sources", "t": "f", "nt": "Covers Polybius (pragmatic history), Livy (moralistic), Tacitus (critical of empire), Suetonius (biography), Cassius Dio (senatorial); archaeological and epigraphic evidence; modern debates; excludes full source criticism.", "l": [[35, "h"]]}
+          ]
+        }
+      ]
+    }
+  ]
+}

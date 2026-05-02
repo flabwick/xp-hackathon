@@ -53,10 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load XP — domain is resolved per-request, init with empty
   state.xpData = {};
 
-  // ─── DOMAIN LOADER ──────────────────────────────────────────────────────────────
   async function loadDomain(domain) {
     state.domain = domain;
     el.domainSelect.value = domain;
+    const badge = document.getElementById('domain-badge');
+    if (badge) badge.textContent = domain || '—';
     el.treeContainer.innerHTML = '<div class="placeholder">Loading...</div>';
     el.priorityList.innerHTML = '<div class="placeholder">Loading...</div>';
 
@@ -487,8 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = `/test?domain=${encodeURIComponent(state.domain)}&units=${ids.join(',')}`;
   };
 
-  // XP INJECTION — reads from textarea, sends API, shows modal
-  document.getElementById('process-xp').addEventListener('click', async () => {
+  document.getElementById('process-xp')?.addEventListener('click', async () => {
     const raw = document.getElementById('xp-input').value.trim();
     if (!raw) return alert('Paste an XP injection JSON first.');
 
@@ -514,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return alert('XP processing failed: ' + JSON.stringify(xpData));
     }
 
-    // Refresh state
     if (state.domain) {
       const progressRes = await fetch(`/api/progress/${state.domain}`);
       if (progressRes.ok) {
@@ -529,11 +528,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (xpStateRes.ok) state.xpData = await xpStateRes.json();
     renderTree();
 
-    // Show XP modal
     showXPModal(xpData.results);
     state.lastXPResult = xpData.results;
 
-    // Clear textarea
     document.getElementById('xp-input').value = '';
   });
 
@@ -889,17 +886,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.getElementById('close-modal').addEventListener('click', () => el.modal.close());
+  document.getElementById('close-modal')?.addEventListener('click', () => el.modal?.close());
 
-  // SHOW XP HISTORY button
-  document.getElementById('show-xp-history').addEventListener('click', () => {
+  document.getElementById('show-xp-history')?.addEventListener('click', () => {
     showHistoryModal();
-    // Activate history tab
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelector('.tab-btn[data-tab="history"]').classList.add('active');
-    document.getElementById('tab-history').classList.add('active');
-    el.modal.showModal();
+    document.querySelector('.tab-btn[data-tab="history"]')?.classList.add('active');
+    document.getElementById('tab-history')?.classList.add('active');
+    el.modal?.showModal();
   });
 
   // Tab switching in modal
@@ -914,8 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // CLEAR ALL HISTORY
-  document.getElementById('clear-all-history').addEventListener('click', async () => {
+  document.getElementById('clear-all-history')?.addEventListener('click', async () => {
     if (!confirm('Clear all XP history? This will reset all XP to 0 and remove all progress logs.')) return;
 
     try {
@@ -937,8 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ─── TEACHING INJECTION — JSON paste & compile ─────────────────────────────────
-  document.getElementById('copy-teaching').addEventListener('click', async () => {
+  document.getElementById('copy-teaching')?.addEventListener('click', async () => {
     const textarea = document.getElementById('teaching-input');
     const raw = textarea.value.trim();
     if (!raw) return alert('Paste a teaching injection JSON first.');

@@ -8,7 +8,8 @@ const { testPromptCompile } = require('./testPromptCompile');
 const answersRouter = require('./answers/router');
 const pageRouter = require('./routes');
 const app = express();
-const PORT = 6969;
+// Honour Railway/host-injected PORT; fall back to 6969 for local dev.
+const PORT = parseInt(process.env.PORT, 10) || 6969;
 
 function getLocalIP() {
   for (const ifaces of Object.values(os.networkInterfaces())) {
@@ -29,12 +30,13 @@ app.get('/api/server-info', (req, res) => {
 // Page routes (must come before express.static so / serves domains.html, not index.html)
 app.use(pageRouter);
 
-// Static assets (CSS, JS, images)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
-} else {
-  app.use(express.static('public'));
-}
+// Static assets (CSS, JS, images).
+// Serve `public/` always — that's where the actual UI lives. If a Vite build
+// happens to populate `dist/`, those files take priority. This makes the app
+// deployable to PaaS hosts (Railway, Render, …) with zero build step required.
+const distDir = path.join(__dirname, 'dist');
+if (fs.existsSync(distDir)) app.use(express.static(distDir));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── SYNC STORAGE HELPERS ───────────────────────────────────────────────────────
 const readJSON = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -590,4 +592,5 @@ app.post('/api/teach/stream', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`🚀 Study App running at http://localhost:${PORT}`));
+// Bind to 0.0.0.0 so PaaS hosts (Railway, Render, Fly, etc.) can route traffic in.
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Study App running on port ${PORT}`));
