@@ -12,31 +12,12 @@ const PORT = 6969;
 
 app.use(express.json({ limit: '10mb' }));
 
-// In production, serve the Vite build output
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
-} else {
-  app.use(express.static('public'));
-  app.get('/mapping', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'mapping.html'));
-  });
-  app.get('/markdown-ui', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'markdown-ui.html'));
-  });
-  app.get('/test', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'test.html'));
-  });
-  app.get('/teach', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'teach.html'));
-  });
-  app.get('/unit', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'unit.html'));
-  });
-}
+app.use(express.static('public'));
+app.get('/mapping', (req, res) => res.sendFile(path.join(__dirname, 'public', 'mapping.html')));
+app.get('/markdown-ui', (req, res) => res.sendFile(path.join(__dirname, 'public', 'markdown-ui.html')));
+app.get('/test', (req, res) => res.sendFile(path.join(__dirname, 'public', 'test.html')));
+app.get('/teach', (req, res) => res.sendFile(path.join(__dirname, 'public', 'teach.html')));
+app.get('/unit', (req, res) => res.sendFile(path.join(__dirname, 'public', 'unit.html')));
 
 // Serve study menu (per-course via ?course=<id>)
 app.get('/study', (req, res) => {
