@@ -1,0 +1,526 @@
+Lists
+=====
+
+Chapter 10
+Lists
+ThischapterpresentsoneofPython’smostusefulbuilt-intypes,lists. Youwillalsolearn
+moreaboutobjectsandwhatcanhappenwhenyouhavemorethanonenameforthesame
+object.
+10.1 A list is a sequence
+Likeastring, alistisasequenceofvalues. Inastring, thevaluesarecharacters; inalist,
+theycanbeanytype. Thevaluesinalistarecalledelementsorsometimesitems.
+Thereareseveralwaystocreateanewlist;thesimplestistoenclosetheelementsinsquare
+brackets([and]):
+[10, 20, 30, 40]
+['crunchy frog', 'ram bladder', 'lark vomit']
+Thefirstexampleisalistoffourintegers.Thesecondisalistofthreestrings.Theelements
+of a list don’t have to be the same type. The following list contains a string, a float, an
+integer,and(lo!) anotherlist:
+['spam', 2.0, 5, [10, 20]]
+Alistwithinanotherlistisnested.
+A list that contains no elements is called an empty list; you can create one with empty
+brackets,[].
+Asyoumightexpect,youcanassignlistvaluestovariables:
+>>> cheeses = ['Cheddar', 'Edam', 'Gouda']
+>>> numbers = [42, 123]
+>>> empty = []
+>>> print(cheeses, numbers, empty)
+['Cheddar', 'Edam', 'Gouda'] [42, 123] []
+
+90 Chapter10. Lists
+list
+cheeses 0 ’Cheddar’
+1 ’Edam’
+2 ’Gouda’
+list
+numbers 0 42
+1 123
+5
+list
+empty
+Figure10.1: Statediagram.
+10.2 Lists are mutable
+The syntax for accessing the elements of a list is the same as for accessing the characters
+of a string—the bracket operator. The expression inside the brackets specifies the index.
+Rememberthattheindicesstartat0:
+>>> cheeses[0]
+'Cheddar'
+Unlikestrings,listsaremutable. Whenthebracketoperatorappearsontheleftsideofan
+assignment,itidentifiestheelementofthelistthatwillbeassigned.
+>>> numbers = [42, 123]
+>>> numbers[1] = 5
+>>> numbers
+[42, 5]
+Theone-ethelementofnumbers,whichusedtobe123,isnow5.
+Figure10.1showsthestatediagramforcheeses,numbersandempty.
+Lists are represented by boxes with the word “list” outside and the elements of the list
+inside. cheeses refers to a list with three elements indexed 0, 1 and 2. numbers contains
+twoelements;thediagramshowsthatthevalueofthesecondelementhasbeenreassigned
+from123to5. emptyreferstoalistwithnoelements.
+Listindicesworkthesamewayasstringindices:
+• Anyintegerexpressioncanbeusedasanindex.
+• Ifyoutrytoreadorwriteanelementthatdoesnotexist,yougetanIndexError.
+• Ifanindexhasanegativevalue,itcountsbackwardfromtheendofthelist.
+Theinoperatoralsoworksonlists.
+>>> cheeses = ['Cheddar', 'Edam', 'Gouda']
+>>> 'Edam' in cheeses
+True
+>>> 'Brie' in cheeses
+False
+
+10.3. Traversingalist 91
+10.3 Traversing a list
+Themostcommonwaytotraversetheelementsofalistiswithaforloop. Thesyntaxis
+thesameasforstrings:
+for cheese in cheeses:
+print(cheese)
+Thisworkswellifyouonlyneedtoreadtheelementsofthelist. Butifyouwanttowrite
+orupdatetheelements,youneedtheindices. Acommonwaytodothatistocombinethe
+built-infunctionsrangeandlen:
+for i in range(len(numbers)):
+numbers[i] = numbers[i] * 2
+Thislooptraversesthelistandupdateseachelement. lenreturnsthenumberofelements
+inthelist. rangereturnsalistofindicesfrom0to n−1, where n isthelengthofthelist.
+Eachtimethroughtheloopigetstheindexofthenextelement. Theassignmentstatement
+inthebodyusesitoreadtheoldvalueoftheelementandtoassignthenewvalue.
+Aforloopoveranemptylistneverrunsthebody:
+for x in []:
+print('This never happens.')
+Althoughalistcancontainanotherlist,thenestedliststillcountsasasingleelement. The
+lengthofthislistisfour:
+['spam', 1, ['Brie', 'Roquefort', 'Pol le Veq'], [1, 2, 3]]
+10.4 List operations
+The+operatorconcatenateslists:
+>>> a = [1, 2, 3]
+>>> b = [4, 5, 6]
+>>> c = a + b
+>>> c
+[1, 2, 3, 4, 5, 6]
+The*operatorrepeatsalistagivennumberoftimes:
+>>> [0] * 4
+[0, 0, 0, 0]
+>>> [1, 2, 3] * 3
+[1, 2, 3, 1, 2, 3, 1, 2, 3]
+The first example repeats [0] four times. The second example repeats the list [1, 2, 3]
+threetimes.
+10.5 List slices
+Thesliceoperatoralsoworksonlists:
+
+92 Chapter10. Lists
+>>> t = ['a', 'b', 'c', 'd', 'e', 'f']
+>>> t[1:3]
+['b', 'c']
+>>> t[:4]
+['a', 'b', 'c', 'd']
+>>> t[3:]
+['d', 'e', 'f']
+Ifyouomitthefirstindex,theslicestartsatthebeginning. Ifyouomitthesecond,theslice
+goestotheend. Soifyouomitboth,thesliceisacopyofthewholelist.
+>>> t[:]
+['a', 'b', 'c', 'd', 'e', 'f']
+Sincelistsaremutable,itisoftenusefultomakeacopybeforeperformingoperationsthat
+modifylists.
+Asliceoperatorontheleftsideofanassignmentcanupdatemultipleelements:
+>>> t = ['a', 'b', 'c', 'd', 'e', 'f']
+>>> t[1:3] = ['x', 'y']
+>>> t
+['a', 'x', 'y', 'd', 'e', 'f']
+10.6 List methods
+Pythonprovidesmethodsthatoperateonlists. Forexample,appendaddsanewelement
+totheendofalist:
+>>> t = ['a', 'b', 'c']
+>>> t.append('d')
+>>> t
+['a', 'b', 'c', 'd']
+extendtakesalistasanargumentandappendsalloftheelements:
+>>> t1 = ['a', 'b', 'c']
+>>> t2 = ['d', 'e']
+>>> t1.extend(t2)
+>>> t1
+['a', 'b', 'c', 'd', 'e']
+Thisexampleleavest2unmodified.
+sortarrangestheelementsofthelistfromlowtohigh:
+>>> t = ['d', 'c', 'e', 'b', 'a']
+>>> t.sort()
+>>> t
+['a', 'b', 'c', 'd', 'e']
+Mostlistmethodsarevoid;theymodifythelistandreturnNone. Ifyouaccidentallywrite
+t = t.sort(),youwillbedisappointedwiththeresult.
+
+10.7. Map,filterandreduce 93
+10.7 Map, filter and reduce
+Toaddupallthenumbersinalist,youcanusealooplikethis:
+def add_all(t):
+total = 0
+for x in t:
+total += x
+return total
+total is initialized to 0. Each time through the loop, x gets one element from the list.
+The += operator provides a short way to update a variable. This augmented assignment
+statement,
+total += x
+isequivalentto
+total = total + x
+Astheloopruns,totalaccumulatesthesumoftheelements; avariableusedthiswayis
+sometimescalledanaccumulator.
+AddinguptheelementsofalistissuchacommonoperationthatPythonprovidesitasa
+built-infunction,sum:
+>>> t = [1, 2, 3]
+>>> sum(t)
+6
+An operation like this that combines a sequence of elements into a single value is some-
+timescalledreduce.
+Sometimesyouwanttotraverseonelistwhilebuildinganother.Forexample,thefollowing
+functiontakesalistofstringsandreturnsanewlistthatcontainscapitalizedstrings:
+def capitalize_all(t):
+res = []
+for s in t:
+res.append(s.capitalize())
+return res
+resisinitializedwithanemptylist; eachtimethroughtheloop, weappendthenextele-
+ment. Soresisanotherkindofaccumulator.
+Anoperationlikecapitalize_allissometimescalledamapbecauseit“maps”afunction
+(inthiscasethemethodcapitalize)ontoeachoftheelementsinasequence.
+Anothercommonoperationistoselectsomeoftheelementsfromalistandreturnasublist.
+For example, the following function takes a list of strings and returns a list that contains
+onlytheuppercasestrings:
+def only_upper(t):
+res = []
+for s in t:
+if s.isupper():
+res.append(s)
+return res
+
+94 Chapter10. Lists
+isupperisastringmethodthatreturnsTrueifthestringcontainsonlyuppercaseletters.
+Anoperationlikeonly_upperiscalledafilterbecauseitselectssomeoftheelementsand
+filtersouttheothers.
+Mostcommonlistoperationscanbeexpressedasacombinationofmap,filterandreduce.
+10.8 Deleting elements
+Thereareseveralwaystodeleteelementsfromalist. Ifyouknowtheindexoftheelement
+youwant,youcanusepop:
+>>> t = ['a', 'b', 'c']
+>>> x = t.pop(1)
+>>> t
+['a', 'c']
+>>> x
+'b'
+pop modifies the list and returns the element that was removed. If you don’t provide an
+index,itdeletesandreturnsthelastelement.
+Ifyoudon’tneedtheremovedvalue,youcanusethedeloperator:
+>>> t = ['a', 'b', 'c']
+>>> del t[1]
+>>> t
+['a', 'c']
+Ifyouknowtheelementyouwanttoremove(butnottheindex),youcanuseremove:
+>>> t = ['a', 'b', 'c']
+>>> t.remove('b')
+>>> t
+['a', 'c']
+ThereturnvaluefromremoveisNone.
+Toremovemorethanoneelement,youcanusedelwithasliceindex:
+>>> t = ['a', 'b', 'c', 'd', 'e', 'f']
+>>> del t[1:5]
+>>> t
+['a', 'f']
+Asusual,thesliceselectsalltheelementsuptobutnotincludingthesecondindex.
+10.9 Lists and strings
+Astringisasequenceofcharactersandalistisasequenceofvalues,butalistofcharacters
+isnotthesameasastring. Toconvertfromastringtoalistofcharacters,youcanuselist:
+>>> s = 'spam'
+>>> t = list(s)
+>>> t
+['s', 'p', 'a', 'm']
+
+10.10. Objectsandvalues 95
+a ’banana’ a
+’banana’
+b ’banana’ b
+Figure10.2: Statediagram.
+Because list is the name of a built-in function, you should avoid using it as a variable
+name. Ialsoavoidlbecauseitlookstoomuchlike1. Sothat’swhyIuset.
+Thelistfunctionbreaksastringintoindividualletters. Ifyouwanttobreakastringinto
+words,youcanusethesplitmethod:
+>>> s = 'pining for the fjords'
+>>> t = s.split()
+>>> t
+['pining', 'for', 'the', 'fjords']
+Anoptionalargumentcalledadelimiterspecifieswhichcharacterstouseaswordbound-
+aries. Thefollowingexampleusesahyphenasadelimiter:
+>>> s = 'spam-spam-spam'
+>>> delimiter = '-'
+>>> t = s.split(delimiter)
+>>> t
+['spam', 'spam', 'spam']
+joinistheinverseofsplit. Ittakesalistofstringsandconcatenatestheelements. joinis
+astringmethod,soyouhavetoinvokeitonthedelimiterandpassthelistasaparameter:
+>>> t = ['pining', 'for', 'the', 'fjords']
+>>> delimiter = ' '
+>>> s = delimiter.join(t)
+>>> s
+'pining for the fjords'
+In this case the delimiter is a space character, so join puts a space between words. To
+concatenatestringswithoutspaces,youcanusetheemptystring,'',asadelimiter.
+10.10 Objects and values
+Ifweruntheseassignmentstatements:
+a = 'banana'
+b = 'banana'
+Weknowthataandbbothrefertoastring,butwedon’tknowwhethertheyrefertothe
+samestring. Therearetwopossiblestates,showninFigure10.2.
+Inonecase,aandbrefertotwodifferentobjectsthathavethesamevalue. Inthesecond
+case,theyrefertothesameobject.
+Tocheckwhethertwovariablesrefertothesameobject,youcanusetheisoperator.
+
+96 Chapter10. Lists
+a [ 1, 2, 3 ]
+b [ 1, 2, 3 ]
+Figure10.3: Statediagram.
+a
+[ 1, 2, 3 ]
+b
+Figure10.4: Statediagram.
+>>> a = 'banana'
+>>> b = 'banana'
+>>> a is b
+True
+In this example, Python only created one string object, and both a and b refer to it. But
+whenyoucreatetwolists,yougettwoobjects:
+>>> a = [1, 2, 3]
+>>> b = [1, 2, 3]
+>>> a is b
+False
+SothestatediagramlookslikeFigure10.3.
+Inthiscasewewouldsaythatthetwolistsareequivalent,becausetheyhavethesameel-
+ements,butnotidentical,becausetheyarenotthesameobject. Iftwoobjectsareidentical,
+theyarealsoequivalent,butiftheyareequivalent,theyarenotnecessarilyidentical.
+Untilnow,wehavebeenusing“object”and“value”interchangeably,butitismoreprecise
+to say that an object has a value. If you evaluate [1, 2, 3], you get a list object whose
+value is a sequence of integers. If another list has the same elements, we say it has the
+samevalue,butitisnotthesameobject.
+10.11 Aliasing
+Ifareferstoanobjectandyouassignb = a,thenbothvariablesrefertothesameobject:
+>>> a = [1, 2, 3]
+>>> b = a
+>>> b is a
+True
+ThestatediagramlookslikeFigure10.4.
+Theassociationofavariablewithanobjectiscalledareference. Inthisexample,thereare
+tworeferencestothesameobject.
+Anobjectwithmorethanonereferencehasmorethanonename,sowesaythattheobject
+isaliased.
+Ifthealiasedobjectismutable,changesmadewithonealiasaffecttheother:
+
+10.12. Listarguments 97
+list
+__main__ letters
+0 ’a’
+1 ’b’
+delete_head t
+2 ’c’
+Figure10.5: Stackdiagram.
+>>> b[0] = 42
+>>> a
+[42, 2, 3]
+Although this behavior can be useful, it is error-prone. In general, it is safer to avoid
+aliasingwhenyouareworkingwithmutableobjects.
+Forimmutableobjectslikestrings,aliasingisnotasmuchofaproblem. Inthisexample:
+a = 'banana'
+b = 'banana'
+Italmostnevermakesadifferencewhetheraandbrefertothesamestringornot.
+10.12 List arguments
+Whenyoupassalisttoafunction,thefunctiongetsareferencetothelist. Ifthefunction
+modifies the list, the caller sees the change. For example, delete_head removes the first
+elementfromalist:
+def delete_head(t):
+del t[0]
+Here’showitisused:
+>>> letters = ['a', 'b', 'c']
+>>> delete_head(letters)
+>>> letters
+['b', 'c']
+Theparametertandthevariablelettersarealiasesforthesameobject.Thestackdiagram
+lookslikeFigure10.5.
+Sincethelistissharedbytwoframes,Idrewitbetweenthem.
+Itisimportanttodistinguishbetweenoperationsthatmodifylistsandoperationsthatcre-
+atenewlists. Forexample,theappendmethodmodifiesalist,butthe+operatorcreatesa
+newlist.
+Here’sanexampleusingappend:
+>>> t1 = [1, 2]
+>>> t2 = t1.append(3)
+>>> t1
+[1, 2, 3]
+>>> t2
+None
+
+98 Chapter10. Lists
+ThereturnvaluefromappendisNone.
+Here’sanexampleusingthe+operator:
+>>> t3 = t1 + [4]
+>>> t1
+[1, 2, 3]
+>>> t3
+[1, 2, 3, 4]
+Theresultoftheoperatorisanewlist,andtheoriginallistisunchanged.
+This difference is important when you write functions that are supposed to modify lists.
+Forexample,thisfunctiondoesnotdeletetheheadofalist:
+def bad_delete_head(t):
+t = t[1:] # WRONG!
+Thesliceoperatorcreatesanewlistandtheassignmentmakestrefertoit,butthatdoesn’t
+affectthecaller.
+>>> t4 = [1, 2, 3]
+>>> bad_delete_head(t4)
+>>> t4
+[1, 2, 3]
+Atthebeginningofbad_delete_head,tandt4refertothesamelist. Attheend,trefers
+toanewlist,butt4stillreferstotheoriginal,unmodifiedlist.
+Analternativeistowriteafunctionthatcreatesandreturnsanewlist. Forexample,tail
+returnsallbutthefirstelementofalist:
+def tail(t):
+return t[1:]
+Thisfunctionleavestheoriginallistunmodified. Here’showitisused:
+>>> letters = ['a', 'b', 'c']
+>>> rest = tail(letters)
+>>> rest
+['b', 'c']
+10.13 Debugging
+Carelessuseoflists(andothermutableobjects)canleadtolonghoursofdebugging. Here
+aresomecommonpitfallsandwaystoavoidthem:
+1. MostlistmethodsmodifytheargumentandreturnNone. Thisistheoppositeofthe
+stringmethods,whichreturnanewstringandleavetheoriginalalone.
+Ifyouareusedtowritingstringcodelikethis:
+word = word.strip()
+Itistemptingtowritelistcodelikethis:
+
+10.13. Debugging 99
+t = t.sort() # WRONG!
+BecausesortreturnsNone,thenextoperationyouperformwithtislikelytofail.
+Before using list methods and operators, you should read the documentation care-
+fullyandthentestthemininteractivemode.
+2. Pickanidiomandstickwithit.
+Partoftheproblemwithlistsisthattherearetoomanywaystodothings. Forexam-
+ple, to remove an element from a list, you can use pop, remove, del, or even a slice
+assignment.
+Toaddanelement,youcanusetheappendmethodorthe+operator. Assumingthat
+tisalistandxisalistelement,thesearecorrect:
+t.append(x)
+t = t + [x]
+t += [x]
+Andthesearewrong:
+t.append([x]) # WRONG!
+t = t.append(x) # WRONG!
+t + [x] # WRONG!
+t = t + x # WRONG!
+Try out each of these examples in interactive mode to make sure you understand
+whattheydo. Noticethatonlythelastonecausesaruntimeerror;theotherthreeare
+legal,buttheydothewrongthing.
+3. Makecopiestoavoidaliasing.
+If you want to use a method like sort that modifies the argument, but you need to
+keeptheoriginallistaswell,youcanmakeacopy.
+>>> t = [3, 1, 2]
+>>> t2 = t[:]
+>>> t2.sort()
+>>> t
+[3, 1, 2]
+>>> t2
+[1, 2, 3]
+Inthisexampleyoucouldalsousethebuilt-infunctionsorted,whichreturnsanew,
+sortedlistandleavestheoriginalalone.
+>>> t2 = sorted(t)
+>>> t
+[3, 1, 2]
+>>> t2
+[1, 2, 3]
+
+100 Chapter10. Lists
+10.14 Glossary
+list: Asequenceofvalues.
+element: Oneofthevaluesinalist(orothersequence),alsocalleditems.
+nestedlist: Alistthatisanelementofanotherlist.
+accumulator: Avariableusedinalooptoadduporaccumulatearesult.
+augmentedassignment: Astatementthatupdatesthevalueofavariableusinganopera-
+torlike+=.
+reduce: Aprocessingpatternthattraversesasequenceandaccumulatestheelementsinto
+asingleresult.
+map: A processing pattern that traverses a sequence and performs an operation on each
+element.
+filter: Aprocessingpatternthattraversesalistandselectstheelementsthatsatisfysome
+criterion.
+object: Somethingavariablecanreferto. Anobjecthasatypeandavalue.
+equivalent: Havingthesamevalue.
+identical: Beingthesameobject(whichimpliesequivalence).
+reference: Theassociationbetweenavariableanditsvalue.
+aliasing: Acircumstancewheretwoormorevariablesrefertothesameobject.
+delimiter: Acharacterorstringusedtoindicatewhereastringshouldbesplit.
+10.15 Exercises
+You can download solutions to these exercises from https://thinkpython.com/code/
+list_exercises.py.
+Exercise10.1. Writeafunctioncallednested_sumthattakesalistoflistsofintegersandaddsup
+theelementsfromallofthenestedlists. Forexample:
+>>> t = [[1, 2], [3], [4, 5, 6]]
+>>> nested_sum(t)
+21
+Exercise10.2. Writeafunctioncalledcumsumthattakesalistofnumbersandreturnsthecumu-
+lativesum; thatis, anewlistwherethe ithelementisthesumofthefirst i+1elementsfromthe
+originallist. Forexample:
+>>> t = [1, 2, 3]
+>>> cumsum(t)
+[1, 3, 6]
+Exercise10.3. Writeafunctioncalledmiddlethattakesalistandreturnsanewlistthatcontains
+allbutthefirstandlastelements. Forexample:
+>>> t = [1, 2, 3, 4]
+>>> middle(t)
+[2, 3]
+
+10.15. Exercises 101
+Exercise10.4. Writeafunctioncalledchopthattakesalist,modifiesitbyremovingthefirstand
+lastelements,andreturnsNone. Forexample:
+>>> t = [1, 2, 3, 4]
+>>> chop(t)
+>>> t
+[2, 3]
+Exercise10.5. Writeafunctioncalledis_sortedthattakesalistasaparameterandreturnsTrue
+ifthelistissortedinascendingorderandFalseotherwise. Forexample:
+>>> is_sorted([1, 2, 2])
+True
+>>> is_sorted(['b', 'a'])
+False
+Exercise10.6. Twowordsareanagramsifyoucanrearrangethelettersfromonetospelltheother.
+Writeafunctioncalledis_anagramthattakestwostringsandreturnsTrueiftheyareanagrams.
+Exercise10.7. Writeafunctioncalledhas_duplicatesthattakesalistandreturnsTrueifthere
+isanyelementthatappearsmorethanonce. Itshouldnotmodifytheoriginallist.
+Exercise10.8. Thisexercisepertainstotheso-calledBirthdayParadox,whichyoucanreadabout
+athttp://en.wikipedia.org/wiki/Birthday_paradox.
+Ifthereare23studentsinyourclass,whatarethechancesthattwoofthemhavethesamebirthday?
+You can estimate this probability by generating random samples of 23 birthdays and checking for
+matches. Hint: you can generate random birthdays with the randint function in the random
+module.
+Youcandownloadmysolutionfromhttps://thinkpython.com/code/birthday.py.
+Exercise10.9. Writeafunctionthatreadsthefilewords.txtandbuildsalistwithoneelement
+per word. Write two versions of this function, one using the append method and the other using
+theidiomt = t + [x]. Whichonetakeslongertorun? Why?
+Solution: https://thinkpython.com/code/wordlist.py.
+Exercise10.10. Tocheckwhetherawordisinthewordlist,youcouldusetheinoperator,butit
+wouldbeslowbecauseitsearchesthroughthewordsinorder.
+Because the words are in alphabetical order, we can speed things up with a bisection search (also
+knownasbinarysearch),whichissimilartowhatyoudowhenyoulookawordupinthedictionary
+(thebook,notthedatastructure). Youstartinthemiddleandchecktoseewhetherthewordyouare
+lookingforcomesbeforethewordinthemiddleofthelist. Ifso,yousearchthefirsthalfofthelist
+thesameway. Otherwiseyousearchthesecondhalf.
+Eitherway,youcuttheremainingsearchspaceinhalf. Ifthewordlisthas113,809words,itwill
+takeabout17stepstofindthewordorconcludethatit’snotthere.
+Write a function called in_bisect that takes a sorted list and a target value and returns True if
+thewordisinthelistandFalseifit’snot.
+Or you could read the documentation of the bisect module and use that! Solution: https:
+//thinkpython.com/code/inlist.py.
+Exercise10.11. Twowordsarea“reversepair”ifeachisthereverseoftheother. Writeaprogram
+that finds all the reverse pairs in the word list. Solution: https://thinkpython.com/code/
+reverse_pair.py.
+Exercise 10.12. Two words “interlock” if taking alternating letters from each forms a new
+word. For example, “shoe” and “cold” interlock to form “schooled”. Solution: https://
+
+102 Chapter10. Lists
+thinkpython.com/code/interlock.py. Credit: This exercise is inspired by an example at
+http://puzzlers.org.
+1. Writeaprogramthatfindsallpairsofwordsthatinterlock. Hint: don’tenumerateallpairs!
+2. Can you find any words that are three-way interlocked; that is, every third letter forms a
+word,startingfromthefirst,secondorthird?

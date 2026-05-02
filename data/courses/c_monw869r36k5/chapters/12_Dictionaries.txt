@@ -1,0 +1,448 @@
+Dictionaries
+============
+
+Chapter 11
+Dictionaries
+This chapter presents another built-in type called a dictionary. Dictionaries are one of
+Python’s best features; they are the building blocks of many efficient and elegant algo-
+rithms.
+11.1 A dictionary is a mapping
+Adictionaryislikealist, butmoregeneral. Inalist, theindiceshavetobeintegers; ina
+dictionarytheycanbe(almost)anytype.
+A dictionary contains a collection of indices, which are called keys, and a collection of
+values. Eachkeyisassociatedwithasinglevalue. Theassociationofakeyandavalueis
+calledakey-valuepairorsometimesanitem.
+Inmathematicallanguage,adictionaryrepresentsamappingfromkeystovalues,soyou
+canalsosaythateachkey“mapsto”avalue. Asanexample,we’llbuildadictionarythat
+mapsfromEnglishtoSpanishwords,sothekeysandthevaluesareallstrings.
+Thefunctiondictcreatesanewdictionarywithnoitems. Becausedictisthenameofa
+built-infunction,youshouldavoidusingitasavariablename.
+>>> eng2sp = dict()
+>>> eng2sp
+{}
+The squiggly-brackets, {}, represent an empty dictionary. To add items to the dictionary,
+youcanusesquarebrackets:
+>>> eng2sp['one'] = 'uno'
+Thislinecreatesanitemthatmapsfromthekey'one'tothevalue'uno'. Ifweprintthe
+dictionaryagain,weseeakey-valuepairwithacolonbetweenthekeyandvalue:
+>>> eng2sp
+{'one': 'uno'}
+Thisoutputformatisalsoaninputformat. Forexample,youcancreateanewdictionary
+withthreeitems:
+
+104 Chapter11. Dictionaries
+>>> eng2sp = {'one': 'uno', 'two': 'dos', 'three': 'tres'}
+Butifyouprinteng2sp,youmightbesurprised:
+>>> eng2sp
+{'one': 'uno', 'three': 'tres', 'two': 'dos'}
+The order of the key-value pairs might not be the same. If you type the same example
+on your computer, you might get a different result. In general, the order of items in a
+dictionaryisunpredictable.
+Butthat’snotaproblembecausetheelementsofadictionaryareneverindexedwithinte-
+gerindices. Instead,youusethekeystolookupthecorrespondingvalues:
+>>> eng2sp['two']
+'dos'
+Thekey'two'alwaysmapstothevalue'dos'sotheorderoftheitemsdoesn’tmatter.
+Ifthekeyisn’tinthedictionary,yougetanexception:
+>>> eng2sp['four']
+KeyError: 'four'
+Thelenfunctionworksondictionaries;itreturnsthenumberofkey-valuepairs:
+>>> len(eng2sp)
+3
+Theinoperatorworksondictionaries,too;ittellsyouwhethersomethingappearsasakey
+inthedictionary(appearingasavalueisnotgoodenough).
+>>> 'one' in eng2sp
+True
+>>> 'uno' in eng2sp
+False
+To see whether something appears as a value in a dictionary, you can use the method
+values,whichreturnsacollectionofvalues,andthenusetheinoperator:
+>>> vals = eng2sp.values()
+>>> 'uno' in vals
+True
+Theinoperatorusesdifferentalgorithmsforlistsanddictionaries. Forlists,itsearchesthe
+elementsofthelistinorder, asinSection8.6. Asthelistgetslonger, thesearchtimegets
+longerindirectproportion.
+Pythondictionariesuseadatastructurecalledahashtablethathasaremarkableproperty:
+theinoperatortakesaboutthesameamountoftimenomatterhowmanyitemsareinthe
+dictionary.Iexplainhowthat’spossibleinSectionB.4,buttheexplanationmightnotmake
+senseuntilyou’vereadafewmorechapters.
+11.2 Dictionary as a collection of counters
+Supposeyouaregivenastringandyouwanttocounthowmanytimeseachletterappears.
+Thereareseveralwaysyoucoulddoit:
+
+11.2. Dictionaryasacollectionofcounters 105
+1. Youcouldcreate26variables,oneforeachletterofthealphabet. Thenyoucouldtra-
+versethestringand,foreachcharacter,incrementthecorrespondingcounter,proba-
+blyusingachainedconditional.
+2. You could create a list with 26 elements. Then you could convert each character to
+anumber(usingthebuilt-infunctionord),usethenumberasanindexintothelist,
+andincrementtheappropriatecounter.
+3. Youcouldcreateadictionarywithcharactersaskeysandcountersasthecorrespond-
+ingvalues.Thefirsttimeyouseeacharacter,youwouldaddanitemtothedictionary.
+Afterthatyouwouldincrementthevalueofanexistingitem.
+Eachoftheseoptionsperformsthesamecomputation, buteachofthemimplementsthat
+computationinadifferentway.
+An implementation is a way of performing a computation; some implementations are
+betterthanothers. Forexample,anadvantageofthedictionaryimplementationisthatwe
+don’thavetoknowaheadoftimewhichlettersappearinthestringandweonlyhaveto
+makeroomforthelettersthatdoappear.
+Hereiswhatthecodemightlooklike:
+def histogram(s):
+d = dict()
+for c in s:
+if c not in d:
+d[c] = 1
+else:
+d[c] += 1
+return d
+Thenameofthefunctionishistogram,whichisastatisticaltermforacollectionofcounters
+(orfrequencies).
+Thefirstlineofthefunctioncreatesanemptydictionary. Theforlooptraversesthestring.
+Eachtimethroughtheloop,ifthecharactercisnotinthedictionary,wecreateanewitem
+withkeycandtheinitialvalue1(sincewehaveseenthisletteronce). Ifcisalreadyinthe
+dictionaryweincrementd[c].
+Here’showitworks:
+>>> h = histogram('brontosaurus')
+>>> h
+{'a': 1, 'b': 1, 'o': 2, 'n': 1, 's': 2, 'r': 2, 'u': 2, 't': 1}
+Thehistogramindicatesthattheletters'a'and'b'appearonce; 'o'appearstwice, and
+soon.
+Dictionaries have a method called get that takes a key and a default value. If the key
+appears in the dictionary, get returns the corresponding value; otherwise it returns the
+defaultvalue. Forexample:
+>>> h = histogram('a')
+>>> h
+{'a': 1}
+>>> h.get('a', 0)
+
+106 Chapter11. Dictionaries
+1
+>>> h.get('c', 0)
+0
+Asanexercise,usegettowritehistogrammoreconcisely. Youshouldbeabletoeliminate
+theifstatement.
+11.3 Looping and dictionaries
+Ifyouuseadictionaryinaforstatement,ittraversesthekeysofthedictionary. Forexam-
+ple,print_histprintseachkeyandthecorrespondingvalue:
+def print_hist(h):
+for c in h:
+print(c, h[c])
+Here’swhattheoutputlookslike:
+>>> h = histogram('parrot')
+>>> print_hist(h)
+a 1
+p 1
+r 2
+t 1
+o 1
+Again,thekeysareinnoparticularorder. Totraversethekeysinsortedorder,youcanuse
+thebuilt-infunctionsorted:
+>>> for key in sorted(h):
+... print(key, h[key])
+a 1
+o 1
+p 1
+r 2
+t 1
+11.4 Reverse lookup
+Givenadictionarydandakeyk,itiseasytofindthecorrespondingvaluev = d[k]. This
+operationiscalledalookup.
+Butwhatifyouhavevandyouwanttofindk? Youhavetwoproblems: first,theremight
+bemorethanonekeythatmapstothevaluev. Dependingontheapplication,youmight
+be able to pick one, or you might have to make a list that contains all of them. Second,
+thereisnosimplesyntaxtodoareverselookup;youhavetosearch.
+Hereisafunctionthattakesavalueandreturnsthefirstkeythatmapstothatvalue:
+def reverse_lookup(d, v):
+for k in d:
+if d[k] == v:
+return k
+raise LookupError()
+
+11.5. Dictionariesandlists 107
+Thisfunctionisyetanotherexampleofthesearchpattern,butitusesafeaturewehaven’t
+seen before, raise. The raise statement causes an exception; in this case it causes a
+LookupError,whichisabuilt-inexceptionusedtoindicatethatalookupoperationfailed.
+Ifwegettotheendoftheloop,thatmeansvdoesn’tappearinthedictionaryasavalue,so
+weraiseanexception.
+Hereisanexampleofasuccessfulreverselookup:
+>>> h = histogram('parrot')
+>>> key = reverse_lookup(h, 2)
+>>> key
+'r'
+Andanunsuccessfulone:
+>>> key = reverse_lookup(h, 3)
+Traceback (most recent call last):
+File "<stdin>", line 1, in <module>
+File "<stdin>", line 5, in reverse_lookup
+LookupError
+TheeffectwhenyouraiseanexceptionisthesameaswhenPythonraisesone: itprintsa
+tracebackandanerrormessage.
+When you raise an exception, you can provide a detailed error message as an optional
+argument. Forexample:
+>>> raise LookupError('value does not appear in the dictionary')
+Traceback (most recent call last):
+File "<stdin>", line 1, in ?
+LookupError: value does not appear in the dictionary
+Areverselookupismuchslowerthanaforwardlookup;ifyouhavetodoitoften,orifthe
+dictionarygetsbig,theperformanceofyourprogramwillsuffer.
+11.5 Dictionaries and lists
+Listscanappearasvaluesinadictionary. Forexample,ifyouaregivenadictionarythat
+maps from letters to frequencies, you might want to invert it; that is, create a dictionary
+that maps from frequencies to letters. Since there might be several letters with the same
+frequency,eachvalueintheinverteddictionaryshouldbealistofletters.
+Hereisafunctionthatinvertsadictionary:
+def invert_dict(d):
+inverse = dict()
+for key in d:
+val = d[key]
+if val not in inverse:
+inverse[val] = [key]
+else:
+inverse[val].append(key)
+return inverse
+
+108 Chapter11. Dictionaries
+dict dict list
+hist ’a’ 1 inv 1 0 ’a’
+’p’ 1 1 ’p’
+’r’ 2 2 ’t’
+’t’ 1 3 ’o’
+’o’ 1
+list
+2 0 ’r’
+Figure11.1: Statediagram.
+Eachtimethroughtheloop, keygetsakeyfromdandvalgetsthecorrespondingvalue.
+Ifvalisnotininverse,thatmeanswehaven’tseenitbefore,sowecreateanewitemand
+initializeitwithasingleton(alistthatcontainsasingleelement). Otherwisewehaveseen
+thisvaluebefore,soweappendthecorrespondingkeytothelist.
+Hereisanexample:
+>>> hist = histogram('parrot')
+>>> hist
+{'a': 1, 'p': 1, 'r': 2, 't': 1, 'o': 1}
+>>> inverse = invert_dict(hist)
+>>> inverse
+{1: ['a', 'p', 't', 'o'], 2: ['r']}
+Figure11.1isastatediagramshowinghistandinverse. Adictionaryisrepresentedasa
+boxwiththetypedictaboveitandthekey-valuepairsinside. Ifthevaluesareintegers,
+floatsorstrings,Idrawtheminsidethebox,butIusuallydrawlistsoutsidethebox,just
+tokeepthediagramsimple.
+Listscanbevaluesinadictionary,asthisexampleshows,buttheycannotbekeys. Here’s
+whathappensifyoutry:
+>>> t = [1, 2, 3]
+>>> d = dict()
+>>> d[t] = 'oops'
+Traceback (most recent call last):
+File "<stdin>", line 1, in ?
+TypeError: list objects are unhashable
+Imentionedearlierthatadictionaryisimplementedusingahashtableandthatmeansthat
+thekeyshavetobehashable.
+A hash is a function that takes a value (of any kind) and returns an integer. Dictionaries
+usetheseintegers,calledhashvalues,tostoreandlookupkey-valuepairs.
+This system works fine if the keys are immutable. But if the keys are mutable, like lists,
+badthingshappen. Forexample,whenyoucreateakey-valuepair,Pythonhashesthekey
+andstoresitinthecorrespondinglocation. Ifyoumodifythekeyandthenhashitagain,it
+wouldgotoadifferentlocation. Inthatcaseyoumighthavetwoentriesforthesamekey,
+oryoumightnotbeabletofindakey. Eitherway,thedictionarywouldn’tworkcorrectly.
+That’swhykeyshavetobehashable,andwhymutabletypeslikelistsaren’t. Thesimplest
+waytogetaroundthislimitationistousetuples,whichwewillseeinthenextchapter.
+
+11.6. Memos 109
+fibonacci
+n 4
+fibonacci fibonacci
+n 3 n 2
+fibonacci fibonacci fibonacci fibonacci
+n 2 n 1 n 1 n 0
+fibonacci fibonacci
+n 1 n 0
+Figure11.2: Callgraph.
+Sincedictionariesaremutable,theycan’tbeusedaskeys,buttheycanbeusedasvalues.
+11.6 Memos
+IfyouplayedwiththefibonaccifunctionfromSection6.7, youmighthavenoticedthat
+the bigger the argument you provide, the longer the function takes to run. Furthermore,
+theruntimeincreasesquickly.
+Tounderstandwhy,considerFigure11.2,whichshowsthecallgraphforfibonacciwith
+n=4:
+Acallgraphshowsasetoffunctionframes,withlinesconnectingeachframetotheframes
+ofthefunctionsitcalls. Atthetopofthegraph,fibonacciwithn=4callsfibonacciwith
+n=3andn=2. Inturn,fibonacciwithn=3callsfibonacciwithn=2andn=1. Andsoon.
+Counthowmanytimesfibonacci(0)andfibonacci(1)arecalled. Thisisaninefficient
+solutiontotheproblem,anditgetsworseastheargumentgetsbigger.
+Onesolutionistokeeptrackofvaluesthathavealreadybeencomputedbystoringthem
+inadictionary. Apreviouslycomputedvaluethatisstoredforlateruseiscalledamemo.
+Hereisa“memoized”versionoffibonacci:
+known = {0:0, 1:1}
+def fibonacci(n):
+if n in known:
+return known[n]
+res = fibonacci(n-1) + fibonacci(n-2)
+known[n] = res
+return res
+knownisadictionarythatkeepstrackoftheFibonaccinumberswealreadyknow. Itstarts
+withtwoitems: 0mapsto0and1mapsto1.
+
+110 Chapter11. Dictionaries
+Wheneverfibonacciiscalled,itchecksknown. Iftheresultisalreadythere,itcanreturn
+immediately. Otherwise it has to compute the new value, add it to the dictionary, and
+returnit.
+Ifyourunthisversionoffibonacciandcompareitwiththeoriginal,youwillfindthatit
+ismuchfaster.
+11.7 Global variables
+Inthepreviousexample,knowniscreatedoutsidethefunction,soitbelongstothespecial
+frame called __main__. Variables in __main__ are sometimes called global because they
+can be accessed from any function. Unlike local variables, which disappear when their
+functionends,globalvariablespersistfromonefunctioncalltothenext.
+Itiscommontouseglobalvariablesforflags;thatis,booleanvariablesthatindicate(“flag”)
+whether a condition is true. For example, some programs use a flag named verbose to
+controlthelevelofdetailintheoutput:
+verbose = True
+def example1():
+if verbose:
+print('Running example1')
+Ifyoutrytoreassignaglobalvariable,youmightbesurprised. Thefollowingexampleis
+supposedtokeeptrackofwhetherthefunctionhasbeencalled:
+been_called = False
+def example2():
+been_called = True # WRONG
+Butifyourunityouwillseethatthevalueofbeen_calleddoesn’tchange. Theproblem
+isthatexample2createsanewlocalvariablenamedbeen_called. Thelocalvariablegoes
+awaywhenthefunctionends,andhasnoeffectontheglobalvariable.
+Toreassignaglobalvariableinsideafunctionyouhavetodeclaretheglobalvariablebefore
+youuseit:
+been_called = False
+def example2():
+global been_called
+been_called = True
+The global statement tells the interpreter something like, “In this function, when I say
+been_called,Imeantheglobalvariable;don’tcreatealocalone.”
+Here’sanexamplethattriestoupdateaglobalvariable:
+count = 0
+def example3():
+count = count + 1 # WRONG
+Ifyourunityouget:
+
+11.8. Debugging 111
+UnboundLocalError: local variable 'count' referenced before assignment
+Python assumes that count is local, and under that assumption you are reading it before
+writingit. Thesolution,again,istodeclarecountglobal.
+def example3():
+global count
+count += 1
+Ifaglobalvariablereferstoamutablevalue,youcanmodifythevaluewithoutdeclaring
+thevariable:
+known = {0:0, 1:1}
+def example4():
+known[2] = 1
+Soyoucanadd,removeandreplaceelementsofagloballistordictionary,butifyouwant
+toreassignthevariable,youhavetodeclareit:
+def example5():
+global known
+known = dict()
+Global variables can be useful, but if you have a lot of them, and you modify them fre-
+quently,theycanmakeprogramshardtodebug.
+11.8 Debugging
+Asyouworkwithbiggerdatasetsitcanbecomeunwieldytodebugbyprintingandcheck-
+ingtheoutputbyhand. Herearesomesuggestionsfordebugginglargedatasets:
+Scaledowntheinput: If possible, reduce the size of the dataset. For example if the pro-
+gram reads a text file, start with just the first 10 lines, or with the smallest example
+youcanfind. Youcaneithereditthefilesthemselves,or(better)modifytheprogram
+soitreadsonlythefirstnlines.
+Ifthereisanerror,youcanreducentothesmallestvaluethatmanifeststheerror,and
+thenincreaseitgraduallyasyoufindandcorrecterrors.
+Checksummariesandtypes: Insteadofprintingandcheckingtheentiredataset,consider
+printingsummariesofthedata: forexample,thenumberofitemsinadictionaryor
+thetotalofalistofnumbers.
+Acommoncauseofruntimeerrorsisavaluethatisnottherighttype.Fordebugging
+thiskindoferror,itisoftenenoughtoprintthetypeofavalue.
+Writeself-checks: Sometimes you can write code to check for errors automatically. For
+example,ifyouarecomputingtheaverageofalistofnumbers,youcouldcheckthat
+the result is not greater than the largest element in the list or less than the smallest.
+Thisiscalleda“sanitycheck”becauseitdetectsresultsthatare“insane”.
+Another kind of check compares the results of two different computations to see if
+theyareconsistent. Thisiscalleda“consistencycheck”.
+
+112 Chapter11. Dictionaries
+Formattheoutput: Formattingdebuggingoutputcanmakeiteasiertospotanerror. We
+sawanexampleinSection6.9.Anothertoolyoumightfindusefulisthepprintmod-
+ule,whichprovidesapprintfunctionthatdisplaysbuilt-intypesinamorehuman-
+readableformat(pprintstandsfor“prettyprint”).
+Again,timeyouspendbuildingscaffoldingcanreducethetimeyouspenddebugging.
+11.9 Glossary
+mapping: A relationship in which each element of one set corresponds to an element of
+anotherset.
+dictionary: Amappingfromkeystotheircorrespondingvalues.
+key-valuepair: Therepresentationofthemappingfromakeytoavalue.
+item: Inadictionary,anothernameforakey-valuepair.
+key: Anobjectthatappearsinadictionaryasthefirstpartofakey-valuepair.
+value: Anobjectthatappearsinadictionaryasthesecondpartofakey-valuepair. Thisis
+morespecificthanourprevioususeoftheword“value”.
+implementation: Awayofperformingacomputation.
+hashtable: ThealgorithmusedtoimplementPythondictionaries.
+hashfunction: Afunctionusedbyahashtabletocomputethelocationforakey.
+hashable: Atypethathasahashfunction.Immutabletypeslikeintegers,floatsandstrings
+arehashable;mutabletypeslikelistsanddictionariesarenot.
+lookup: Adictionaryoperationthattakesakeyandfindsthecorrespondingvalue.
+reverselookup: Adictionaryoperationthattakesavalueandfindsoneormorekeysthat
+maptoit.
+raisestatement: Astatementthat(deliberately)raisesanexception.
+singleton: Alist(orothersequence)withasingleelement.
+callgraph: Adiagramthatshowseveryframecreatedduringtheexecutionofaprogram,
+withanarrowfromeachcallertoeachcallee.
+memo: Acomputedvaluestoredtoavoidunnecessaryfuturecomputation.
+globalvariable: A variable defined outside a function. Global variables can be accessed
+fromanyfunction.
+globalstatement: Astatementthatdeclaresavariablenameglobal.
+flag: Abooleanvariableusedtoindicatewhetheraconditionistrue.
+declaration: Astatementlikeglobalthattellstheinterpretersomethingaboutavariable.
+
+11.10. Exercises 113
+11.10 Exercises
+Exercise11.1. Writeafunctionthatreadsthewordsinwords.txtandstoresthemaskeysina
+dictionary. Itdoesn’tmatterwhatthevaluesare. Thenyoucanusetheinoperatorasafastwayto
+checkwhetherastringisinthedictionary.
+IfyoudidExercise10.10,youcancomparethespeedofthisimplementationwiththelistinoperator
+andthebisectionsearch.
+Exercise11.2. Readthedocumentationofthedictionarymethodsetdefaultanduseittowritea
+moreconciseversionofinvert_dict. Solution: https://thinkpython.com/code/invert_
+dict.py.
+Exercise 11.3. Memoize the Ackermann function from Exercise 6.2 and see if memoization
+makes it possible to evaluate the function with bigger arguments. Hint: no. Solution: https:
+//thinkpython.com/code/ackermann_memo.py.
+Exercise11.4. IfyoudidExercise10.7,youalreadyhaveafunctionnamedhas_duplicatesthat
+takesalistasaparameterandreturnsTrueifthereisanyobjectthatappearsmorethanonceinthe
+list.
+Use a dictionary to write a faster, simpler version of has_duplicates. Solution: https://
+thinkpython.com/code/has_duplicates.py.
+Exercise 11.5. Two words are “rotate pairs” if you can rotate one of them and get the other (see
+rotate_wordinExercise8.5).
+Write a program that reads a wordlist and finds all the rotate pairs. Solution: https://
+thinkpython.com/code/rotate_pairs.py.
+Exercise11.6. Here’sanotherPuzzlerfromCarTalk(http://www.cartalk.com/content/
+puzzlers):
+ThiswassentinbyafellownamedDanO’Leary.Hecameuponacommonone-syllable,
+five-letterwordrecentlythathasthefollowinguniqueproperty. Whenyouremovethe
+firstletter,theremaininglettersformahomophoneoftheoriginalword,thatisaword
+that sounds exactly the same. Replace the first letter, that is, put it back and remove
+thesecondletterandtheresultisyetanotherhomophoneoftheoriginalword. Andthe
+questionis,what’stheword?
+Now I’m going to give you an example that doesn’t work. Let’s look at the five-letter
+word, ‘wrack.’ W-R-A-C-K, you know like to ‘wrack with pain.’ If I remove the first
+letter, I am left with a four-letter word, ’R-A-C-K.’ As in, ‘Holy cow, did you see the
+rackonthatbuck! Itmusthavebeenanine-pointer!’ It’saperfecthomophone. Ifyou
+putthe‘w’back,andremovethe‘r,’instead,you’releftwiththeword,‘wack,’whichis
+arealword,it’sjustnotahomophoneoftheothertwowords.
+Butthereis,however,atleastonewordthatDanandweknowof,whichwillyieldtwo
+homophones if you remove either of the first two letters to make two, new four-letter
+words. Thequestionis,what’stheword?
+YoucanusethedictionaryfromExercise11.1tocheckwhetherastringisinthewordlist.
+To check whether two words are homophones, you can use the CMU Pronouncing
+Dictionary. You can download it from http://www.speech.cs.cmu.edu/cgi-bin/
+cmudict or from https://thinkpython.com/code/c06d and you can also down-
+load https://thinkpython.com/code/pronounce.py, which provides a function named
+read_dictionary that reads the pronouncing dictionary and returns a Python dictionary that
+mapsfromeachwordtoastringthatdescribesitsprimarypronunciation.
+
+114 Chapter11. Dictionaries
+WriteaprogramthatlistsallthewordsthatsolvethePuzzler.Solution:https://thinkpython.
+com/code/homophone.py.

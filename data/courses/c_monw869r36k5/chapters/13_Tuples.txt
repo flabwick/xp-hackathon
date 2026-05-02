@@ -1,0 +1,391 @@
+Tuples
+======
+
+Chapter 12
+Tuples
+Thischapterpresentsonemorebuilt-intype,thetuple,andthenshowshowlists,dictionar-
+ies,andtuplesworktogether. Ialsopresentausefulfeatureforvariable-lengthargument
+lists,thegatherandscatteroperators.
+One note: there is no consensus on how to pronounce “tuple”. Some people say “tuh-
+ple”, which rhymes with “supple”. But in the context of programming, most people say
+“too-ple”,whichrhymeswith“quadruple”.
+12.1 Tuples are immutable
+A tuple is a sequence of values. The values can be any type, and they are indexed by
+integers,sointhatrespecttuplesarealotlikelists. Theimportantdifferenceisthattuples
+areimmutable.
+Syntactically,atupleisacomma-separatedlistofvalues:
+>>> t = 'a', 'b', 'c', 'd', 'e'
+Althoughitisnotnecessary,itiscommontoenclosetuplesinparentheses:
+>>> t = ('a', 'b', 'c', 'd', 'e')
+Tocreateatuplewithasingleelement,youhavetoincludeafinalcomma:
+>>> t1 = 'a',
+>>> type(t1)
+<class 'tuple'>
+Avalueinparenthesesisnotatuple:
+>>> t2 = ('a')
+>>> type(t2)
+<class 'str'>
+Anotherwaytocreateatupleisthebuilt-infunctiontuple. Withnoargument,itcreates
+anemptytuple:
+>>> t = tuple()
+>>> t
+()
+
+116 Chapter12. Tuples
+Iftheargumentisasequence(string,listortuple),theresultisatuplewiththeelementsof
+thesequence:
+>>> t = tuple('lupins')
+>>> t
+('l', 'u', 'p', 'i', 'n', 's')
+Because tuple is the name of a built-in function, you should avoid using it as a variable
+name.
+Mostlistoperatorsalsoworkontuples. Thebracketoperatorindexesanelement:
+>>> t = ('a', 'b', 'c', 'd', 'e')
+>>> t[0]
+'a'
+Andthesliceoperatorselectsarangeofelements.
+>>> t[1:3]
+('b', 'c')
+Butifyoutrytomodifyoneoftheelementsofthetuple,yougetanerror:
+>>> t[0] = 'A'
+TypeError: object doesn't support item assignment
+Because tuples are immutable, you can’t modify the elements. But you can replace one
+tuplewithanother:
+>>> t = ('A',) + t[1:]
+>>> t
+('A', 'b', 'c', 'd', 'e')
+Thisstatementmakesanewtupleandthenmakestrefertoit.
+Therelationaloperatorsworkwithtuplesandothersequences;Pythonstartsbycomparing
+thefirstelementfromeachsequence. Iftheyareequal,itgoesontothenextelements,and
+so on, until itfinds elements thatdiffer. Subsequent elementsare notconsidered (even if
+theyarereallybig).
+>>> (0, 1, 2) < (0, 3, 4)
+True
+>>> (0, 1, 2000000) < (0, 3, 4)
+True
+12.2 Tuple assignment
+Itisoftenusefultoswapthevaluesoftwovariables. Withconventionalassignments,you
+havetouseatemporaryvariable. Forexample,toswapaandb:
+>>> temp = a
+>>> a = b
+>>> b = temp
+Thissolutioniscumbersome;tupleassignmentismoreelegant:
+>>> a, b = b, a
+
+12.3. Tuplesasreturnvalues 117
+The left side is a tuple of variables; the right side is a tuple of expressions. Each value
+is assigned to its respective variable. All the expressions on the right side are evaluated
+beforeanyoftheassignments.
+Thenumberofvariablesontheleftandthenumberofvaluesontherighthavetobethe
+same:
+>>> a, b = 1, 2, 3
+ValueError: too many values to unpack
+Moregenerally,therightsidecanbeanykindofsequence(string,listortuple). Forexam-
+ple,tosplitanemailaddressintoausernameandadomain,youcouldwrite:
+>>> addr = 'monty@python.org'
+>>> uname, domain = addr.split('@')
+The return value from split is a list with two elements; the first element is assigned to
+uname,thesecondtodomain.
+>>> uname
+'monty'
+>>> domain
+'python.org'
+12.3 Tuples as return values
+Strictlyspeaking,afunctioncanonlyreturnonevalue,butifthevalueisatuple,theeffect
+isthesameasreturningmultiplevalues. Forexample,ifyouwanttodividetwointegers
+andcomputethequotientandremainder,itisinefficienttocomputex//yandthenx%y. It
+isbettertocomputethembothatthesametime.
+The built-in function divmod takes two arguments and returns a tuple of two values, the
+quotientandremainder. Youcanstoretheresultasatuple:
+>>> t = divmod(7, 3)
+>>> t
+(2, 1)
+Orusetupleassignmenttostoretheelementsseparately:
+>>> quot, rem = divmod(7, 3)
+>>> quot
+2
+>>> rem
+1
+Hereisanexampleofafunctionthatreturnsatuple:
+def min_max(t):
+return min(t), max(t)
+maxandminarebuilt-infunctionsthatfindthelargestandsmallestelementsofasequence.
+min_maxcomputesbothandreturnsatupleoftwovalues.
+
+118 Chapter12. Tuples
+12.4 Variable-length argument tuples
+Functions can take a variable number of arguments. A parameter name that begins with
+*gathersargumentsintoatuple. Forexample,printalltakesanynumberofarguments
+andprintsthem:
+def printall(*args):
+print(args)
+Thegatherparametercanhaveanynameyoulike, butargsisconventional. Here’show
+thefunctionworks:
+>>> printall(1, 2.0, '3')
+(1, 2.0, '3')
+Thecomplementofgatherisscatter.Ifyouhaveasequenceofvaluesandyouwanttopass
+it to a function as multiple arguments, you can use the * operator. For example, divmod
+takesexactlytwoarguments;itdoesn’tworkwithatuple:
+>>> t = (7, 3)
+>>> divmod(t)
+TypeError: divmod expected 2 arguments, got 1
+Butifyouscatterthetuple,itworks:
+>>> divmod(*t)
+(2, 1)
+Manyofthebuilt-infunctionsusevariable-lengthargumenttuples. Forexample,maxand
+mincantakeanynumberofarguments:
+>>> max(1, 2, 3)
+3
+Butsumdoesnot.
+>>> sum(1, 2, 3)
+TypeError: sum expected at most 2 arguments, got 3
+As an exercise, write a function called sum_all that takes any number of arguments and
+returnstheirsum.
+12.5 Lists and tuples
+zipisabuilt-infunctionthattakestwoormoresequencesandinterleavesthem.Thename
+ofthefunctionreferstoazipper,whichinterleavestworowsofteeth.
+Thisexamplezipsastringandalist:
+>>> s = 'abc'
+>>> t = [0, 1, 2]
+>>> zip(s, t)
+<zip object at 0x7f7d0a9e7c48>
+Theresultisazipobjectthatknowshowtoiteratethroughthepairs. Themostcommon
+useofzipisinaforloop:
+
+12.5. Listsandtuples 119
+>>> for pair in zip(s, t):
+... print(pair)
+...
+('a', 0)
+('b', 1)
+('c', 2)
+A zip object is a kind of iterator, which is any object that iterates through a sequence.
+Iteratorsaresimilartolistsinsomeways,butunlikelists,youcan’tuseanindextoselect
+anelementfromaniterator.
+Ifyouwanttouselistoperatorsandmethods,youcanuseazipobjecttomakealist:
+>>> list(zip(s, t))
+[('a', 0), ('b', 1), ('c', 2)]
+Theresultisalistoftuples;inthisexample,eachtuplecontainsacharacterfromthestring
+andthecorrespondingelementfromthelist.
+Ifthesequencesarenotthesamelength,theresulthasthelengthoftheshorterone.
+>>> list(zip('Anne', 'Elk'))
+[('A', 'E'), ('n', 'l'), ('n', 'k')]
+Youcanusetupleassignmentinaforlooptotraversealistoftuples:
+t = [('a', 0), ('b', 1), ('c', 2)]
+for letter, number in t:
+print(number, letter)
+Each time through the loop, Python selects the next tuple in the list and assigns the ele-
+mentstoletterandnumber. Theoutputofthisloopis:
+0 a
+1 b
+2 c
+Ifyoucombinezip, forandtupleassignment, yougetausefulidiomfortraversingtwo
+(or more) sequences at the same time. For example, has_match takes two sequences, t1
+andt2,andreturnsTrueifthereisanindexisuchthatt1[i] == t2[i]:
+def has_match(t1, t2):
+for x, y in zip(t1, t2):
+if x == y:
+return True
+return False
+Ifyouneedtotraversetheelementsofasequenceandtheirindices,youcanusethebuilt-in
+functionenumerate:
+for index, element in enumerate('abc'):
+print(index, element)
+Theresultfromenumerateisanenumerateobject,whichiteratesasequenceofpairs;each
+pair contains an index (starting from 0) and an element from the given sequence. In this
+example,theoutputis
+0 a
+1 b
+2 c
+Again.
+
+120 Chapter12. Tuples
+12.6 Dictionaries and tuples
+Dictionaries have a method called items that returns a sequence of tuples, where each
+tupleisakey-valuepair.
+>>> d = {'a':0, 'b':1, 'c':2}
+>>> t = d.items()
+>>> t
+dict_items([('c', 2), ('a', 0), ('b', 1)])
+Theresultisadict_itemsobject,whichisaniteratorthatiteratesthekey-valuepairs. You
+canuseitinaforlooplikethis:
+>>> for key, value in d.items():
+... print(key, value)
+...
+c 2
+a 0
+b 1
+Asyoushouldexpectfromadictionary,theitemsareinnoparticularorder.
+Goingintheotherdirection,youcanusealistoftuplestoinitializeanewdictionary:
+>>> t = [('a', 0), ('c', 2), ('b', 1)]
+>>> d = dict(t)
+>>> d
+{'a': 0, 'c': 2, 'b': 1}
+Combiningdictwithzipyieldsaconcisewaytocreateadictionary:
+>>> d = dict(zip('abc', range(3)))
+>>> d
+{'a': 0, 'c': 2, 'b': 1}
+Thedictionarymethodupdatealsotakesalistoftuplesandaddsthem,askey-valuepairs,
+toanexistingdictionary.
+Itiscommontousetuplesaskeysindictionaries(primarilybecauseyoucan’tuselists).For
+example, a telephone directory might map from last-name, first-name pairs to telephone
+numbers. Assumingthatwehavedefinedlast,firstandnumber,wecouldwrite:
+directory[last, first] = number
+Theexpressioninbracketsisatuple. Wecouldusetupleassignmenttotraversethisdic-
+tionary.
+for last, first in directory:
+print(first, last, directory[last,first])
+Thislooptraversesthekeysindirectory,whicharetuples. Itassignstheelementsofeach
+tupletolastandfirst,thenprintsthenameandcorrespondingtelephonenumber.
+There are two ways to represent tuples in a state diagram. The more detailed version
+shows the indices and elements just as they appear in a list. For example, the tuple
+('Cleese', 'John')wouldappearasinFigure12.1.
+Butinalargerdiagramyoumightwanttoleaveoutthedetails. Forexample,adiagramof
+thetelephonedirectorymightappearasinFigure12.2.
+Here the tuples are shown using Python syntax as a graphical shorthand. The telephone
+numberinthediagramisthecomplaintslinefortheBBC,sopleasedon’tcallit.
+
+12.7. Sequencesofsequences 121
+tuple
+0 ’Cleese’
+1 ’John’
+Figure12.1: Statediagram.
+dict
+(’Cleese’, ’John’) ’08700 100 222’
+(’Chapman’, ’Graham’) ’08700 100 222’
+(’Idle’, ’Eric’) ’08700 100 222’
+(’Gilliam’, ’Terry’) ’08700 100 222’
+(’Jones’, ’Terry’) ’08700 100 222’
+(’Palin’, ’Michael’) ’08700 100 222’
+Figure12.2: Statediagram.
+12.7 Sequences of sequences
+I have focused on lists of tuples, but almost all of the examples in this chapter also work
+with lists of lists, tuples of tuples, and tuples of lists. To avoid enumerating the possible
+combinations,itissometimeseasiertotalkaboutsequencesofsequences.
+In many contexts, the different kinds of sequences (strings, lists and tuples) can be used
+interchangeably. Sohowshouldyouchooseoneovertheothers?
+To start with the obvious, strings are more limited than other sequences because the ele-
+mentshavetobecharacters. Theyarealsoimmutable. Ifyouneedtheabilitytochangethe
+charactersinastring(asopposedtocreatinganewstring),youmightwanttousealistof
+charactersinstead.
+Listsaremorecommonthantuples,mostlybecausetheyaremutable. Butthereareafew
+caseswhereyoumightprefertuples:
+1. Insomecontexts,likeareturnstatement,itissyntacticallysimplertocreateatuple
+thanalist.
+2. Ifyouwanttouseasequenceasadictionarykey,youhavetouseanimmutabletype
+likeatupleorstring.
+3. Ifyouarepassingasequenceasanargumenttoafunction,usingtuplesreducesthe
+potentialforunexpectedbehaviorduetoaliasing.
+Becausetuplesareimmutable,theydon’tprovidemethodslikesortandreverse,which
+modify existing lists. But Python provides the built-in function sorted, which takes any
+sequence and returns a new list with the same elements in sorted order, and reversed,
+whichtakesasequenceandreturnsaniteratorthattraversesthelistinreverseorder.
+
+122 Chapter12. Tuples
+12.8 Debugging
+Lists,dictionariesandtuplesareexamplesofdatastructures;inthischapterwearestarting
+toseecompounddatastructures, likelistsoftuples,ordictionariesthatcontaintuplesas
+keysandlistsasvalues. Compounddatastructuresareuseful,buttheyarepronetowhat
+Icallshapeerrors;thatis,errorscausedwhenadatastructurehasthewrongtype,size,or
+structure. Forexample,ifyouareexpectingalistwithoneintegerandIgiveyouaplain
+oldinteger(notinalist),itwon’twork.
+To help debug these kinds of errors, I have written a module called structshape that
+provides a function, also called structshape, that takes any kind of data structure as
+an argument and returns a string that summarizes its shape. You can download it from
+https://thinkpython.com/code/structshape.py
+Here’stheresultforasimplelist:
+>>> from structshape import structshape
+>>> t = [1, 2, 3]
+>>> structshape(t)
+'list of 3 int'
+A fancier program might write “list of 3 ints”, but it was easier not to deal with plurals.
+Here’salistoflists:
+>>> t2 = [[1,2], [3,4], [5,6]]
+>>> structshape(t2)
+'list of 3 list of 2 int'
+If the elements of the list are not the same type, structshape groups them, in order, by
+type:
+>>> t3 = [1, 2, 3, 4.0, '5', '6', [7], [8], 9]
+>>> structshape(t3)
+'list of (3 int, float, 2 str, 2 list of int, int)'
+Here’salistoftuples:
+>>> s = 'abc'
+>>> lt = list(zip(t, s))
+>>> structshape(lt)
+'list of 3 tuple of (int, str)'
+Andhere’sadictionarywith3itemsthatmapintegerstostrings.
+>>> d = dict(lt)
+>>> structshape(d)
+'dict of 3 int->str'
+Ifyouarehavingtroublekeepingtrackofyourdatastructures,structshapecanhelp.
+12.9 Glossary
+tuple: Animmutablesequenceofelements.
+tupleassignment: An assignment with a sequence on the right side and a tuple of vari-
+ablesontheleft. Therightsideisevaluatedandthenitselementsareassignedtothe
+variablesontheleft.
+
+12.10. Exercises 123
+gather: Anoperationthatcollectsmultipleargumentsintoatuple.
+scatter: Anoperationthatmakesasequencebehavelikemultiplearguments.
+zipobject: The result of calling a built-in function zip; an object that iterates through a
+sequenceoftuples.
+iterator: An object that can iterate through a sequence, but which does not provide list
+operatorsandmethods.
+datastructure: Acollectionofrelatedvalues,oftenorganizedinlists,dictionaries,tuples,
+etc.
+shapeerror: Anerrorcausedbecauseavaluehasthewrongshape;thatis,thewrongtype
+orsize.
+12.10 Exercises
+Exercise 12.1. Write a function called most_frequent that takes a string and prints the let-
+ters in decreasing order of frequency. Find text samples from several different languages and see
+how letter frequency varies between languages. Compare your results with the tables at http:
+//en.wikipedia.org/wiki/Letter_frequencies. Solution: https://thinkpython.
+com/code/most_frequent.py.
+Exercise12.2. Moreanagrams!
+1. Writeaprogramthatreadsawordlistfromafile(seeSection9.1)andprintsallthesetsof
+wordsthatareanagrams.
+Hereisanexampleofwhattheoutputmightlooklike:
+['deltas', 'desalt', 'lasted', 'salted', 'slated', 'staled']
+['retainers', 'ternaries']
+['generating', 'greatening']
+['resmelts', 'smelters', 'termless']
+Hint: you might want to build a dictionary that maps from a collection of letters to a list
+of words that can be spelled with those letters. The question is, how can you represent the
+collectionoflettersinawaythatcanbeusedasakey?
+2. Modifythepreviousprogramsothatitprintsthelongestlistofanagramsfirst, followedby
+thesecondlongest,andsoon.
+3. In Scrabble a “bingo” is when you play all seven tiles in your rack, along with a letter on
+the board, to form an eight-letter word. What collection of 8 letters forms the most possible
+bingos?
+Solution: https://thinkpython.com/code/anagram_sets.py.
+Exercise 12.3. Two words form a “metathesis pair” if you can transform one into the other by
+swapping two letters; for example, “converse” and “conserve”. Write a program that finds all of
+themetathesispairsinthedictionary. Hint: don’ttestallpairsofwords,anddon’ttestallpossible
+swaps. Solution: https://thinkpython.com/code/metathesis.py. Credit: This exercise
+isinspiredbyanexampleathttp://puzzlers.org.
+
+124 Chapter12. Tuples
+Exercise 12.4. Here’s another Car Talk Puzzler (http://www.cartalk.com/content/
+puzzlers):
+WhatisthelongestEnglishword,thatremainsavalidEnglishword,asyouremoveits
+lettersoneatatime?
+Now,letterscanberemovedfromeitherend,orthemiddle,butyoucan’trearrangeany
+oftheletters. Everytimeyoudropaletter,youwindupwithanotherEnglishword. If
+you do that, you’re eventually going to wind up with one letter and that too is going
+tobeanEnglishword—onethat’sfoundinthedictionary. Iwanttoknowwhat’sthe
+longestwordandhowmanylettersdoesithave?
+I’m going to give you a little modest example: Sprite. Ok? You start off with sprite,
+you take a letter off, one from the interior of the word, take the r away, and we’re left
+withthewordspite,thenwetaketheeofftheend,we’releftwithspit,wetakethesoff,
+we’releftwithpit,it,andI.
+Writeaprogramtofindallwordsthatcanbereducedinthisway,andthenfindthelongestone.
+Thisexerciseisalittlemorechallengingthanmost,soherearesomesuggestions:
+1. Youmightwanttowriteafunctionthattakesawordandcomputesalistofallthewordsthat
+canbeformedbyremovingoneletter. Thesearethe“children”oftheword.
+2. Recursively, a word is reducible if any of its children are reducible. As a base case, you can
+considertheemptystringreducible.
+3. ThewordlistIprovided,words.txt,doesn’tcontainsingleletterwords. Soyoumightwant
+toadd“I”,“a”,andtheemptystring.
+4. Toimprovetheperformanceofyourprogram,youmightwanttomemoizethewordsthatare
+knowntobereducible.
+Solution: https://thinkpython.com/code/reducible.py.

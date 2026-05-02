@@ -35,6 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     xpInput: document.getElementById('xp-input'),
     modal: document.getElementById('xp-modal'),
     modalStats: document.getElementById('modal-stats'),
+    addContextBtn: document.getElementById('add-context'),
+    pdfFileInput: document.getElementById('pdf-file-input'),
+    addContextModal: document.getElementById('add-context-modal'),
+    acChoose: document.getElementById('ac-choose'),
+    acProgress: document.getElementById('ac-progress'),
+    acResult: document.getElementById('ac-result'),
     modeToggle: document.getElementById('mode-toggle'),
     modePriority: document.getElementById('mode-priority')
   };
@@ -45,6 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch('/api/courses').then(r => r.json()).then(({ courses }) => {
     const course = (courses || []).find(c => c.id === courseId);
     if (!course) { window.location = '/'; return; }
+    if (course.chaptersDir) {
+      el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
+      el.addContextBtn.style.color = 'var(--success)';
+    }
     loadDomain(course.domain);
   });
 
@@ -955,6 +965,72 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {
       console.error('Teaching compile error:', e);
       alert('Error compiling teaching prompt: ' + e.message);
+    }
+  });
+
+  // ─── ADD CONTEXT ─────────────────────────────────────────────────────────────────
+  function showAcState(s) {
+    el.acChoose.hidden = s !== 'choose';
+    el.acProgress.hidden = s !== 'progress';
+    el.acResult.hidden = s !== 'result';
+  }
+
+  el.addContextBtn.addEventListener('click', () => {
+    showAcState('choose');
+    el.addContextModal.showModal();
+  });
+
+  document.getElementById('close-add-context').addEventListener('click', () => {
+    el.addContextModal.close();
+  });
+
+  document.getElementById('ac-try-again').addEventListener('click', () => {
+    showAcState('choose');
+  });
+
+  document.getElementById('ac-pdf-splitter').addEventListener('click', () => {
+    el.pdfFileInput.click();
+  });
+
+  el.pdfFileInput.addEventListener('change', async () => {
+    const file = el.pdfFileInput.files[0];
+    if (!file) return;
+    document.getElementById('ac-progress-text').textContent = `⏳ Extracting chapters from ${file.name}…`;
+    showAcState('progress');
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+      const res = await fetch(`/api/courses/${courseId}/upload-textbook`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.details || data.error || `Server error ${res.status}`);
+
+      const resultEl = document.getElementById('ac-result-content');
+      const msg = document.createElement('p');
+      msg.style.cssText = 'margin:0;font-weight:600';
+      msg.style.color = 'var(--success)';
+      msg.textContent = `✓ Loaded ${data.chapterCount} chapter${data.chapterCount !== 1 ? 's' : ''}`;
+      resultEl.innerHTML = '';
+      resultEl.appendChild(msg);
+      showAcState('result');
+
+      el.addContextBtn.textContent = '📚 ADD CONTEXT ✓';
+      el.addContextBtn.style.color = 'var(--success)';
+      showToast(`✓ ${data.chapterCount} chapters loaded`);
+    } catch (e) {
+      const resultEl = document.getElementById('ac-result-content');
+      const pre = document.createElement('pre');
+      pre.textContent = e.message;
+      pre.style.cssText = 'color:var(--danger);border:2px solid var(--danger);padding:0.8rem;margin:0;overflow:auto;font-size:0.8rem;max-height:200px;white-space:pre-wrap';
+      resultEl.innerHTML = '';
+      resultEl.appendChild(pre);
+      showAcState('result');
+    } finally {
+      el.pdfFileInput.value = '';
     }
   });
 });

@@ -11,6 +11,17 @@ npm start      # Start production server
 
 No test or lint tooling is configured.
 
+## Python tooling
+
+`scripts/Seperate_By_Chapter_Final.py` — splits a PDF into per-chapter `.txt` files. Used by the `POST /api/courses/:courseId/upload-textbook` endpoint.
+
+One-time setup:
+```bash
+pip install -r requirements.txt   # pypdf, pdfplumber
+```
+
+`python3` must be on PATH for the Node server to invoke it.
+
 ## Architecture
 
 This is a Node.js/Express backend for an adaptive learning system that tracks student mastery through XP progression across mathematical units. There is no frontend beyond a static mapping page.
@@ -32,6 +43,7 @@ data/
   progress/<domain>-history.json  # Per-session injection history
   deadlines/<domain>.json    # Deadline config
   backups/<domain>/          # Timestamped backups created on every write
+  courses/<courseId>/chapters/   # Per-chapter .txt files written by the PDF splitter
 ```
 
 **Units JSON shape** — `meta.bt[]` (behavior taxonomies) and `meta.cl[]` (clusters/topics) are index arrays. Each unit has: `id`, `n` (name), `t` (`"f"` foundational or `"c"` content), `nt` (scope notes), `l` (prerequisite links as `[targetId, linkType]` where `"h"`=hard, `"s"`=soft).
@@ -58,6 +70,7 @@ data/
 | GET | `/api/xp` | Computed XP state |
 | POST | `/api/xp` | Inject XP session (bulk) |
 | DELETE | `/api/xp/:sessionId` | Undo session |
+| POST | `/api/courses/:courseId/upload-textbook` | Upload PDF → run splitter → populate `data/courses/<id>/chapters/` |
 
 ### Utility Scripts
 

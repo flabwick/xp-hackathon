@@ -1,0 +1,373 @@
+Classes and methods
+===================
+
+Chapter 17
+Classes and methods
+Although we are using some of Python’s object-oriented features, the programs from the
+last two chapters are not really object-oriented because they don’t represent the relation-
+shipsbetweenprogrammer-definedtypesandthefunctionsthatoperateonthem.Thenext
+stepistotransformthosefunctionsintomethodsthatmaketherelationshipsexplicit.
+Code examples from this chapter are available from https://thinkpython.com/code/
+Time2.py,andsolutionstotheexercisesareinhttps://thinkpython.com/code/Point2_
+soln.py.
+17.1 Object-oriented features
+Python is an object-oriented programming language, which means that it provides fea-
+turesthatsupportobject-orientedprogramming,whichhasthesedefiningcharacteristics:
+• Programsincludeclassandmethoddefinitions.
+• Mostofthecomputationisexpressedintermsofoperationsonobjects.
+• Objectsoftenrepresentthingsintherealworld,andmethodsoftencorrespondtothe
+waysthingsintherealworldinteract.
+For example, the Time class defined in Chapter 16 corresponds to the way people record
+thetimeofday,andthefunctionswedefinedcorrespondtothekindsofthingspeopledo
+with times. Similarly, the Point and Rectangle classes in Chapter 15 correspond to the
+mathematicalconceptsofapointandarectangle.
+So far, we have not taken advantage of the features Python provides to support object-
+oriented programming. These features are not strictly necessary; most of them provide
+alternative syntax for things we have already done. But in many cases, the alternative is
+moreconciseandmoreaccuratelyconveysthestructureoftheprogram.
+Forexample,inTime1.pythereisnoobviousconnectionbetweentheclassdefinitionand
+thefunctiondefinitionsthatfollow. Withsomeexamination,itisapparentthateveryfunc-
+tiontakesatleastoneTimeobjectasanargument.
+
+162 Chapter17. Classesandmethods
+This observation is the motivation for methods; a method is a function that is associated
+withaparticularclass. Wehaveseenmethodsforstrings,lists,dictionariesandtuples. In
+thischapter,wewilldefinemethodsforprogrammer-definedtypes.
+Methodsaresemanticallythesameasfunctions,buttherearetwosyntacticdifferences:
+• Methods are defined inside a class definition in order to make the relationship be-
+tweentheclassandthemethodexplicit.
+• Thesyntaxforinvokingamethodisdifferentfromthesyntaxforcallingafunction.
+In the next few sections, we will take the functions from the previous two chapters and
+transformthemintomethods. Thistransformationispurelymechanical;youcandoitby
+followingasequenceofsteps. Ifyouarecomfortableconvertingfromoneformtoanother,
+youwillbeabletochoosethebestformforwhateveryouaredoing.
+17.2 Printing objects
+In Chapter 16, we defined a class named Time and in Section 16.1, you wrote a function
+namedprint_time:
+class Time:
+"""Represents the time of day."""
+def print_time(time):
+print('%.2d:%.2d:%.2d' % (time.hour, time.minute, time.second))
+Tocallthisfunction,youhavetopassaTimeobjectasanargument:
+>>> start = Time()
+>>> start.hour = 9
+>>> start.minute = 45
+>>> start.second = 00
+>>> print_time(start)
+09:45:00
+Tomakeprint_timeamethod,allwehavetodoismovethefunctiondefinitioninsidethe
+classdefinition. Noticethechangeinindentation.
+class Time:
+def print_time(time):
+print('%.2d:%.2d:%.2d' % (time.hour, time.minute, time.second))
+Now there are two ways to call print_time. The first (and less common) way is to use
+functionsyntax:
+>>> Time.print_time(start)
+09:45:00
+Inthisuseofdotnotation,Timeisthenameoftheclass,andprint_timeisthenameofthe
+method. startispassedasaparameter.
+Thesecond(andmoreconcise)wayistousemethodsyntax:
+>>> start.print_time()
+09:45:00
+
+17.3. Anotherexample 163
+In this use of dot notation, print_time is the name of the method (again), and start is
+the object the method is invoked on, which is called the subject. Just as the subject of
+a sentence is what the sentence is about, the subject of a method invocation is what the
+methodisabout.
+Inside the method, the subject is assigned to the first parameter, so in this case start is
+assignedtotime.
+Byconvention,thefirstparameterofamethodiscalledself,soitwouldbemorecommon
+towriteprint_timelikethis:
+class Time:
+def print_time(self):
+print('%.2d:%.2d:%.2d' % (self.hour, self.minute, self.second))
+Thereasonforthisconventionisanimplicitmetaphor:
+• Thesyntaxforafunctioncall, print_time(start), suggeststhatthefunctionisthe
+active agent. It says something like, “Hey print_time! Here’s an object for you to
+print.”
+• Inobject-orientedprogramming,theobjectsaretheactiveagents. Amethodinvoca-
+tionlikestart.print_time()says“Heystart! Pleaseprintyourself.”
+Thischangeinperspectivemightbemorepolite,butitisnotobviousthatitisuseful.Inthe
+exampleswehaveseensofar,itmaynotbe.Butsometimesshiftingresponsibilityfromthe
+functionsontotheobjectsmakesitpossibletowritemoreversatilefunctions(ormethods),
+andmakesiteasiertomaintainandreusecode.
+Asanexercise,rewritetime_to_int(fromSection16.4)asamethod.Youmightbetempted
+torewriteint_to_timeasamethod,too,butthatdoesn’treallymakesensebecausethere
+wouldbenoobjecttoinvokeiton.
+17.3 Another example
+Here’saversionofincrement(fromSection16.3)rewrittenasamethod:
+# inside class Time:
+def increment(self, seconds):
+seconds += self.time_to_int()
+return int_to_time(seconds)
+Thisversionassumesthattime_to_intiswrittenasamethod. Also,notethatitisapure
+function,notamodifier.
+Here’showyouwouldinvokeincrement:
+>>> start.print_time()
+09:45:00
+>>> end = start.increment(1337)
+>>> end.print_time()
+10:07:17
+
+164 Chapter17. Classesandmethods
+The subject, start, gets assigned to the first parameter, self. The argument, 1337, gets
+assignedtothesecondparameter,seconds.
+This mechanism can be confusing, especially if you make an error. For example, if you
+invokeincrementwithtwoarguments,youget:
+>>> end = start.increment(1337, 460)
+TypeError: increment() takes 2 positional arguments but 3 were given
+The error message is initially confusing, because there are only two arguments in paren-
+theses. Butthesubjectisalsoconsideredanargument,soalltogetherthat’sthree.
+By the way, a positional argument is an argument that doesn’t have a parameter name;
+thatis,itisnotakeywordargument. Inthisfunctioncall:
+sketch(parrot, cage, dead=True)
+parrotandcagearepositional,anddeadisakeywordargument.
+17.4 A more complicated example
+Rewritingis_after(fromSection16.1)isslightlymorecomplicatedbecauseittakestwo
+Timeobjectsasparameters. Inthiscaseitisconventionaltonamethefirstparameterself
+andthesecondparameterother:
+# inside class Time:
+def is_after(self, other):
+return self.time_to_int() > other.time_to_int()
+Tousethismethod,youhavetoinvokeitononeobjectandpasstheotherasanargument:
+>>> end.is_after(start)
+True
+OnenicethingaboutthissyntaxisthatitalmostreadslikeEnglish: “endisafterstart?”
+17.5 The init method
+Theinitmethod(shortfor“initialization”)isaspecialmethodthatgetsinvokedwhenan
+object is instantiated. Its full name is __init__ (two underscore characters, followed by
+init,andthentwomoreunderscores). AninitmethodfortheTimeclassmightlooklike
+this:
+# inside class Time:
+def __init__(self, hour=0, minute=0, second=0):
+self.hour = hour
+self.minute = minute
+self.second = second
+Itiscommonfortheparametersof__init__tohavethesamenamesastheattributes. The
+statement
+self.hour = hour
+
+17.6. The__str__method 165
+storesthevalueoftheparameterhourasanattributeofself.
+The parameters are optional, so if you call Time with no arguments, you get the default
+values.
+>>> time = Time()
+>>> time.print_time()
+00:00:00
+Ifyouprovideoneargument,itoverrideshour:
+>>> time = Time (9)
+>>> time.print_time()
+09:00:00
+Ifyouprovidetwoarguments,theyoverridehourandminute.
+>>> time = Time(9, 45)
+>>> time.print_time()
+09:45:00
+Andifyouprovidethreearguments,theyoverrideallthreedefaultvalues.
+As an exercise, write an init method for the Point class that takes x and y as optional
+parametersandassignsthemtothecorrespondingattributes.
+17.6 The __str__ method
+__str__isaspecialmethod,like__init__,thatissupposedtoreturnastringrepresenta-
+tionofanobject.
+Forexample,hereisastrmethodforTimeobjects:
+# inside class Time:
+def __str__(self):
+return '%.2d:%.2d:%.2d' % (self.hour, self.minute, self.second)
+Whenyouprintanobject,Pythoninvokesthestrmethod:
+>>> time = Time(9, 45)
+>>> print(time)
+09:45:00
+WhenIwriteanewclass,Ialmostalwaysstartbywriting__init__,whichmakesiteasier
+toinstantiateobjects,and__str__,whichisusefulfordebugging.
+Asanexercise,writeastrmethodforthePointclass. CreateaPointobjectandprintit.
+17.7 Operator overloading
+By defining other special methods, you can specify the behavior of operators on
+programmer-defined types. For example, if you define a method named __add__ for the
+Timeclass,youcanusethe+operatoronTimeobjects.
+Hereiswhatthedefinitionmightlooklike:
+
+166 Chapter17. Classesandmethods
+# inside class Time:
+def __add__(self, other):
+seconds = self.time_to_int() + other.time_to_int()
+return int_to_time(seconds)
+Andhereishowyoucoulduseit:
+>>> start = Time(9, 45)
+>>> duration = Time(1, 35)
+>>> print(start + duration)
+11:20:00
+Whenyouapplythe+operatortoTimeobjects,Pythoninvokes__add__. Whenyouprint
+theresult,Pythoninvokes__str__. Sothereisalothappeningbehindthescenes!
+Changingthebehaviorofanoperatorsothatitworkswithprogrammer-definedtypesis
+called operator overloading. For every operator in Python there is a corresponding spe-
+cialmethod,like__add__. Formoredetails,seehttp://docs.python.org/3/reference/
+datamodel.html#specialnames.
+Asanexercise,writeanaddmethodforthePointclass.
+17.8 Type-based dispatch
+In the previous section we added two Time objects, but you also might want to add an
+integer to a Time object. The following is a version of __add__ that checks the type of
+otherandinvokeseitheradd_timeorincrement:
+# inside class Time:
+def __add__(self, other):
+if isinstance(other, Time):
+return self.add_time(other)
+else:
+return self.increment(other)
+def add_time(self, other):
+seconds = self.time_to_int() + other.time_to_int()
+return int_to_time(seconds)
+def increment(self, seconds):
+seconds += self.time_to_int()
+return int_to_time(seconds)
+Thebuilt-infunctionisinstancetakesavalueandaclassobject, andreturns Trueifthe
+valueisaninstanceoftheclass.
+IfotherisaTimeobject,__add__invokesadd_time. Otherwiseitassumesthattheparam-
+eter is a number and invokes increment. This operation is called a type-based dispatch
+becauseitdispatchesthecomputationtodifferentmethodsbasedonthetypeoftheargu-
+ments.
+Hereareexamplesthatusethe+operatorwithdifferenttypes:
+
+17.9. Polymorphism 167
+>>> start = Time(9, 45)
+>>> duration = Time(1, 35)
+>>> print(start + duration)
+11:20:00
+>>> print(start + 1337)
+10:07:17
+Unfortunately, this implementation of addition is not commutative. If the integer is the
+firstoperand,youget
+>>> print(1337 + start)
+TypeError: unsupported operand type(s) for +: 'int' and 'instance'
+The problem is, instead of asking the Time object to add an integer, Python is asking an
+integertoaddaTimeobject,anditdoesn’tknowhow. Butthereisacleversolutionforthis
+problem: the special method __radd__, which stands for “right-side add”. This method
+is invoked when a Time object appears on the right side of the + operator. Here’s the
+definition:
+# inside class Time:
+def __radd__(self, other):
+return self.__add__(other)
+Andhere’showit’sused:
+>>> print(1337 + start)
+10:07:17
+As an exercise, write an add method for Points that works with either a Point object or a
+tuple:
+• If the second operand is a Point, the method should return a new Point whose x
+coordinate is the sum of the x coordinates of the operands, and likewise for the y
+coordinates.
+• Ifthesecondoperandisatuple,themethodshouldaddthefirstelementofthetuple
+to the x coordinate and the second element to the y coordinate, and return a new
+Pointwiththeresult.
+17.9 Polymorphism
+Type-baseddispatchisusefulwhenitisnecessary,but(fortunately)itisnotalwaysneces-
+sary. Often you can avoid it by writing functions that work correctly for arguments with
+differenttypes.
+Manyofthefunctionswewroteforstringsalsoworkforothersequencetypes. Forexam-
+ple,inSection11.2weusedhistogramtocountthenumberoftimeseachletterappearsin
+aword.
+def histogram(s):
+d = dict()
+for c in s:
+if c not in d:
+d[c] = 1
+
+168 Chapter17. Classesandmethods
+else:
+d[c] = d[c]+1
+return d
+Thisfunctionalsoworksforlists,tuples,andevendictionaries,aslongastheelementsof
+sarehashable,sotheycanbeusedaskeysind.
+>>> t = ['spam', 'egg', 'spam', 'spam', 'bacon', 'spam']
+>>> histogram(t)
+{'bacon': 1, 'egg': 1, 'spam': 4}
+Functions that work with several types are called polymorphic. Polymorphism can fa-
+cilitate code reuse. For example, the built-in function sum, which adds the elements of a
+sequence,worksaslongastheelementsofthesequencesupportaddition.
+SinceTimeobjectsprovideanaddmethod,theyworkwithsum:
+>>> t1 = Time(7, 43)
+>>> t2 = Time(7, 41)
+>>> t3 = Time(7, 37)
+>>> total = sum([t1, t2, t3])
+>>> print(total)
+23:01:00
+In general, if all of the operations inside a function work with a given type, the function
+workswiththattype.
+Thebestkindofpolymorphismistheunintentionalkind,whereyoudiscoverthatafunc-
+tionyoualreadywrotecanbeappliedtoatypeyouneverplannedfor.
+17.10 Debugging
+It is legal to add attributes to objects at any point in the execution of a program, but if
+youhaveobjectswiththesametypethatdon’thavethesameattributes,itiseasytomake
+mistakes. It is considered a good idea to initialize all of an object’s attributes in the init
+method.
+If you are not sure whether an object has a particular attribute, you can use the built-in
+functionhasattr(seeSection15.7).
+Another way to access attributes is the built-in function vars, which takes an object and
+returnsadictionarythatmapsfromattributenames(asstrings)totheirvalues:
+>>> p = Point(3, 4)
+>>> vars(p)
+{'y': 4, 'x': 3}
+Forpurposesofdebugging,youmightfinditusefultokeepthisfunctionhandy:
+def print_attributes(obj):
+for attr in vars(obj):
+print(attr, getattr(obj, attr))
+print_attributes traverses the dictionary and prints each attribute name and its corre-
+spondingvalue.
+Thebuilt-infunctiongetattrtakesanobjectandanattributename(asastring)andreturns
+theattribute’svalue.
+
+17.11. Interfaceandimplementation 169
+17.11 Interface and implementation
+One of the goals of object-oriented design is to make software more maintainable, which
+meansthatyoucankeeptheprogramworkingwhenotherpartsofthesystemchange,and
+modifytheprogramtomeetnewrequirements.
+A design principle that helps achieve that goal is to keep interfaces separate from imple-
+mentations. Forobjects,thatmeansthatthemethodsaclassprovidesshouldnotdepend
+onhowtheattributesarerepresented.
+Forexample,inthischapterwedevelopedaclassthatrepresentsatimeofday. Methods
+providedbythisclassincludetime_to_int,is_after,andadd_time.
+We could implement those methods in several ways. The details of the implementation
+dependonhowwerepresenttime. Inthischapter,theattributesofaTimeobjectarehour,
+minute,andsecond.
+Asanalternative,wecouldreplacetheseattributeswithasingleintegerrepresentingthe
+numberofsecondssincemidnight. Thisimplementationwouldmakesomemethods,like
+is_after,easiertowrite,butitmakesothermethodsharder.
+Afteryoudeployanewclass,youmightdiscoverabetterimplementation. Ifotherparts
+oftheprogramareusingyourclass,itmightbetime-consuminganderror-pronetochange
+theinterface.
+But if you designed the interface carefully, you can change the implementation without
+changingtheinterface,whichmeansthatotherpartsoftheprogramdon’thavetochange.
+17.12 Glossary
+object-orientedlanguage: A language that provides features, such as programmer-
+definedtypesandmethods,thatfacilitateobject-orientedprogramming.
+object-orientedprogramming: Astyleofprogramminginwhichdataandtheoperations
+thatmanipulateitareorganizedintoclassesandmethods.
+method: Afunctionthatisdefinedinsideaclassdefinitionandisinvokedoninstancesof
+thatclass.
+subject: Theobjectamethodisinvokedon.
+positionalargument: Anargumentthatdoesnotincludeaparametername,soitisnota
+keywordargument.
+operatoroverloading: Changing the behavior of an operator like + so it works with a
+programmer-definedtype.
+type-baseddispatch: Aprogrammingpatternthatchecksthetypeofanoperandandin-
+vokesdifferentfunctionsfordifferenttypes.
+polymorphic: Pertainingtoafunctionthatcanworkwithmorethanonetype.
+
+170 Chapter17. Classesandmethods
+17.13 Exercises
+Exercise17.1. Downloadthecodefromthischapterfromhttps://thinkpython.com/code/
+Time2.py. Change the attributes of Time to be a single integer representing seconds since mid-
+night. Thenmodifythemethods(andthefunctionint_to_time)toworkwiththenewimplemen-
+tation. Youshouldnothavetomodifythetestcodeinmain. Whenyouaredone,theoutputshould
+bethesameasbefore. Solution: https://thinkpython.com/code/Time2_soln.py.
+Exercise 17.2. This exercise is a cautionary tale about one of the most common, and difficult to
+find,errorsinPython. WriteadefinitionforaclassnamedKangaroowiththefollowingmethods:
+1. An__init__methodthatinitializesanattributenamedpouch_contentstoanemptylist.
+2. A method named put_in_pouch that takes an object of any type and adds it to
+pouch_contents.
+3. A__str__methodthatreturnsastringrepresentationoftheKangarooobjectandthecon-
+tentsofthepouch.
+Test your code by creating two Kangaroo objects, assigning them to variables named kanga and
+roo,andthenaddingrootothecontentsofkanga’spouch.
+Downloadhttps://thinkpython.com/code/BadKangaroo.py. Itcontainsasolutiontothe
+previousproblemwithonebig,nastybug. Findandfixthebug.
+If you get stuck, you can download https://thinkpython.com/code/GoodKangaroo.py,
+whichexplainstheproblemanddemonstratesasolution.
