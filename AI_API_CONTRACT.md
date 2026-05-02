@@ -1,6 +1,6 @@
 # AI Endpoints — API Contract
 
-> **For:** AK (#3, #4) and James (#6)
+> **For:** James (#3, #4)
 > **Written by:** Josh
 >
 > These are the two endpoints I'm building that power the test page. Build your frontend against this contract.
@@ -95,7 +95,6 @@ Each result in `results[]` has a `state` field — use this to drive UI colours 
 | `"Mastered"` | Purple | Full marks + generalised beyond the prompt |
 | `"Pass"` | Green | Correct with justification |
 | `"Partial"` | Yellow | Correct answer, gaps in reasoning |
-| `"Incomplete"` | Orange | Partially correct |
 | `"Incorrect"` | Red | Wrong or blank |
 
 ---
@@ -112,7 +111,7 @@ Each result in `results[]` has a `state` field — use this to drive UI colours 
 | `bandShifted` | bool | `true` if the student levelled up |
 | `oldCum` / `newCum` | int | Cumulative XP before/after |
 
-The existing `showXPModal()` function in `app.js` already accepts this shape — reuse it.
+Build an `XPModal` React component that accepts this shape. Reference the existing `showXPModal()` in `public/app.js` for the display logic (band names, progress bars, tier labels) but reimplement it as a React component.
 
 ---
 

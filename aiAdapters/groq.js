@@ -15,6 +15,7 @@ async function generate(prompt, options = {}) {
       messages: [{ role: 'user', content: prompt }],
       ...(options.temperature !== undefined && { temperature: options.temperature }),
       ...(options.maxTokens !== undefined && { max_tokens: options.maxTokens }),
+      ...(options.json && { response_format: { type: 'json_object' } }),
     });
     return completion.choices[0].message.content;
   } catch (err) {
