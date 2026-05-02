@@ -8,12 +8,17 @@ class ResendAdapter {
   }
 
   async sendEmail({ to, subject, text }) {
-    await this.client.emails.send({
+    const { data, error } = await this.client.emails.send({
       from: this.from,
       to,
       subject,
       text,
     });
+    if (error) {
+      console.error('[resend] send failed:', JSON.stringify(error));
+      throw new Error(`Resend error: ${error.message || JSON.stringify(error)}`);
+    }
+    console.log(`[resend] sent to ${to} (id: ${data?.id})`);
   }
 }
 
